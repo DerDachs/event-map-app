@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "646928335818",
+    "firebase_url": "https://event-map-app-aab7b-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "event-map-app-aab7b",
+    "storage_bucket": "event-map-app-aab7b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646928335818:android:7e3d115a399f3570698533",
+        "android_client_info": {
+          "package_name": "com.tdwdevelopments.eventmap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBtjnAebpnMWEnylAbTxJLQz59qSoIHso"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

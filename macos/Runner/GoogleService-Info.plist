@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBksbp_Xw96C3VZqtK1fNlgmuUxzHQVskQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>646928335818</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.eventMapApp</string>
+	<key>PROJECT_ID</key>
+	<string>event-map-app-aab7b</string>
+	<key>STORAGE_BUCKET</key>
+	<string>event-map-app-aab7b.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:646928335818:ios:0fff741e6c065d5e698533</string>
+	<key>DATABASE_URL</key>
+	<string>https://event-map-app-aab7b-default-rtdb.europe-west1.firebasedatabase.app</string>
+</dict>
+</plist>
