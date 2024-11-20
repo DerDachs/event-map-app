@@ -11,26 +11,16 @@ class AvatarPicker extends StatefulWidget {
 
 class _AvatarPickerState extends State<AvatarPicker> {
   final List<String> avatars = [
-    'assets/avatars/avatar_1.jpg',
-    'assets/avatars/avatar_2.jpg',
-    'assets/avatars/avatar_3.jpg',
-    'assets/avatars/avatar_4.jpg',
-    'assets/avatars/avatar_5.jpg',
-    'assets/avatars/avatar_6.jpg',
-    'assets/avatars/avatar_7.jpg',
-    'assets/avatars/avatar_8.jpg',
-    'assets/avatars/avatar_9.jpg',
-    'assets/avatars/avatar_10.jpg',
-    'assets/avatars/avatar_11.jpg',
-    'assets/avatars/avatar_12.jpg',
-    'assets/avatars/avatar_13.jpg',
-    'assets/avatars/avatar_14.jpg',
-    'assets/avatars/avatar_15.jpg',
-    'assets/avatars/avatar_16.jpg',
-    'assets/avatars/avatar_17.jpg',
-    'assets/avatars/avatar_18.jpg',
-    'assets/avatars/avatar_19.jpg',
-    'assets/avatars/avatar_20.jpg',
+    'assets/avatars/avatar_1.png',
+    'assets/avatars/avatar_2.png',
+    'assets/avatars/avatar_3.png',
+    'assets/avatars/avatar_4.png',
+    'assets/avatars/avatar_5.png',
+    'assets/avatars/avatar_6.png',
+    'assets/avatars/avatar_7.png',
+    'assets/avatars/avatar_8.png',
+    'assets/avatars/avatar_9.png',
+    'assets/avatars/avatar_10.png',
     // Add paths to your avatar images
   ];
 
