@@ -1,7 +1,8 @@
 pool:
   name: Azure Pipelines
-  demands: xcode
   vmImage: macos-latest
+  demands: xcode
+  
 
 steps:
 - task: JavaToolInstaller@1
