@@ -41,7 +41,7 @@ jobs:
     inputs:
       target: 'ios'
       projectDirectory: '.'
-      buildFlavour: 'staging'
+      buildFlavour: 'Staging'
       buildNumber: '$(Build.BuildNumber)'
       entryPoint: 'lib/main.dart'
       iosCodesign: false
