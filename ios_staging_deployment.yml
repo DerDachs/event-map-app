@@ -1,7 +1,7 @@
 jobs:
 - job: iOSDeployment
   pool:
-    vmImage: macOS-latest
+    vmImage: 'macOS-latest'
   steps:
   - task: JavaToolInstaller@1
     displayName: 'Use Java 11'
