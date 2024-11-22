@@ -1,80 +1,78 @@
 jobs:
-  - job: iOSDeployment
-    pool:
-      vmImage: macOS-latest
-      name: Azure Pipelines
-      demands: xcode
-    steps:
-    - task: JavaToolInstaller@1
-      displayName: 'Use Java 11'
-      inputs:
-        versionSpec: '11'
-        jdkArchitectureOption: 'x64'
-        jdkSourceOption: 'PreInstalled'
+- job: iOSDeployment
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - task: JavaToolInstaller@1
+    displayName: 'Use Java 11'
+    inputs:
+      versionSpec: '11'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
 
-    - task: InstallAppleCertificate@2
-      displayName: 'Install P12 Certificate'
-      inputs:
-        certSecureFile: 'Timo Dachs-Wegmann.p12'
-        certPwd: 'HcIx3X3Y'
-        keychain: 'temp'
+  - task: InstallAppleCertificate@2
+    displayName: 'Install P12 Certificate'
+    inputs:
+      certSecureFile: 'Timo Dachs-Wegmann.p12'
+      certPwd: 'HcIx3X3Y'
+      keychain: 'temp'
     
-    - task: InstallAppleProvisioningProfile@1
-      displayName: 'Install provisioning profile'
-      inputs:
-        provisioningProfileLocation: 'secureFiles'
-        provProfileSecureFile: 'Market_mateazureprovisioning.mobileprovision'
+  - task: InstallAppleProvisioningProfile@1
+    displayName: 'Install provisioning profile'
+    inputs:
+      provisioningProfileLocation: 'secureFiles'
+      provProfileSecureFile: 'Market_mateazureprovisioning.mobileprovision'
 
-    - task: FlutterInstall@0
-      displayName: 'Flutter Install'
-      inputs:
-        mode: 'auto'
-        channel: 'stable'
-        version: 'custom'
-        customVersion: '3.24.5'
+  - task: FlutterInstall@0
+    displayName: 'Flutter Install'
+    inputs:
+      mode: 'auto'
+      channel: 'stable'
+      version: 'custom'
+      customVersion: '3.24.5'
 
-    - task: FlutterCommand@0
-      displayName: 'Flutter Clean'
-      inputs:
-        projectDirectory: '.'
-        arguments: 'clean'
+  - task: FlutterCommand@0
+    displayName: 'Flutter Clean'
+    inputs:
+      projectDirectory: '.'
+      arguments: 'clean'
 
-    - task: FlutterBuild@0
-      inputs:
-        target: 'ios'
-        projectDirectory: '.'
-        buildFlavour: 'staging'
-        buildNumber: '$(Build.BuildNumber)'
-        entryPoint: 'lib/main.dart'
-        iosCodesign: false
+  - task: FlutterBuild@0
+    inputs:
+      target: 'ios'
+      projectDirectory: '.'
+      buildFlavour: 'staging'
+      buildNumber: '$(Build.BuildNumber)'
+      entryPoint: 'lib/main.dart'
+      iosCodesign: false
 
-    - task: Xcode@5
-      displayName: 'Xcode build staging'
-      inputs:
-        actions: 'build'
-        configuration: '$Configuration'
-        sdk: $SDK
-        xcWorkspacePath: '**/*.xcodeproj/Runner.xcworkspace'
-        scheme: 'Staging'
-        packageApp: true
-        archivePath: ./build/ios/iphoneos/Runner.xcarchive
-        exportPath: ./build/ios/iphoneos/Runner.ipa
-        exportOptions: plist
-        exportOptionsPlist: ./ios/ExportOptions.plist
-        signingOption: 'manual'
-        signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
-        provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
+  - task: Xcode@5
+    displayName: 'Xcode build staging'
+    inputs:
+      actions: 'build'
+      configuration: '$Configuration'
+      sdk: $SDK
+      xcWorkspacePath: '**/*.xcodeproj/Runner.xcworkspace'
+      scheme: 'Staging'
+      packageApp: true
+      archivePath: ./build/ios/iphoneos/Runner.xcarchive
+      exportPath: ./build/ios/iphoneos/Runner.ipa
+      exportOptions: plist
+      exportOptionsPlist: ./ios/ExportOptions.plist
+      signingOption: 'manual'
+      signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
+      provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
 
-    - task: CopyFiles@2
-      displayName: 'Copy Files'
-      inputs:
-        SourceFolder: '.'
-        Contents: '**/*.ipa'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  - task: CopyFiles@2
+    displayName: 'Copy Files'
+    inputs:
+      SourceFolder: '.'
+      Contents: '**/*.ipa'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Staging Artifact'
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'ios ipa'
-        publishLocation: 'Container'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Staging Artifact'
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'ios ipa'
+      publishLocation: 'Container'
