@@ -1,7 +1,7 @@
 jobs:
   - job: iOSDeployment
     pool:
-      vmImage: 'macOS-latest'
+      vmImage: macOS-latest
       name: Azure Pipelines
       demands: xcode
     steps:
