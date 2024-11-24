@@ -30,7 +30,10 @@ jobs:
       channel: 'stable'
       version: 'custom'
       customVersion: '3.24.5'
-
+  - task: CocoaPods@0
+    inputs:
+      workingDirectory: '.'
+      forceRepoUpdate: false
   - task: FlutterCommand@0
     displayName: 'Flutter Clean'
     inputs:
