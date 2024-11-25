@@ -61,7 +61,14 @@ jobs:
       buildNumber: '$(Build.BuildNumber)'
       entryPoint: 'lib/main.dart'
       iosCodesign: false
-
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+        # Write your commands here
+        
+        echo $(APPLE_CERTIFICATE_SIGNING_IDENTITY)
+        echo $(APPLE_PROV_PROFILE_UUID)
   - task: Xcode@5
     displayName: 'Xcode build staging'
     inputs:
