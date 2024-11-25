@@ -68,7 +68,7 @@ jobs:
       actions: 'build'
       configuration: '$Configuration'
       sdk: $SDK
-      xcWorkspacePath: '**/*.xcodeproj/Runner.xcworkspace'
+      xcWorkspacePath: './ios/Runner.xcworkspace'
       scheme: 'Staging'
       packageApp: true
       archivePath: ./build/ios/iphoneos/Runner.xcarchive
