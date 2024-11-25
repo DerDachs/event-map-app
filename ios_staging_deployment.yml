@@ -84,6 +84,8 @@ jobs:
       signingOption: 'manual'
       signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
       provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
+      provisioningProfileName: '$(APPLE_PROV_PROFILE_UUID)'
+      configuration: 'Staging'
 
   - task: CopyFiles@2
     displayName: 'Copy Files'
