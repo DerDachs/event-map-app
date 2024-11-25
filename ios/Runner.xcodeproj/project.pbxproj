@@ -584,7 +584,7 @@
 		};
 		97C147041CF9000F007C117D /* Release (staging) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A5DB9E7C2CEDCE0C00D48913 /* Staging.xcconfig */;
+			baseConfigurationReference = 9740EEB31CF90195004384FC /* Generated.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -664,7 +664,7 @@
 		};
 		A5DB9E6C2CEDCA4C00D48913 /* Debug (staging) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A5DB9E7C2CEDCE0C00D48913 /* Staging.xcconfig */;
+			baseConfigurationReference = 9740EEB31CF90195004384FC /* Generated.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
