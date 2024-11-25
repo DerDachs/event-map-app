@@ -66,8 +66,7 @@ jobs:
     displayName: 'Xcode build staging'
     inputs:
       actions: 'build'
-      configuration: '$Configuration'
-      sdk: $SDK
+      sdk: 'iphoneos'
       xcWorkspacePath: './ios/Runner.xcworkspace'
       scheme: 'Staging'
       packageApp: true
