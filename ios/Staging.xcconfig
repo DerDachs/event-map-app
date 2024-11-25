@@ -1,3 +1,5 @@
+#include? "../Pods/Pods-Runner.debug (staging).xcconfig"
+#include? "../Pods/Pods-Runner.release (staging).xcconfig"
 // This is a generated file; do not edit or check into version control.
 FLUTTER_ROOT=/Library/Flutter/flutter
 FLUTTER_APPLICATION_PATH=/Users/tdachs-wegma/Documents/workspace/event_map_app
