@@ -81,7 +81,7 @@ jobs:
       exportPath: ./build/ios/iphoneos/Runner.ipa
       exportOptions: plist
       exportOptionsPlist: ./ios/ExportOptions.plist
-      signingOption: 'default'
+      signingOption: 'manual'
       signingIdentity: '"$(APPLE_CERTIFICATE_SIGNING_IDENTITY)"'
       provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
 
