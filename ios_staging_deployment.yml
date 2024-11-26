@@ -84,7 +84,6 @@ jobs:
       signingOption: 'default'
       signingIdentity: '"$(APPLE_CERTIFICATE_SIGNING_IDENTITY)"'
       provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
-      configuration: 'Generated'
 
   - task: CopyFiles@2
     displayName: 'Copy Files'
