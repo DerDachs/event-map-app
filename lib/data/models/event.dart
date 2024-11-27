@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:market_mates/data/models/stand.dart';
 
 import 'eventImage.dart';
 
@@ -12,6 +11,7 @@ class Event {
   final DateTime endTime;
   final double latitude; // Location of the event
   final double longitude;
+  final List<String> teamIds;
   final List<EventImage> images;
   final List<String> stands;
 
@@ -24,6 +24,7 @@ class Event {
     required this.images,
     required this.latitude,
     required this.longitude,
+    required this.teamIds,
     required this.stands,
   });
 
@@ -41,6 +42,7 @@ class Event {
           .toList(),
       latitude: data['latitude'],
       longitude: data['longitude'],
+      teamIds: List<String>.from(data['teamIds'] ?? []),
       stands: List<String>.from(data['stands'] ?? []),
     );
   }
