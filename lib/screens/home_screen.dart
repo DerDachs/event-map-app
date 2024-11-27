@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/state_provider.dart';
-import 'event_screen.dart';
+import '../features/events/screens/event_screen.dart';
 import 'layout/base_layout.dart';
 import 'settings_screen.dart';// Import the provider
 
