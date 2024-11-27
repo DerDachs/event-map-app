@@ -1,151 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-//import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:market_mates/data/models/event.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../data/models/event.dart';
 import '../providers/event_provider.dart';
+import 'package:intl/intl.dart';
 
-class EventScreen extends ConsumerWidget {
+class EventScreen extends ConsumerStatefulWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _EventScreenState createState() => _EventScreenState();
+}
+
+class _EventScreenState extends ConsumerState<EventScreen> {
+  late GoogleMapController _mapController;
+  final Set<Marker> _markers = {};
+  LatLng _currentPosition = LatLng(48.896141, 9.191327); // Default position
+
+  @override
+  Widget build(BuildContext context) {
     final eventsAsync = ref.watch(eventsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Events')),
       body: eventsAsync.when(
         data: (events) {
-          if (events.isEmpty) {
-            return Center(child: Text('No events available.'));
-          }
+          // Update markers dynamically
+          _updateMarkers(events);
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Side-Scrolling Cards for Upcoming Events
-                SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: events.length,
-                    itemBuilder: (context, index) {
-                      final event = events[index];
-                      final standardImage = event.images.firstWhere(
-                            (img) => img.isStandard,
-                        orElse: () => event.images.first,
-                      );
-
-                      return Card(
-                        margin: EdgeInsets.all(8.0),
-                        child: Container(
-                          width: 250,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Event Image
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                                  child: Image.network(
-                                    standardImage.url,
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                  ),
-                                ),
-                              ),
-                              // Event Details
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      event.name,
-                                      style: Theme.of(context).textTheme.headlineSmall,
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      event.description,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      '${event.startTime.toLocal()} - ${event.endTime.toLocal()}',
-                                      style: Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+          return Column(
+            children: [
+              // Map View
+              Expanded(
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: _currentPosition,
+                    zoom: 14.0,
                   ),
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  zoomControlsEnabled: true,
+                  markers: _markers,
+                  onCameraMove: (CameraPosition position) {
+                    _currentPosition = position.target;
+                  },
+                  onCameraIdle: () {
+                    // When user stops dragging, fetch nearby events (optional future feature)
+                    // _fetchEventsAround(_currentPosition);
+                  },
+                  onMapCreated: (GoogleMapController controller) {
+                    _mapController = controller;
+                  },
                 ),
-                Divider(),
+              ),
+              Divider(),
 
-                // Map Feature with Mapbox
-                //Container(
-                //  height: 300,
-                //  child: MapboxMap(
-                //    accessToken: 'sk.eyJ1IjoiZGFjaHN3ZSIsImEiOiJjbTN5bGo5aDkxbXc3MmlzY2hkMTRhOHI0In0.YgM1wFAMzbskDgYfjWKdTw', // Replace with your token
-                //    onMapCreated: (MapboxMapController controller) {
-                //      // Add markers when the map is created
-                //      for (var event in events) {
-                //        controller.addSymbol(SymbolOptions(
-                //          geometry: LatLng(
-                //            event.latitude,
-                //            event.longitude,
-                //          ),
-                //          iconImage: "marker-15", // Default Mapbox marker icon
-                //          iconSize: 2.0,
-                //          textField: event.name,
-                //          textOffset: Offset(0, 1.5),
-                //        ));
-                //      }
-                //    },
-                //    initialCameraPosition: CameraPosition(
-                //      target: LatLng(37.7749, -122.4194), // Replace with dynamic user location
-                //      zoom: 12.0,
-                //    ),
-                //  ),
-                //),
-                Divider(),
-
-                // List of Events
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'All Events',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
+              // List of Events
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'All Events',
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+              ),
+              Expanded(
+                child: ListView.builder(
                   itemCount: events.length,
                   itemBuilder: (context, index) {
                     final event = events[index];
-
                     return ListTile(
                       title: Text(event.name),
-                      subtitle: Text('${event.startTime.toLocal()} - ${event.endTime.toLocal()}'),
+                      subtitle: Text(
+                        '${DateFormat("yyyy-MM-dd").format(event.startTime)} - ${DateFormat("yyyy-MM-dd").format(event.endTime)}',
+                      ),
                       trailing: Icon(Icons.arrow_forward),
                       onTap: () {
-                        // Navigate to Event Detail Page (future implementation)
+                        // Optional: Center map on marker
+                        _mapController.animateCamera(
+                          CameraUpdate.newLatLng(
+                            LatLng(event.latitude, event.longitude),
+                          ),
+                        );
                       },
                     );
                   },
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
         loading: () => Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error loading events: $error')),
+        error: (error, stack) =>
+            Center(child: Text('Error loading events: $error')),
       ),
     );
+  }
+
+  void _updateMarkers(List<Event> events) {
+    setState(() {
+      _markers.clear();
+      for (final event in events) {
+        _markers.add(
+          Marker(
+            markerId: MarkerId(event.id.toString()),
+            position: LatLng(event.latitude, event.longitude),
+            infoWindow: InfoWindow(
+              title: event.name,
+              snippet: event.description,
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          ),
+        );
+      }
+    });
   }
 }
