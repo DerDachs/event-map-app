@@ -5,7 +5,9 @@ import 'package:market_mates/utils/authentication_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'data/models/event.dart';
 import 'features/auth/screens/login_screen.dart';
+import 'features/events/screens/event_detail_screen.dart';
 
 
 void main() async {
@@ -26,6 +28,9 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/profile': (context) => ProfileScreen(),
         '/settings': (context) => SettingsScreen(),
+        '/event-details': (context) => EventDetailsScreen(
+          event: ModalRoute.of(context)!.settings.arguments as Event,
+        ),
       },
     );
   }

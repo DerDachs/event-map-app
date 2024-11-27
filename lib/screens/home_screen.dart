@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:market_mates/screens/discover_screen.dart';
+import 'package:market_mates/screens/social_hub_screen.dart';
 import '../providers/state_provider.dart';
 import '../features/events/screens/event_screen.dart';
 import 'layout/base_layout.dart';
-import 'settings_screen.dart';// Import the provider
 
 class HomeScreen extends ConsumerWidget {
   @override
@@ -13,9 +14,9 @@ class HomeScreen extends ConsumerWidget {
 
     // List of screens for the BottomNavigationBar
     final screens = [
-      Center(child: Text("Home Screen Content")),
       EventScreen(),
-      SettingsScreen(),
+      DiscoverScreen(),
+      SocialHubScreen()
     ];
 
     return BaseLayout(
@@ -23,8 +24,8 @@ class HomeScreen extends ConsumerWidget {
       title: currentIndex == 0
           ? "Home"
           : currentIndex == 1
-          ? "Events"
-          : "Settings",
+          ? "Discover"
+          : "Social Hub",
     );
   }
 }

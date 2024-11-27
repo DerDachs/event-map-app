@@ -1,60 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-//import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../data/models/event.dart';
-import '../../../data/models/stand.dart';
-import '../../stands/providers/stand_provider.dart';
-import '../providers/event_provider.dart';
 
-class EventDetailsScreen extends ConsumerWidget {
+class EventDetailsScreen extends StatelessWidget {
   final Event event;
 
-  const EventDetailsScreen({required this.event});
+  const EventDetailsScreen({Key? key, required this.event}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final standsAsync = ref.watch(standsProvider(event.stands));
-
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(event.name)),
-      body: standsAsync.when(
-        data: (stands) {
-          return Column(
-            children: [
-              //Container(
-              //  height: 300,
-              //  child: MapboxMap(
-              //    accessToken: 'YOUR_MAPBOX_ACCESS_TOKEN',
-              //    initialCameraPosition: CameraPosition(
-              //      target: LatLng(event.latitude, event.longitude),
-              //      zoom: 14,
-              //    ),
-              //    onMapCreated: (controller) {
-              //      for (final stand in stands) {
-              //        controller.addSymbol(SymbolOptions(
-              //          geometry: LatLng(stand.latitude, stand.longitude),
-              //          iconImage: "marker-15",
-              //          textField: stand.name,
-              //        ));
-              //      }
-              //    },
-              //  ),
-              //),
-              Expanded(
-                child: ListView(
-                  children: stands.map((stand) {
-                    return ListTile(
-                      title: Text(stand.name),
-                      subtitle: Text(stand.description),
-                    );
-                  }).toList(),
+      appBar: AppBar(
+        title: Text(event.name),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Map Section
+            Container(
+              height: 300,
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(event.latitude, event.longitude),
+                  zoom: 16.0,
                 ),
+                zoomControlsEnabled: true,
+                markers: {
+                  Marker(
+                    markerId: MarkerId(event.id),
+                    position: LatLng(event.latitude, event.longitude),
+                    infoWindow: InfoWindow(title: event.name),
+                  ),
+                },
+                scrollGesturesEnabled: false, // Disable scrolling
+                rotateGesturesEnabled: false, // Disable rotation
+                tiltGesturesEnabled: false, // Disable tilting
+                zoomGesturesEnabled: true, // Allow zooming
+                myLocationButtonEnabled: false,
+                myLocationEnabled: true,
               ),
-            ],
-          );
-        },
-        loading: () => Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error loading stands: $error')),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.description,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  SizedBox(height: 20),
+                  Text('Teams:', style: Theme.of(context).textTheme.headlineSmall),
+                  // Placeholder for teams or dynamic integration
+                  Text('Team functionality to be integrated'),
+                  Divider(),
+                  Text('Stands:', style: Theme.of(context).textTheme.headlineSmall),
+                  // Placeholder for stands
+                  Text('Stands functionality to be integrated'),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

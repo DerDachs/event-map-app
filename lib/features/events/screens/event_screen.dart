@@ -1,114 +1,140 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../../data/models/event.dart';
 import '../providers/event_provider.dart';
-import 'package:intl/intl.dart';
+import 'event_detail_screen.dart';
 
-class EventScreen extends ConsumerStatefulWidget {
+class EventScreen extends ConsumerWidget {
   @override
-  _EventScreenState createState() => _EventScreenState();
-}
-
-class _EventScreenState extends ConsumerState<EventScreen> {
-  late GoogleMapController _mapController;
-  final Set<Marker> _markers = {};
-  LatLng _currentPosition = LatLng(48.896141, 9.191327); // Default position
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final eventsAsync = ref.watch(eventsProvider);
 
     return Scaffold(
       body: eventsAsync.when(
         data: (events) {
-          // Update markers dynamically
-          _updateMarkers(events);
+          // Split events into categories for display
+          final generalEvents = events.take(5).toList(); // Example logic
+          final personalizedEvents = events.skip(5).take(3).toList(); // Example logic
+          final favoriteEvents = events.take(3).toList(); // Example favorites
 
-          return Column(
-            children: [
-              // Map View
-              Expanded(
-                child: GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: _currentPosition,
-                    zoom: 14.0,
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // General Events Section
+                  _buildEventSection(
+                    context,
+                    title: 'General Events',
+                    events: generalEvents,
                   ),
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  zoomControlsEnabled: true,
-                  markers: _markers,
-                  onCameraMove: (CameraPosition position) {
-                    _currentPosition = position.target;
-                  },
-                  onCameraIdle: () {
-                    // When user stops dragging, fetch nearby events (optional future feature)
-                    // _fetchEventsAround(_currentPosition);
-                  },
-                  onMapCreated: (GoogleMapController controller) {
-                    _mapController = controller;
-                  },
-                ),
-              ),
-              Divider(),
+                  SizedBox(height: 20),
 
-              // List of Events
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'All Events',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
+                  // Personalized Events Section
+                  _buildEventSection(
+                    context,
+                    title: 'For You',
+                    events: personalizedEvents,
+                  ),
+                  SizedBox(height: 20),
+
+                  // Favorite Events Section
+                  _buildEventSection(
+                    context,
+                    title: 'Favorites',
+                    events: favoriteEvents,
+                  ),
+                ],
               ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: events.length,
-                  itemBuilder: (context, index) {
-                    final event = events[index];
-                    return ListTile(
-                      title: Text(event.name),
-                      subtitle: Text(
-                        '${DateFormat("yyyy-MM-dd").format(event.startTime)} - ${DateFormat("yyyy-MM-dd").format(event.endTime)}',
-                      ),
-                      trailing: Icon(Icons.arrow_forward),
-                      onTap: () {
-                        // Optional: Center map on marker
-                        _mapController.animateCamera(
-                          CameraUpdate.newLatLng(
-                            LatLng(event.latitude, event.longitude),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
+            ),
           );
         },
         loading: () => Center(child: CircularProgressIndicator()),
-        error: (error, stack) =>
-            Center(child: Text('Error loading events: $error')),
+        error: (error, stack) => Center(child: Text('Error loading events: $error')),
       ),
     );
   }
 
-  void _updateMarkers(List<Event> events) {
-    setState(() {
-      _markers.clear();
-      for (final event in events) {
-        _markers.add(
-          Marker(
-            markerId: MarkerId(event.id.toString()),
-            position: LatLng(event.latitude, event.longitude),
-            infoWindow: InfoWindow(
-              title: event.name,
-              snippet: event.description,
-            ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+  Widget _buildEventSection(
+      BuildContext context, {
+        required String title,
+        required List events,
+      }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        SizedBox(height: 10),
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              final event = events[index];
+              return _buildEventCard(context, event);
+            },
           ),
-        );
-      }
-    });
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEventCard(BuildContext context, event) {
+    return Card(
+      margin: const EdgeInsets.all(8.0),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EventDetailsScreen(event: event),
+            ),
+          );
+        },
+        child: Container(
+          width: 250,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Event Image
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                  child: Image.network(
+                    event.images.first.url,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  ),
+                ),
+              ),
+              // Event Details
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.name,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      event.description,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

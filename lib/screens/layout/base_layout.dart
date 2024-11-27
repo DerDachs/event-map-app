@@ -60,9 +60,9 @@ class BaseLayout extends ConsumerWidget {
           ref.read(bottomNavIndexProvider.notifier).state = index;
         },
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.event), label: "Events"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+          BottomNavigationBarItem(icon: Icon(Icons.event), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Discover"),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Social Hub"),
         ],
       ),
     );
