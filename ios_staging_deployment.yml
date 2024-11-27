@@ -61,14 +61,20 @@ jobs:
       buildNumber: '$(Build.BuildNumber)'
       entryPoint: 'lib/main.dart'
       iosCodesign: false
-
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+        # Write your commands here
+        
+        echo $APPLE_CERTIFICATE_SIGNING_IDENTITY
+        echo $APPLE_PROV_PROFILE_UUID
   - task: Xcode@5
     displayName: 'Xcode build staging'
     inputs:
       actions: 'build'
-      configuration: '$Configuration'
-      sdk: $SDK
-      xcWorkspacePath: '**/*.xcodeproj/Runner.xcworkspace'
+      sdk: 'iphoneos'
+      xcWorkspacePath: './ios/Runner.xcworkspace'
       scheme: 'Staging'
       packageApp: true
       archivePath: ./build/ios/iphoneos/Runner.xcarchive
@@ -76,7 +82,7 @@ jobs:
       exportOptions: plist
       exportOptionsPlist: ./ios/ExportOptions.plist
       signingOption: 'manual'
-      signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
+      signingIdentity: '"$(APPLE_CERTIFICATE_SIGNING_IDENTITY)"'
       provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
 
   - task: CopyFiles@2
