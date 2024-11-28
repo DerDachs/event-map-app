@@ -10,3 +10,4 @@ final eventsProvider = FutureProvider<List<Event>>((ref) async {
   final service = ref.read(eventServiceProvider);
   return await service.fetchEvents();
 });
+

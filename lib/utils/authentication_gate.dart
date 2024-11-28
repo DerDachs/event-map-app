@@ -30,7 +30,7 @@ class _AuthenticationGateState extends ConsumerState<AuthenticationGate> {
           });
         }).catchError((e) {
           setState(() {
-            hasLoadedProfile = true; // Avoid infinite loading in case of errors
+            hasLoadedProfile = false; // Avoid infinite loading in case of errors
           });
         });
       } else {
@@ -46,17 +46,12 @@ class _AuthenticationGateState extends ConsumerState<AuthenticationGate> {
     final authState = ref.watch(authStateProvider);
     final userProfileState = ref.watch(userProfileProvider);
 
-    if (!hasLoadedProfile) {
-      // Show loading indicator while profile is loading
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
     return authState.when(
       data: (user) {
         if (user != null) {
           return userProfileState.when(
             data: (profile) {
-              if (profile == null || profile.name == null || profile.profilePicture == null) {
+              if (hasLoadedProfile == false || profile == null || profile.name == null || profile.profilePicture == null) {
                 return ProfileInitializationScreen(uid: user.uid, email: user.email!);
               } else {
                 return HomeScreen();

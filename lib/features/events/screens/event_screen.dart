@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../utils/event_card.dart';
+import '../../favorites/providers/favorite_provider.dart';
 import '../providers/event_provider.dart';
 import 'event_detail_screen.dart';
 
@@ -7,6 +9,8 @@ class EventScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eventsAsync = ref.watch(eventsProvider);
+    final favorites = ref.watch(favoritesProvider);
+    final favoriteEventIds = favorites['events'] ?? []; // Fetch favorite event IDs
 
     return Scaffold(
       body: eventsAsync.when(
@@ -14,7 +18,9 @@ class EventScreen extends ConsumerWidget {
           // Split events into categories for display
           final generalEvents = events.take(5).toList(); // Example logic
           final personalizedEvents = events.skip(5).take(3).toList(); // Example logic
-          final favoriteEvents = events.take(3).toList(); // Example favorites
+          final favoriteEvents = events
+              .where((event) => favoriteEventIds.contains(event.id))
+              .toList(); // Filter events by favorite IDs
 
           return SingleChildScrollView(
             child: Padding(
@@ -38,19 +44,21 @@ class EventScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: 20),
 
-                  // Favorite Events Section
-                  _buildEventSection(
-                    context,
-                    title: 'Favorites',
-                    events: favoriteEvents,
-                  ),
+                  // Favorite Events Section (only if favorites exist)
+                  if (favoriteEvents.isNotEmpty)
+                    _buildEventSection(
+                      context,
+                      title: 'Favorites',
+                      events: favoriteEvents,
+                    ),
                 ],
               ),
             ),
           );
         },
         loading: () => Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error loading events: $error')),
+        error: (error, stack) =>
+            Center(child: Text('Error loading events: $error')),
       ),
     );
   }
@@ -75,7 +83,7 @@ class EventScreen extends ConsumerWidget {
             itemCount: events.length,
             itemBuilder: (context, index) {
               final event = events[index];
-              return _buildEventCard(context, event);
+              return EventCard(event: event);
             },
           ),
         ),

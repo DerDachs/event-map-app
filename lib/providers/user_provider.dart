@@ -37,6 +37,11 @@ class UserProfileNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
   void resetUserProfile() {
     state = const AsyncValue.data(null); // Reset to a null profile
   }
+
+  Future<bool> doesUserProfileExist(String uid) async {
+    bool exists = await _userService.doesUserProfileExist(uid);
+    return exists;
+  }
 }
 
 // Provider for accessing UserProfile state

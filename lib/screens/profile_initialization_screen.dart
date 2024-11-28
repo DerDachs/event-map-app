@@ -116,6 +116,7 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
                     name: nameController.text,
                     age: int.tryParse(ageController.text),
                     profilePicture: selectedAvatar,
+                    role: "user",
                   );
 
                   // Save the profile to Firestore

@@ -1,10 +1,12 @@
 class UserProfile {
   final String uid;
   final String email;
+  final Map<String, dynamic>? favorites;
   final String? name;
   final int? age;
   final String? profilePicture;
   final Map<String, dynamic>? preferences;
+  final String role;
 
   UserProfile({
     required this.uid,
@@ -13,6 +15,8 @@ class UserProfile {
     this.age,
     this.profilePicture,
     this.preferences,
+    this.favorites,
+    required this.role,
   });
 
   // Factory method for creating a UserProfile from Firestore
@@ -24,6 +28,8 @@ class UserProfile {
       age: data['age'],
       profilePicture: data['profilePicture'],
       preferences: data['preferences'],
+      favorites: data['favorites'],
+      role: data['role'],
     );
   }
 
@@ -35,6 +41,8 @@ class UserProfile {
       'age': age,
       'profilePicture': profilePicture,
       'preferences': preferences,
+      'favorites': favorites,
+      'role': role,
     };
   }
 }

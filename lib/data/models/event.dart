@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'eventImage.dart';
-
 
 class Event {
   final String id;
@@ -9,11 +7,12 @@ class Event {
   final String description;
   final DateTime startTime;
   final DateTime endTime;
-  final double latitude; // Location of the event
+  final double latitude; // Center location for the event
   final double longitude;
-  final List<String> teamIds;
+  final String category;
+  final List<String> teamIds; // Team IDs participating
   final List<EventImage> images;
-  final List<String> stands;
+  final List<StandInEvent> stands; // Event-specific stand data
 
   Event({
     required this.id,
@@ -21,29 +20,58 @@ class Event {
     required this.description,
     required this.startTime,
     required this.endTime,
-    required this.images,
     required this.latitude,
     required this.longitude,
+    required this.category,
     required this.teamIds,
+    required this.images,
     required this.stands,
   });
 
-  // Factory to create Event from Firestore document
-  factory Event.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  // From Firestore
+  factory Event.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> doc,
+      SnapshotOptions? options,
+      ) {
+    final data = doc.data()!;
     return Event(
       id: doc.id,
       name: data['name'],
       description: data['description'],
       startTime: (data['start_time'] as Timestamp).toDate(),
       endTime: (data['end_time'] as Timestamp).toDate(),
+      latitude: data['latitude'],
+      longitude: data['longitude'],
+      category: data['category'],
+      teamIds: List<String>.from(data['teamIds']),
       images: (data['images'] as List)
           .map((image) => EventImage.fromMap(image as Map<String, dynamic>))
           .toList(),
-      latitude: data['latitude'],
-      longitude: data['longitude'],
-      teamIds: List<String>.from(data['teamIds'] ?? []),
-      stands: List<String>.from(data['stands'] ?? []),
+      stands: (data['stands'] as List)
+          .map((stand) => StandInEvent.fromFirestore(stand))
+          .toList(),
+    );
+  }
+}
+
+// Event-specific stand data
+class StandInEvent {
+  final String standId; // Reference to the stand
+  final double latitude;
+  final double longitude;
+
+  StandInEvent({
+    required this.standId,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  // From Firestore
+  factory StandInEvent.fromFirestore(Map<String, dynamic> data) {
+    return StandInEvent(
+      standId: data['standId'],
+      latitude: data['location']['latitude'],
+      longitude: data['location']['longitude'],
     );
   }
 }

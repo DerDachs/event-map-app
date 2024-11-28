@@ -5,6 +5,8 @@ import '../../../providers/user_provider.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 import '../../../providers/state_provider.dart';
+import '../../../utils/custom_widgets.dart'; // Utility for reusable components
+import '../../../utils/apple_sign_in_button.dart'; // Apple sign-in button
 
 class LoginScreen extends ConsumerStatefulWidget {
   @override
@@ -38,8 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Center(
                 child: Text(
                   'Welcome Back!',
-                  style: TextStyle(
-                    fontSize: 32,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).primaryColor,
                   ),
@@ -50,13 +51,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    TextFormField(
+                    // Email Input
+                    CustomTextFormField(
                       controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email),
-                        border: OutlineInputBorder(),
-                      ),
+                      label: 'Email',
+                      icon: Icons.email,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -70,13 +69,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       },
                     ),
                     SizedBox(height: 20),
-                    TextFormField(
+
+                    // Password Input
+                    CustomTextFormField(
                       controller: _passwordController,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock),
-                        border: OutlineInputBorder(),
-                      ),
+                      label: 'Password',
+                      icon: Icons.lock,
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -86,13 +84,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       },
                     ),
                     SizedBox(height: 20),
+
+                    // Login Button
                     isLoading
                         ? Center(child: CircularProgressIndicator())
-                        : ElevatedButton(
+                        : CustomElevatedButton(
+                      label: 'Login',
                       onPressed: () async {
                         if (_formKey.currentState?.validate() ?? false) {
                           try {
-                            ref.read(loginLoadingProvider.notifier).state = true;
+                            ref
+                                .read(loginLoadingProvider.notifier)
+                                .state = true;
 
                             // Perform login
                             final user = await authRepository.signInWithEmail(
@@ -101,43 +104,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             );
 
                             // Load user profile
-                            await ref.read(userProfileProvider.notifier).loadUserProfile(user.uid);
+                            await ref
+                                .read(userProfileProvider.notifier)
+                                .loadUserProfile(user.uid);
 
                             // Navigate to home screen
-                            Navigator.pushReplacementNamed(context, '/home');
+                            Navigator.pushReplacementNamed(
+                                context, '/home');
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Error: $e')),
                             );
                           } finally {
-                            ref.read(loginLoadingProvider.notifier).state = false;
+                            ref
+                                .read(loginLoadingProvider.notifier)
+                                .state = false;
                           }
                         }
                       },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 50),
-                        textStyle: TextStyle(fontSize: 18),
-                      ),
-                      child: Text('Login'),
                     ),
                     SizedBox(height: 20),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => RegisterScreen()),
-                        );
-                      },
-                      child: Text('Don’t have an account? Register here'),
+
+                    // Apple Sign-In Button
+                    AppleSignInButton(
+                      onPressed: () => authRepository.handleAppleSignIn(context, ref),
                     ),
-                    TextButton(
+                    SizedBox(height: 20),
+
+                    // Register and Forgot Password Links
+                    CustomTextButton(
+                      label: 'Don’t have an account? Register here',
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => RegisterScreen()),
                         );
                       },
-                      child: Text('Forgot Password?'),
+                    ),
+                    CustomTextButton(
+                      label: 'Forgot Password?',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ForgotPasswordScreen()),
+                        );
+                      },
                     ),
                   ],
                 ),

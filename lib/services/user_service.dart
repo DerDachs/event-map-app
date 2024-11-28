@@ -17,6 +17,18 @@ class UserService {
     }
   }
 
+  Future<bool> doesUserProfileExist(String uid) async {
+    try {
+      final doc = await _firestore.collection('profiles').doc(uid).get();
+      if (doc.exists) {
+        return true;
+      }
+      return false; // Return null if no profile exists
+    } catch (e) {
+      throw Exception('Error fetching user profile: $e');
+    }
+  }
+
   // Create or update a user profile in Firestore
   Future<void> saveUserProfile(UserProfile profile) async {
     try {

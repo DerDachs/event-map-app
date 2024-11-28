@@ -48,6 +48,7 @@ class RegisterScreen extends ConsumerWidget {
                       age: null,
                       profilePicture: null,
                       preferences: null,
+                      role: "user",
                     ),
                   );
 
