@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../utils/event_card.dart';
+import 'event_card.dart';
 import '../../favorites/providers/favorite_provider.dart';
 import '../providers/event_provider.dart';
 import 'event_detail_screen.dart';

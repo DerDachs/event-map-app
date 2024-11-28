@@ -62,4 +62,13 @@ class EventService {
 
     return eventsSnapshot.docs.map((doc) => Event.fromFirestore(doc,null)).toList();
   }
+
+  Future<void> createEvent(Event event) async {
+    try {
+      final docRef = _firestore.collection('events').doc(event.id.isEmpty ? null : event.id);
+      await docRef.set(event.toFirestore());
+    } catch (e) {
+      throw Exception('Failed to create event: $e');
+    }
+  }
 }

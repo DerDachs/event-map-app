@@ -29,7 +29,7 @@ class UserProfile {
       profilePicture: data['profilePicture'],
       preferences: data['preferences'],
       favorites: data['favorites'],
-      role: data['role'],
+      role: data['role'] ?? 'user',
     );
   }
 

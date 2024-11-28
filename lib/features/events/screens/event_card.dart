@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../features/events/screens/event_detail_screen.dart';
-import '../features/favorites/providers/favorite_provider.dart';
-import '../data/models/event.dart';
+import 'package:intl/intl.dart';
+import 'event_detail_screen.dart';
+import '../../favorites/providers/favorite_provider.dart';
+import '../../../data/models/event.dart';
 
 class EventCard extends ConsumerWidget {
   final Event event;
@@ -57,7 +58,7 @@ class EventCard extends ConsumerWidget {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          event.description,
+                          '${DateFormat('MMM dd, yyyy').format(event.startTime)} - ${DateFormat('MMM dd, yyyy').format(event.endTime)}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodySmall,

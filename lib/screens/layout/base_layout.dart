@@ -28,7 +28,7 @@ class BaseLayout extends ConsumerWidget {
                 padding: const EdgeInsets.only(right: 16.0),
                 child: GestureDetector(
                   onTap: () {
-                    _showProfileMenu(context, profile, ref);
+                    _showProfileMenu(context, profile!, ref);
                   },
                   child: CircleAvatar(
                     radius: 20,
@@ -125,6 +125,14 @@ class BaseLayout extends ConsumerWidget {
                   Navigator.pushNamed(context, '/settings');
                 },
               ),
+              if ((profile?.role ?? 'user') == 'admin') // Safeguard null role
+                ListTile(
+                  leading: Icon(Icons.admin_panel_settings),
+                  title: Text('Admin'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/admin-panel');
+                  },
+                ),
               ListTile(
                 leading: Icon(Icons.logout, color: Colors.red),
                 title: Text('Logout', style: TextStyle(color: Colors.red)),

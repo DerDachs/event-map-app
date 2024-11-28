@@ -42,6 +42,10 @@ class UserProfileNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
     bool exists = await _userService.doesUserProfileExist(uid);
     return exists;
   }
+
+  bool isAdmin(UserProfile? userProfile) {
+    return userProfile?.role == 'admin';
+  }
 }
 
 // Provider for accessing UserProfile state

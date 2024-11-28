@@ -47,5 +47,7 @@
 	</array>
 	<key>NSFaceIDUsageDescription</key>
     <string>We use Face ID to authenticate you.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>App needs access to your photos to upload an image.</string>
 </dict>
 </plist>

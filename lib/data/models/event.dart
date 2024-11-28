@@ -38,8 +38,8 @@ class Event {
       id: doc.id,
       name: data['name'],
       description: data['description'],
-      startTime: (data['start_time'] as Timestamp).toDate(),
-      endTime: (data['end_time'] as Timestamp).toDate(),
+      startTime: (data['startTime'] as Timestamp).toDate(),
+      endTime: (data['endTime'] as Timestamp).toDate(),
       latitude: data['latitude'],
       longitude: data['longitude'],
       category: data['category'],
@@ -51,6 +51,22 @@ class Event {
           .map((stand) => StandInEvent.fromFirestore(stand))
           .toList(),
     );
+  }
+
+  // Convert Event to Firestore Map
+  Map<String, dynamic> toFirestore() {
+    return {
+      'name': name,
+      'description': description,
+      'startTime': startTime as Timestamp,
+      'endTime': endTime as Timestamp,
+      'latitude': latitude,
+      'longitude': longitude,
+      'teamIds': teamIds,
+      'images': images.map((image) => image.toFirestore()).toList(),
+      'stands': stands,
+      'category': category,
+    };
   }
 }
 

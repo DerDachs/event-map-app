@@ -21,4 +21,11 @@ class EventImage {
       'isStandard': isStandard,
     };
   }
+  // Convert EventImage to Firestore Map
+  Map<String, dynamic> toFirestore() {
+    return {
+      'url': url,
+      'isStandard': isStandard,
+    };
+  }
 }
