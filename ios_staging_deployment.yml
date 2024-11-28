@@ -21,7 +21,7 @@ jobs:
     displayName: 'Install provisioning profile'
     inputs:
       provisioningProfileLocation: 'secureFiles'
-      provProfileSecureFile: 'Market_mateazureprovisioning.mobileprovision'
+      provProfileSecureFile: 'AzureProvisioning.mobileprovision'
 
   - task: FlutterInstall@0
     displayName: 'Flutter Install'
