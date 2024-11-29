@@ -22,13 +22,14 @@ class EventDetailsScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
+          // TODO: Dates (von wann bis wann)
           // Event Image Carousel
           _buildImageCarousel(event),
           SizedBox(height: 16), // Space between carousel and text
-          Text("Description Placeholder"),
+          Text("Description Placeholder"), // TODO: Details, Veranstalter Öffnungszeiten, Eintritt
           SizedBox(height: 16), // Space between text and map
-
-          // Map Section
+          // TODO: Button zum "Eventbeitritt"
+          // Map Section // TODO: Hier raus, wenn dann nach ganz unten als "Highlevel" overview
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Container(
@@ -53,9 +54,11 @@ class EventDetailsScreen extends ConsumerWidget {
               ),
             ),
           ),
+          //TODO: Unser Tipp als Platzhalter
           SizedBox(height: 16), // Space between map and stands list
+          //TODO: Lange Beschreibung des Events
           Divider(),
-          // Stands Overview
+          // Stands Overview TODO: Keine Stand Overview hier -> erst nach Eventbeitritt
           standsAsync.when(
             data: (stands) => _buildStandList(context, stands),
             loading: () => Center(child: CircularProgressIndicator()),
@@ -130,7 +133,7 @@ class EventDetailsScreen extends ConsumerWidget {
     return GoogleMap(
       initialCameraPosition: CameraPosition(
         target: LatLng(event.latitude, event.longitude),
-        zoom: 15.0,
+        zoom: 30.0,
       ),
       markers: stands.map((stand) {
         return Marker(
@@ -149,7 +152,9 @@ class EventDetailsScreen extends ConsumerWidget {
       zoomGesturesEnabled: true,
       rotateGesturesEnabled: false,
       tiltGesturesEnabled: false,
-      minMaxZoomPreference: MinMaxZoomPreference(13,null),
+      minMaxZoomPreference: MinMaxZoomPreference(16,null),
+      myLocationEnabled: true,
+      myLocationButtonEnabled: true,
     );
   }
 

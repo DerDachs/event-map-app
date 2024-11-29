@@ -13,6 +13,7 @@ class Event {
   final List<String> teamIds; // Team IDs participating
   final List<EventImage> images;
   final List<StandInEvent> stands; // Event-specific stand data
+  final List<String>? participants;
 
   Event({
     required this.id,
@@ -26,6 +27,7 @@ class Event {
     required this.teamIds,
     required this.images,
     required this.stands,
+    this.participants,
   });
 
   // From Firestore
@@ -50,6 +52,7 @@ class Event {
       stands: (data['stands'] as List)
           .map((stand) => StandInEvent.fromFirestore(stand))
           .toList(),
+      participants: List<String>.from(data['participants']),
     );
   }
 
@@ -66,6 +69,7 @@ class Event {
       'images': images.map((image) => image.toFirestore()).toList(),
       'stands': stands,
       'category': category,
+      'participants': participants,
     };
   }
 }

@@ -49,5 +49,11 @@
     <string>We use Face ID to authenticate you.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>App needs access to your photos to upload an image.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need your location to help you find stands on the map.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>We need your location to help you navigate the market.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>We need your location to provide navigation and nearby stand suggestions.</string>
 </dict>
 </plist>
