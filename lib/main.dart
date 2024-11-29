@@ -10,6 +10,7 @@ import 'features/admin/screens/admin_panel_screen.dart';
 import 'features/admin/screens/event_creation_screen.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/events/screens/event_detail_screen.dart';
+import 'features/events/screens/event_joined_screen.dart';
 
 
 void main() async {
@@ -35,6 +36,9 @@ class MyApp extends StatelessWidget {
         ),
         '/admin-panel': (context) => AdminPanelScreen(),
         '/create-event': (context) => CreateEventScreen(),
+        '/event-joined': (context) => EventJoinedScreen(
+          event: ModalRoute.of(context)!.settings.arguments as Event,
+        ),
         //'/manage-stands': (context) => ManageStandsScreen(),
         //'/upload-images': (context) => UploadImagesScreen(),
       },

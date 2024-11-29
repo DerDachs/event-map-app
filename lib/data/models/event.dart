@@ -14,6 +14,11 @@ class Event {
   final List<EventImage> images;
   final List<StandInEvent> stands; // Event-specific stand data
   final List<String>? participants;
+  final List<OpeningHour>? openingHours;
+  final String? organizerName;
+  final String? ticketPrice;
+  final String? eventTip;
+  final String? organizerInfo;
 
   Event({
     required this.id,
@@ -28,6 +33,11 @@ class Event {
     required this.images,
     required this.stands,
     this.participants,
+    this.openingHours,
+    this.organizerName,
+    this.ticketPrice,
+    this.eventTip,
+    this.organizerInfo,
   });
 
   // From Firestore
@@ -53,6 +63,13 @@ class Event {
           .map((stand) => StandInEvent.fromFirestore(stand))
           .toList(),
       participants: List<String>.from(data['participants']),
+      openingHours: (data['openingHours'] as List<dynamic>?)
+          ?.map((e) => OpeningHour.fromFirestore(e))
+          .toList() ?? [],
+      organizerName: data['organizerName'] ?? '',
+      ticketPrice: data['ticketPrice'] ?? '',
+      eventTip: data['eventTip'] ?? '',
+      organizerInfo: data['organizerInfo'] ?? '',
     );
   }
 
@@ -70,6 +87,36 @@ class Event {
       'stands': stands,
       'category': category,
       'participants': participants,
+      'openingHours': openingHours?.map((hour) => hour.toFirestore()).toList(),
+      'organizerName': organizerName ?? '',
+      'ticketPrice': ticketPrice ?? '',
+      'eventTip': eventTip ?? '',
+      'organizerInfo': organizerInfo ?? '',
+    };
+  }
+}
+
+// Event specific Opening hours
+class OpeningHour {
+  final List<String> days; // e.g., ["Mo", "Tu"]
+  final String open; // e.g., "08:00"
+  final String close; // e.g., "22:00"
+
+  OpeningHour({required this.days, required this.open, required this.close});
+
+  factory OpeningHour.fromFirestore(Map<String, dynamic> data) {
+    return OpeningHour(
+      days: List<String>.from(data['days'] ?? []),
+      open: data['open'] ?? '',
+      close: data['close'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'days': days,
+      'open': open,
+      'close': close,
     };
   }
 }

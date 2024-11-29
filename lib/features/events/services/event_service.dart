@@ -71,4 +71,21 @@ class EventService {
       throw Exception('Failed to create event: $e');
     }
   }
+
+  Future<void> joinEvent(String eventId, String userId) async {
+    final eventRef = _firestore.collection('events').doc(eventId);
+
+    await eventRef.update({
+      'participants': FieldValue.arrayUnion([userId]) // Add user ID to participants
+    });
+  }
+
+  // Check if the user has already joined the event
+  Future<bool> isUserParticipant(String eventId, String userId) async {
+    final eventDoc = await _firestore.collection('events').doc(eventId).get();
+    if (!eventDoc.exists) return false;
+
+    final participants = List<String>.from(eventDoc['participants'] ?? []);
+    return participants.contains(userId);
+  }
 }

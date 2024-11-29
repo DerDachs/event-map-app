@@ -20,7 +20,8 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
   final _longitudeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  String? _uploadedImageUrl = "https://firebasestorage.googleapis.com/v0/b/event-map-app-aab7b.firebasestorage.app/o/events%2F";
+  String? _uploadedImageUrl =
+      "https://firebasestorage.googleapis.com/v0/b/event-map-app-aab7b.firebasestorage.app/o/events%2F";
   String? _selectedCategory;
   DateTime? _startTime;
   DateTime? _endTime;
@@ -37,7 +38,6 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(categoryProvider);
-
 
     return Scaffold(
       appBar: AppBar(title: Text('Create Event')),
@@ -149,7 +149,8 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        _selectedCategory = value!; // Update the selected category
+                        _selectedCategory =
+                            value!; // Update the selected category
                       });
                     },
                     decoration: InputDecoration(
@@ -255,7 +256,8 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
                     }
 
                     final event = Event(
-                      id: '', // Generate ID on Firestore
+                      id: '',
+                      // Generate ID on Firestore
                       name: _nameController.text,
                       description: _descriptionController.text,
                       latitude: double.parse(_latitudeController.text),
@@ -263,11 +265,21 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
                       images: [
                         EventImage(url: _uploadedImageUrl!, isStandard: true)
                       ],
-                      startTime: _startTime!, // Example
-                      endTime: _endTime!, // Example
+                      startTime: _startTime!,
+                      // Example
+                      endTime: _endTime!,
+                      // Example
                       teamIds: [],
                       stands: [],
                       category: _selectedCategory!,
+                      openingHours: [
+                        OpeningHour(
+                            days: ['Mo', 'Tu', 'We', 'Th', 'Fr'],
+                            open: '08:00',
+                            close: '22:00'),
+                        OpeningHour(
+                            days: ['Sa', 'Su'], open: '10:00', close: '24:00'),
+                      ],
                     );
 
                     // Save event to Firestore
@@ -285,8 +297,12 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
 
   Future<void> _saveEvent(Event event) async {
     final eventService = EventService();
-    // Add Firestore saving logic here
-    eventService.createEvent(event);
+    try {
+      // Add Firestore saving logic here
+      eventService.createEvent(event);
+    } catch (e) {
+      SnackBar(content: Text('Event not created $e'));
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Event created successfully')),
     );
@@ -304,7 +320,8 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
   }
 
   // Method to pick date and time
-  Future<void> _pickDateTime(BuildContext context, {required bool isStartTime}) async {
+  Future<void> _pickDateTime(BuildContext context,
+      {required bool isStartTime}) async {
     final date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
