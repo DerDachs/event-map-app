@@ -13,15 +13,13 @@ jobs:
   - task: InstallAppleCertificate@2
     displayName: 'Install P12 Certificate'
     inputs:
-      certSecureFile: 'tdw_cert.p12'
-      certPwd: 'HcIx3X3Y'
-      keychain: 'temp'
+      certSecureFile: 'developerTDW.p12'
+      certPwd: '$(P12password)'
     
   - task: InstallAppleProvisioningProfile@1
     displayName: 'Install provisioning profile'
     inputs:
-      provisioningProfileLocation: 'secureFiles'
-      provProfileSecureFile: 'AzureProvisioning.mobileprovision'
+      provProfileSecureFile: 'ab1f5f68-553f-4e74-bd21-e6d152b104e2.mobileprovision'
 
   - task: FlutterInstall@0
     displayName: 'Flutter Install'
@@ -82,7 +80,7 @@ jobs:
       exportOptions: plist
       exportOptionsPlist: ./ios/ExportOptions.plist
       signingOption: 'manual'
-      signingIdentity: '"$(APPLE_CERTIFICATE_SIGNING_IDENTITY)"'
+      signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
       provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
 
   - task: CopyFiles@2
