@@ -218,6 +218,7 @@ class EventDetailsScreen extends ConsumerWidget {
       initialCameraPosition: CameraPosition(
         target: LatLng(event.latitude, event.longitude),
         zoom: 30.0,
+
       ),
       markers: stands.map((stand) {
         return Marker(
@@ -233,11 +234,10 @@ class EventDetailsScreen extends ConsumerWidget {
         controller
             .animateCamera(CameraUpdate.newLatLngBounds(calculateBounds(), 50));
       },
-      scrollGesturesEnabled: false,
+      scrollGesturesEnabled: true,
       zoomGesturesEnabled: true,
       rotateGesturesEnabled: false,
       tiltGesturesEnabled: false,
-      minMaxZoomPreference: MinMaxZoomPreference(16, null),
       myLocationEnabled: true,
       myLocationButtonEnabled: true,
     );
@@ -268,8 +268,7 @@ class EventDetailsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBoxedSection(BuildContext context,
-      {required String title, required String content}) {
+  Widget _buildBoxedSection(BuildContext context, {required String title, required String content}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(16.0),

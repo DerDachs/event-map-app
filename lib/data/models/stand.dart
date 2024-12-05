@@ -6,7 +6,7 @@ class Stand {
   final String name;
   final String description;
   final List<EventImage>? images;
-  final List<String> menu; // Menu items for the stand
+  final List<String>? menu; // Menu items for the stand
   final String? promotions; // Optional promotions for the stand
   final double? eventLatitude; // Optional event-specific latitude
   final double? eventLongitude; // Optional event-specific longitude
@@ -17,7 +17,7 @@ class Stand {
     required this.name,
     required this.description,
     this.images,
-    required this.menu,
+    this.menu,
     this.promotions,
     this.eventLatitude,
     this.eventLongitude
@@ -29,6 +29,7 @@ class Stand {
       SnapshotOptions? options,
       ) {
     final data = doc.data()!;
+    print('Stand loaded: ${data['name']}, ${data['description']}');
     return Stand(
       id: doc.id,
       name: data['name'],
@@ -36,8 +37,8 @@ class Stand {
       images: (data['images'] as List?)
           ?.map((image) => EventImage.fromMap(image as Map<String, dynamic>))
           .toList(),
-      menu: List<String>.from(data['menu']),
-      promotions: data['promotions'],
+      menu: (data['menu'] as List?)?.map((item) => item.toString()).toList(),
+      promotions: data['promotions'], // Allow null if missing
     );
   }
 }
