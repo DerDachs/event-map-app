@@ -79,9 +79,9 @@ jobs:
       exportPath: ./build/ios/iphoneos/Runner.ipa
       exportOptions: plist
       exportOptionsPlist: ./ios/ExportOptions.plist
-      signingOption: 'manual'
-      signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
-      provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
+      signingOption: 'auto'
+      signingIdentity: $APPLE_CERTIFICATE_SIGNING_IDENTITY
+      provisioningProfileUuid: $APPLE_PROV_PROFILE_UUID
 
   - task: CopyFiles@2
     displayName: 'Copy Files'
