@@ -1,17 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../data/models/category.dart';
+
 
 class CategoryService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<List<Map<String, dynamic>>> fetchCategories() async {
-    final querySnapshot = await _firestore.collection('category').get();
-
-    return querySnapshot.docs.map((doc) {
-      final data = doc.data();
-      return {
-        'id': doc.id,
-        'name': data['name'],
-      };
-    }).toList();
+  Future<List<Category>> fetchCategories() async {
+    final snapshot = await _firestore.collection('categories').get();
+    return snapshot.docs.map((doc) => Category.fromFirestore(doc.data(), doc.id)).toList();
+  }
+  Future<Category?> fetchCategoryById(String categoryId) async {
+    final doc = await _firestore.collection('categories').doc(categoryId).get();
+    if (!doc.exists) return null;
+    return Category.fromFirestore(doc.data()!, doc.id);
   }
 }

@@ -28,6 +28,7 @@ class StandService {
           id: stand.id,
           name: stand.name,
           description: stand.description,
+          standCategoryId: stand.standCategoryId,
           images: stand.images,
           menu: stand.menu,
           promotions: stand.promotions,

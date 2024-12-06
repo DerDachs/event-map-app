@@ -21,8 +21,3 @@ Future<void> requestLocationPermission() async {
     await openAppSettings();
   }
 }
-
-final categoryProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  final categoryService = CategoryService();
-  return await categoryService.fetchCategories();
-});

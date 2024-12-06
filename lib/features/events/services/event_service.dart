@@ -11,7 +11,6 @@ class EventService {
       final querySnapshot = await _firestore.collection('events').get();
       return querySnapshot.docs.map((doc) => Event.fromFirestore(doc,null)).toList();
     } catch (e) {
-      print('Im here');
       print('Error fetching events: $e');
       return [];
     }

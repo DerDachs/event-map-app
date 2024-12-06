@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:market_mates/features/events/providers/event_provider.dart';
 import '../../../data/models/eventImage.dart';
-import '../../../providers/state_provider.dart';
 import '../../../data/models/event.dart';
+import '../../../providers/category_provider.dart';
 import '../../../services/image_upload_service.dart';
 import '../../events/services/event_service.dart';
 
@@ -20,8 +20,7 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
   final _longitudeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  String? _uploadedImageUrl =
-      "https://firebasestorage.googleapis.com/v0/b/event-map-app-aab7b.firebasestorage.app/o/events%2F";
+  String? _uploadedImageUrl = "https://firebasestorage.googleapis.com/v0/b/event-map-app-aab7b.firebasestorage.app/o/events%2F";
   String? _selectedCategory;
   DateTime? _startTime;
   DateTime? _endTime;
@@ -37,7 +36,7 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final categoriesAsync = ref.watch(categoryProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text('Create Event')),
@@ -133,24 +132,17 @@ class _EventCreationScreenState extends ConsumerState<CreateEventScreen> {
                 data: (categories) {
                   return DropdownButtonFormField<String>(
                     value: _selectedCategory,
-                    items: categories.map((category) {
-                      final id = category['id'];
-                      final name = category['name'];
-
-                      // Ensure valid structure
-                      if (id == null || name == null) {
-                        throw Exception('Invalid category data: $category');
-                      }
-
+                    items: categories
+                        .where((category) => category.type == 'event') // Filter categories by type
+                        .map((category) {
                       return DropdownMenuItem<String>(
-                        value: id,
-                        child: Text(name),
+                        value: category.id,
+                        child: Text(category.name),
                       );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        _selectedCategory =
-                            value!; // Update the selected category
+                        _selectedCategory = value; // Update the selected category
                       });
                     },
                     decoration: InputDecoration(

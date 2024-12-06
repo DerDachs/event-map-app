@@ -10,6 +10,7 @@ class Stand {
   final String? promotions; // Optional promotions for the stand
   final double? eventLatitude; // Optional event-specific latitude
   final double? eventLongitude; // Optional event-specific longitude
+  final String? standCategoryId; // Optional standCategoryId
 
 
   Stand({
@@ -20,7 +21,8 @@ class Stand {
     this.menu,
     this.promotions,
     this.eventLatitude,
-    this.eventLongitude
+    this.eventLongitude,
+    this.standCategoryId,
   });
 
   // From Firestore
@@ -34,6 +36,7 @@ class Stand {
       id: doc.id,
       name: data['name'],
       description: data['description'],
+      standCategoryId: data['category'],
       images: (data['images'] as List?)
           ?.map((image) => EventImage.fromMap(image as Map<String, dynamic>))
           .toList(),

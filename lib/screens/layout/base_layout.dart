@@ -61,8 +61,8 @@ class BaseLayout extends ConsumerWidget {
         },
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.event), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Discover"),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Social Hub"),
+          BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: "News"),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Joined Events"),
         ],
       ),
     );
