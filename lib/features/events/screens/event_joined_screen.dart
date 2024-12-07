@@ -5,8 +5,13 @@ import 'package:intl/intl.dart';
 import '../../../data/models/event.dart';
 import '../../../data/models/stand.dart';
 import '../../../providers/category_provider.dart';
+import '../../../providers/user_provider.dart';
+import '../../../utils/event_details_section.dart';
 import '../../stands/providers/stand_provider.dart';
 import 'dart:ui' as ui;
+
+import '../../teams/providers/team_provider.dart';
+import '../../teams/screens/team_section.dart';
 
 class EventJoinedScreen extends ConsumerWidget {
   final Event event;
@@ -26,7 +31,9 @@ class EventJoinedScreen extends ConsumerWidget {
             icon: Icon(Icons.notifications),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('notifications should be shown here in the future')),
+                SnackBar(
+                    content: Text(
+                        'notifications should be shown here in the future')),
               );
             },
           ),
@@ -34,7 +41,8 @@ class EventJoinedScreen extends ConsumerWidget {
             icon: Icon(Icons.ios_share),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Dummy for Sharing - nothing behind yet...')),
+                SnackBar(
+                    content: Text('Dummy for Sharing - nothing behind yet...')),
               );
               shareEvent(event);
             },
@@ -50,9 +58,9 @@ class EventJoinedScreen extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
-            _buildEventDescription(event, context),
+            EventDetailSection(event: event),
             SizedBox(height: 16),
-            _buildJoinTeamSection(context, ref),
+            _buildTeamSection(context, ref),
             SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -73,7 +81,8 @@ class EventJoinedScreen extends ConsumerWidget {
                   child: standsAsync.when(
                     data: (stands) => _buildMapWithDynamicMarkers(stands, ref),
                     loading: () => Center(child: CircularProgressIndicator()),
-                    error: (error, stack) => Center(child: Text('Error loading stands: $error')),
+                    error: (error, stack) =>
+                        Center(child: Text('Error loading stands: $error')),
                   ),
                 ),
               ),
@@ -83,7 +92,8 @@ class EventJoinedScreen extends ConsumerWidget {
             standsAsync.when(
               data: (stands) => _buildStandList(context, stands),
               loading: () => Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text('Error loading stand list: $error')),
+              error: (error, stack) =>
+                  Center(child: Text('Error loading stand list: $error')),
             ),
           ],
         ),
@@ -113,22 +123,29 @@ class EventJoinedScreen extends ConsumerWidget {
       textDirection: ui.TextDirection.ltr,
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset((size - textPainter.width) / 2, (size - textPainter.height) / 2));
+    textPainter.paint(
+        canvas,
+        Offset(
+            (size - textPainter.width) / 2, (size - textPainter.height) / 2));
 
-    final image = await pictureRecorder.endRecording().toImage(size.toInt(), size.toInt());
+    final image = await pictureRecorder
+        .endRecording()
+        .toImage(size.toInt(), size.toInt());
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
 
     return BitmapDescriptor.fromBytes(bytes!.buffer.asUint8List());
   }
 
-  Future<Set<Marker>> _generateDynamicMarkers(List<Stand> stands, WidgetRef ref) async {
+  Future<Set<Marker>> _generateDynamicMarkers(
+      List<Stand> stands, WidgetRef ref) async {
     Set<Marker> markers = {};
 
     for (Stand stand in stands) {
       // Fetch category details
       final categoryId = stand.standCategoryId ?? 'JN6cmd31Wy32uoM41rH7';
       final category = ref.read(categoryByIdProvider(categoryId)).value;
-      final iconData = category?.icon ?? Icons.store; // Default to `Icons.store` if no category or icon found
+      final iconData = category?.icon ??
+          Icons.store; // Default to `Icons.store` if no category or icon found
       final markerIcon = await _getMaterialIcon(iconData);
 
       markers.add(
@@ -176,7 +193,6 @@ class EventJoinedScreen extends ConsumerWidget {
     );
   }
 
-
   Widget _buildStandList(BuildContext context, List<Stand> stands) {
     return Container(
       height: 300, // Set a fixed height for the list
@@ -199,190 +215,55 @@ class EventJoinedScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEventDescription(Event event, BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      decoration: BoxDecoration(
-        color: Colors.white, // Background color for the box
-        borderRadius: BorderRadius.circular(12.0), // Rounded corners
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12, // Shadow color
-            blurRadius: 8, // How much the shadow should blur
-            offset: Offset(0, 4), // Offset for the shadow
-          ),
-        ],
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Event Details',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        children: [
-          _buildSectionContent(
-            context: context,
-            title: 'Beschreibung',
-            content: event.description,
-          ),
-          Divider(),
-          _buildSectionContent(
-            context: context,
-            title: 'Unser Tipp',
-            content: event.eventTip ?? 'No hint available right now!',
-          ),
-          Divider(),
-          _buildSectionContent(
-            context: context,
-            title: 'Organizer Information',
-            content: event.organizerInfo ?? 'N/A',
-          ),
-        ],
-      ),
-    );
+  Widget _buildTeamSection(BuildContext context, WidgetRef ref) {
+    return TeamSection(event: event);
   }
 
-  Widget _buildSectionContent({
-    required BuildContext context,
-    required String title,
-    required String content,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            content,
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.left,
-          ),
-        ],
-      ),
-    );
-  }
+  Future<void> joinTeam(BuildContext context, WidgetRef ref, String teamCode) async {
+    final teamAsync = ref.read(teamByCodeProvider(teamCode));
 
-  Widget _buildJoinTeamSection(BuildContext context, WidgetRef ref) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Join a Team',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Join an existing team or create a new one to collaborate with others at the event.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _showJoinTeamDialog(context, ref),
-                  icon: Icon(Icons.group),
-                  label: Text('Join a Team'),
-                ),
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _showCreateTeamDialog(context, ref),
-                  icon: Icon(Icons.add),
-                  label: Text('Create Team'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+    teamAsync.when(
+      data: (team) async {
+        if (team == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Team not found')),
+          );
+          return;
+        }
 
-  void _showJoinTeamDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Join a Team'),
-          content: Text('Select a team to join from the list.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Implement logic to join a selected team
-                Navigator.pop(context);
-              },
-              child: Text('Join'),
-            ),
-          ],
-        );
+        // Get the current user ID
+        final userProfile = ref.read(userProfileProvider).value;
+        if (userProfile == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User profile not loaded')),
+          );
+          return;
+        }
+
+        final userId = userProfile.uid;
+
+        try {
+          // Add user to the team using the service
+          final teamService = ref.read(teamServiceProvider);
+          await teamService.addMemberToTeam(team.id, userId);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Successfully joined the team!')),
+          );
+
+          // Navigate or perform additional actions
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error joining team: $e')),
+          );
+        }
       },
-    );
-  }
-
-  void _showCreateTeamDialog(BuildContext context, WidgetRef ref) {
-    final _teamNameController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Create a Team'),
-          content: TextField(
-            controller: _teamNameController,
-            decoration: InputDecoration(
-              labelText: 'Team Name',
-              hintText: 'Enter the name of your new team',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final teamName = _teamNameController.text.trim();
-                if (teamName.isNotEmpty) {
-                  // Implement logic to create a team
-                  Navigator.pop(context);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please enter a valid team name.')),
-                  );
-                }
-              },
-              child: Text('Create'),
-            ),
-          ],
-        );
-      },
+      loading: () => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Loading team information...')),
+      ),
+      error: (error, stack) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching team: $error')),
+      ),
     );
   }
 

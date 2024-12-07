@@ -31,7 +31,6 @@ class Stand {
       SnapshotOptions? options,
       ) {
     final data = doc.data()!;
-    print('Stand loaded: ${data['name']}, ${data['description']}');
     return Stand(
       id: doc.id,
       name: data['name'],

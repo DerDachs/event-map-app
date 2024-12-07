@@ -8,11 +8,23 @@ final teamServiceProvider = Provider<TeamService>((ref) {
   return TeamService(FirebaseFirestore.instance);
 });
 
-// Fetch teams for an event
+// Fetch teams for an event -> read event ID in teams collection
 final teamsForEventProvider =
 StreamProvider.family<List<Team>, String>((ref, eventId) {
   final teamService = ref.read(teamServiceProvider);
   return teamService.fetchTeamsForEvent(eventId);
+});
+
+final teamByCodeProvider = FutureProvider.family<Team?, String>((ref, teamCode) async {
+  final teamService = ref.read(teamServiceProvider);
+  return await teamService.getTeamByCode(teamCode);
+});
+
+// Provider for fetching teams for an event
+final teamsForEventFutureProvider =
+FutureProvider.family<List<Team>, String>((ref, eventId) async {
+  final teamService = ref.read(teamServiceProvider);
+  return teamService.fetchEventTeamIds(eventId);
 });
 
 // Fetch teams for a user
