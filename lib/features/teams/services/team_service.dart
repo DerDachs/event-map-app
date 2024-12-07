@@ -34,23 +34,16 @@ class TeamService {
   // Add a member to a team
   Future<void> addMemberToTeam(String teamId, String userId) async {
     await _firestore.collection('teams').doc(teamId).update({
-      'members': FieldValue.arrayUnion([userId]),
-    });
-
-    await _firestore.collection('users').doc(userId).update({
-      'teams': FieldValue.arrayUnion([teamId]),
+      'memberIds': FieldValue.arrayUnion([userId]),
     });
   }
 
   // Remove a member from a team
   Future<void> removeMemberFromTeam(String teamId, String userId) async {
     await _firestore.collection('teams').doc(teamId).update({
-      'members': FieldValue.arrayRemove([userId]),
+      'memberIds': FieldValue.arrayRemove([userId]),
     });
 
-    await _firestore.collection('users').doc(userId).update({
-      'teams': FieldValue.arrayRemove([teamId]),
-    });
   }
 
   // Fetch teams for an event
@@ -60,7 +53,7 @@ class TeamService {
         .where('eventId', isEqualTo: eventId)
         .snapshots()
         .map((snapshot) =>
-            snapshot.docs.map((doc) => Team.fromJson(doc.data())).toList());
+            snapshot.docs.map((doc) => Team.fromFirestore(doc)).toList());
   }
 
   // Fetch teams for an event
@@ -94,7 +87,7 @@ class TeamService {
       return null; // No team found
     }
 
-    return Team.fromJson(querySnapshot.docs.first.data());
+    return Team.fromFirestore(querySnapshot.docs.first);
   }
 
   // Start sharing location
@@ -123,6 +116,19 @@ class TeamService {
         }
       ]),
     });
+  }
+  Future<String?> getUserTeamForEvent(String userId, String eventId) async {
+    final querySnapshot = await _firestore
+        .collection('teams')
+        .where('eventId', isEqualTo: eventId)
+        .where('members', arrayContains: userId)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      return null; // User not in any team
+    }
+
+    return querySnapshot.docs.first.id; // Return the team ID
   }
 
 //// Fetch teams for a user

@@ -7,58 +7,25 @@ import '../providers/team_provider.dart';
 
 class TeamSection extends ConsumerWidget {
   final Event event;
+  final bool isInTeam;
+  final String? teamId;
 
-  TeamSection({Key? key, required this.event}) : super(key: key);
+  TeamSection({
+    Key? key,
+    required this.event,
+    required this.isInTeam,
+    this.teamId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfile = ref.read(userProfileProvider).value;
-
-    if (userProfile == null) {
-      return Text('You must log in to manage teams.');
+    if (isInTeam && teamId != null) {
+      return _buildShareLocationSection(context, ref, teamId!);
+    } else {
+      final userProfile = ref.read(userProfileProvider).value;
+      final userId = userProfile?.uid ?? '';
+      return _buildJoinCreateTeamSection(context, ref, userId);
     }
-
-    final userId = userProfile.uid;
-
-    // Fetch teams the user has joined
-    final teamsAsync = ref.watch(teamsForEventFutureProvider(event.id));
-
-    return teamsAsync.when(
-      data: (teams) {
-        // Check if the user is already in a team for this event
-        final Team? userTeam = teams.cast<Team?>().firstWhere(
-              (team) => team?.members.contains(userId) ?? false,
-          orElse: () => null, // Fallback to null if no team is found
-        );
-
-        if (userTeam != null) {
-          // User is in a team, show "Share Location" button
-          return _buildShareLocationSection(context, ref, userTeam.name);
-        } else {
-          // User is not in a team, show "Join/Create Team" buttons
-          return _buildJoinCreateTeamSection(context, ref, userId);
-        }
-      },
-      loading: () => Center(child: CircularProgressIndicator()),
-      error: (error, stack) {
-        // Log the error (optional)
-        print('Error loading teams: $error');
-
-        // Show a construction emoji or fallback message
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('🚧 Something went wrong 🚧'),
-              Text(
-                'Unable to load the team section.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   Widget _buildJoinCreateTeamSection(BuildContext context, WidgetRef ref, String userId) {
@@ -88,7 +55,7 @@ class TeamSection extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ElevatedButton(
-                onPressed: () => _showJoinTeamDialog(context, ref),
+                onPressed: () => _showJoinTeamDialog(context, ref, userId),
                 child: Text('Join Team'),
               ),
               ElevatedButton.icon(
@@ -105,7 +72,8 @@ class TeamSection extends ConsumerWidget {
   }
 
   Widget _buildShareLocationSection(
-      BuildContext context, WidgetRef ref, String teamName) {
+      BuildContext context, WidgetRef ref, String userTeamId) {
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       padding: const EdgeInsets.all(16.0),
@@ -124,7 +92,7 @@ class TeamSection extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'You are in Team: $teamName',
+            'You are in Team: $userTeamId',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           SizedBox(height: 8),
@@ -145,12 +113,19 @@ class TeamSection extends ConsumerWidget {
             icon: Icon(Icons.location_on),
             label: Text('Share Location'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              // Logic to leave team
+              ref.read(teamContextProvider.notifier).leaveTeam();
+            },
+            child: Text('Leave Team'),
+          ),
         ],
       ),
     );
   }
 
-  void _showJoinTeamDialog(BuildContext context, WidgetRef ref) {
+  void _showJoinTeamDialog(BuildContext context, WidgetRef ref, String userId) {
     final _teamCodeController = TextEditingController();
 
     showDialog(
@@ -180,9 +155,13 @@ class TeamSection extends ConsumerWidget {
                 }
 
                 // Call join team logic
-                await joinTeam(context, ref, teamCode);
+                await joinTeam(context, ref, teamCode, userId);
 
-                Navigator.pop(context); // Close dialog
+                ref.refresh(teamsForEventFutureProvider(event.id));
+
+                // Wait for the state update and navigate back safely
+                Future.microtask(() => Navigator.pop(context));// Trigger state update to refresh UI);
+                //Future.microtask(() => ref.refresh(teamContextProvider));
               },
               child: Text('Join'),
             ),
@@ -192,8 +171,7 @@ class TeamSection extends ConsumerWidget {
     );
   }
 
-  void _showCreateTeamDialog(
-      BuildContext context, WidgetRef ref, String eventId, String userId) {
+  void _showCreateTeamDialog(BuildContext context, WidgetRef ref, String eventId, String userId) {
     final _teamNameController = TextEditingController();
 
     showDialog(
@@ -245,48 +223,33 @@ class TeamSection extends ConsumerWidget {
     );
   }
 
-  Future<void> joinTeam(BuildContext context, WidgetRef ref, String teamCode) async {
-    final teamAsync = ref.read(teamByCodeProvider(teamCode));
+  Future<void> joinTeam(BuildContext context, WidgetRef ref, String teamCode, String userId) async {
+    try {
+      // Make a direct async call to fetch the team by code
+      final teamService = ref.read(teamServiceProvider);
+      final team = await teamService.getTeamByCode(teamCode);
 
-    teamAsync.when(
-      data: (team) async {
-        if (team == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Team not found')),
-          );
-          return;
-        }
+      if (team == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Team not found')),
+        );
+        return;
+      }
 
-        final userProfile = ref.read(userProfileProvider).value;
-        if (userProfile == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('User profile not loaded')),
-          );
-          return;
-        }
+      // Add user to the team
+      await teamService.addMemberToTeam(team.id, userId);
 
-        final userId = userProfile.uid;
+      // Update the team context AFTER confirming success
+      ref.read(teamContextProvider.notifier).joinTeam(team.id);
 
-        try {
-          final teamService = ref.read(teamServiceProvider);
-          await teamService.addMemberToTeam(team.id, userId);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Successfully joined the team!')),
-          );
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error joining team: $e')),
-          );
-        }
-      },
-      loading: () => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Loading team information...')),
-      ),
-      error: (error, stack) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching team: $error')),
-      ),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Successfully joined the team!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error joining team: $e')),
+      );
+    }
   }
 
   Future<void> shareLocation(

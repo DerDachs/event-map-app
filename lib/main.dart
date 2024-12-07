@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/admin-panel': (context) => AdminPanelScreen(),
         '/create-event': (context) => CreateEventScreen(),
         '/event-joined': (context) => EventJoinedScreen(
+          key: key,
           event: ModalRoute.of(context)!.settings.arguments as Event,
         ),
         //'/manage-stands': (context) => ManageStandsScreen(),
