@@ -16,3 +16,8 @@ final categoryByIdProvider = FutureProvider.family<Category?, String>((ref, cate
   final service = ref.watch(categoryServiceProvider);
   return await service.fetchCategoryById(categoryId);
 });
+
+final categoriesForEventProvider = FutureProvider.family<List<Category>, String>((ref, eventId) async {
+  final standService = ref.read(categoryServiceProvider);
+  return await standService.fetchCategoriesForEvent(eventId);
+});

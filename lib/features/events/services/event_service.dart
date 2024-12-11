@@ -11,7 +11,7 @@ class EventService {
       final querySnapshot = await _firestore.collection('events').get();
       return querySnapshot.docs.map((doc) => Event.fromFirestore(doc,null)).toList();
     } catch (e) {
-      print('Error fetching events: $e');
+      print('Error fetching events: $e stuck at this point');
       return [];
     }
   }
@@ -87,4 +87,15 @@ class EventService {
     final participants = List<String>.from(eventDoc['participants'] ?? []);
     return participants.contains(userId);
   }
+
+  Future<Event?> getEventById(String eventId) async {
+    try {
+      final eventDoc = await _firestore.collection('events').doc(eventId).get();
+      return  Event.fromFirestore(eventDoc,null);
+    } catch (e) {
+      print('Error fetching event: $e');
+      return null;
+    }
+  }
+
 }

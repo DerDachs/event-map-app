@@ -20,6 +20,7 @@ class StandService {
     for (final standData in standsData) {
       final standId = standData['standId'];
       final location = standData['location'];
+      final category = standData['category'];
       final standDoc = await _firestore.collection('stands').doc(standId).get();
 
       if (standDoc.exists) {
@@ -28,7 +29,7 @@ class StandService {
           id: stand.id,
           name: stand.name,
           description: stand.description,
-          standCategoryId: stand.standCategoryId,
+          standCategoryId: category,
           images: stand.images,
           menu: stand.menu,
           promotions: stand.promotions,
@@ -41,4 +42,5 @@ class StandService {
 
     return stands;
   }
+
 }

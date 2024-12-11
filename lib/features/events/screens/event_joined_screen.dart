@@ -67,6 +67,8 @@ class _EventJoinedScreenState extends ConsumerState<EventJoinedScreen> {
   @override
   Widget build(BuildContext context) {
     final standsAsync = ref.watch(standsForEventProvider(widget.event.id));
+    final groupedStandsAsync =
+        ref.watch(standsGroupedByCategoryProvider(widget.event.id));
 
     if (_isLoading) {
       return Scaffold(
@@ -118,12 +120,45 @@ class _EventJoinedScreenState extends ConsumerState<EventJoinedScreen> {
             _buildMapSection(context, standsAsync, ref, widget.event),
             SizedBox(height: 16),
             Divider(),
-            standsAsync.when(
-              data: (stands) => _buildStandList(context, stands),
-              loading: () => Center(child: CircularProgressIndicator()),
-              error: (error, stack) =>
-                  Center(child: Text('Error loading stand list: $error')),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5, // Adjust height as needed
+              child: groupedStandsAsync.when(
+                data: (groupedStands) {
+                  return ListView.builder(
+                    itemCount: groupedStands.entries.length,
+                    itemBuilder: (context, index) {
+                      final categoryName = groupedStands.keys.elementAt(index);
+                      final stands = groupedStands[categoryName]!;
+
+                      return ExpansionTile(
+                        title: Text(categoryName),
+                        children: stands.map((stand) {
+                          return ListTile(
+                            title: Text(stand.name),
+                            subtitle: Text(stand.description),
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Tapped on ${stand.name}')),
+                              );
+                            },
+                          );
+                        }).toList(),
+                      );
+                    },
+                  );
+                },
+                loading: () => Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(
+                  child: Text('Error loading stands: $error'),
+                ),
+              ),
             ),
+            //standsAsync.when(
+            //  data: (stands) => _buildStandList(context, stands),
+            //  loading: () => Center(child: CircularProgressIndicator()),
+            //  error: (error, stack) =>
+            //      Center(child: Text('Error loading stand list: $error')),
+            //),
           ],
         ),
       ),
@@ -131,7 +166,7 @@ class _EventJoinedScreenState extends ConsumerState<EventJoinedScreen> {
   }
 
   Widget _buildMapSection(BuildContext context,
-      AsyncValue<List<Stand>> standsAsync, WidgetRef ref, Event event){
+      AsyncValue<List<Stand>> standsAsync, WidgetRef ref, Event event) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Container(
@@ -223,7 +258,8 @@ class _EventJoinedScreenState extends ConsumerState<EventJoinedScreen> {
     return markers;
   }
 
-  Widget _buildMapWithDynamicMarkers(List<Stand> stands, WidgetRef ref, Event event) {
+  Widget _buildMapWithDynamicMarkers(
+      List<Stand> stands, WidgetRef ref, Event event) {
     return FutureBuilder<Set<Marker>>(
       future: _generateDynamicMarkers(stands, ref),
       builder: (context, snapshot) {

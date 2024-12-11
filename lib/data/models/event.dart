@@ -19,6 +19,7 @@ class Event {
   final String? ticketPrice;
   final String? eventTip;
   final String? organizerInfo;
+  final List<String>? categories;
 
   Event({
     required this.id,
@@ -38,6 +39,7 @@ class Event {
     this.ticketPrice,
     this.eventTip,
     this.organizerInfo,
+    this.categories,
   });
 
   // From Firestore
@@ -62,7 +64,7 @@ class Event {
       stands: (data['stands'] as List)
           .map((stand) => StandInEvent.fromFirestore(stand))
           .toList(),
-      participants: List<String>.from(data['participants']),
+      participants: List<String>.from(data['participants']) ?? [],
       openingHours: (data['openingHours'] as List<dynamic>?)
           ?.map((e) => OpeningHour.fromFirestore(e))
           .toList() ?? [],
@@ -70,10 +72,11 @@ class Event {
       ticketPrice: data['ticketPrice'] ?? '',
       eventTip: data['eventTip'] ?? '',
       organizerInfo: data['organizerInfo'] ?? '',
+      categories: List<String>.from(data['categories']) ?? [],
     );
   }
 
-  // Convert Event to Firestore Map
+  // Convert Event to Firestore Map‚
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,
@@ -92,6 +95,7 @@ class Event {
       'ticketPrice': ticketPrice ?? '',
       'eventTip': eventTip ?? '',
       'organizerInfo': organizerInfo ?? '',
+      'categories': categories,
     };
   }
 }
@@ -126,11 +130,13 @@ class StandInEvent {
   final String standId; // Reference to the stand
   final double latitude;
   final double longitude;
+  final String? categoryId;
 
   StandInEvent({
     required this.standId,
     required this.latitude,
     required this.longitude,
+    this.categoryId,
   });
 
   // From Firestore
@@ -139,6 +145,7 @@ class StandInEvent {
       standId: data['standId'],
       latitude: data['location']['latitude'],
       longitude: data['location']['longitude'],
+      categoryId: data['category'] ?? '',
     );
   }
 }
