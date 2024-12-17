@@ -22,6 +22,7 @@ class EventDetailSection extends StatelessWidget {
         ],
       ),
       child: ExpansionTile(
+        initiallyExpanded: true,
         title: Text(
           'Event Details',
           style: Theme.of(context).textTheme.titleMedium,

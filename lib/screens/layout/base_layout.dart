@@ -60,9 +60,9 @@ class BaseLayout extends ConsumerWidget {
           ref.read(bottomNavIndexProvider.notifier).state = index;
         },
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.event), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: "News"),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Joined Events"),
+          BottomNavigationBarItem(icon: Icon(Icons.event), label: "Details"),
+          BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: "Map & Stands"),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Team"),
         ],
       ),
     );

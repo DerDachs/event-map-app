@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:market_mates/features/events/screens/event_details_tab.dart';
+import 'package:market_mates/features/events/screens/event_page.dart';
 import 'event_detail_screen.dart';
 import '../../favorites/providers/favorite_provider.dart';
 import '../../../data/models/event.dart';
@@ -14,6 +16,10 @@ class EventCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoritesProvider);
     final isFavorite = favorites['events']?.contains(event.id) ?? false;
+    final standardImage = event.images.firstWhere(
+          (image) => image.isStandard,
+      orElse: () => event.images.first, // Fallback to the first image
+    );
 
     return Card(
       margin: const EdgeInsets.all(8.0),
@@ -40,7 +46,7 @@ class EventCard extends ConsumerWidget {
                       borderRadius:
                       BorderRadius.vertical(top: Radius.circular(8)),
                       child: Image.network(
-                        event.images.first.url,
+                        standardImage.url,
                         fit: BoxFit.cover,
                         width: double.infinity,
                       ),

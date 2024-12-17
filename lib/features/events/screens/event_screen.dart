@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../data/models/profile.dart';
+import '../../../providers/user_provider.dart';
 import 'event_card.dart';
 import '../../favorites/providers/favorite_provider.dart';
 import '../providers/event_provider.dart';
@@ -11,8 +13,43 @@ class EventScreen extends ConsumerWidget {
     final eventsAsync = ref.watch(eventsProvider);
     final favorites = ref.watch(favoritesProvider);
     final favoriteEventIds = favorites['events'] ?? []; // Fetch favorite event IDs
+    final userProfileState = ref.watch(userProfileProvider);
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Market Mate"),
+        actions: [
+          userProfileState.when(
+            data: (profile) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: GestureDetector(
+                  onTap: () {
+                    _showProfileMenu(context, profile!, ref);
+                  },
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundImage: profile?.profilePicture != null
+                        ? AssetImage(profile!.profilePicture!)
+                        : null,
+                    child: profile?.profilePicture == null
+                        ? Icon(Icons.person, size: 24, color: Colors.white)
+                        : null,
+                  ),
+                ),
+              );
+            },
+            loading: () => Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: CircleAvatar(
+                radius: 20,
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+            ),
+            error: (error, _) => Icon(Icons.error, color: Colors.red),
+          ),
+        ],
+      ),
       body: eventsAsync.when(
         data: (events) {
           // Split events into categories for display
@@ -91,58 +128,92 @@ class EventScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEventCard(BuildContext context, event) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => EventDetailsScreen(event: event),
-            ),
-          );
-        },
-        child: Container(
-          width: 250,
+  void _showProfileMenu(BuildContext context, UserProfile? profile, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Event Image
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                  child: Image.network(
-                    event.images.first.url,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: profile?.profilePicture != null
+                        ? AssetImage(profile!.profilePicture!)
+                        : null,
+                    child: profile?.profilePicture == null
+                        ? Icon(Icons.person, size: 30, color: Colors.white)
+                        : null,
                   ),
-                ),
+                  SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        profile?.name ?? 'User',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        profile?.email ?? 'user@example.com',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              // Event Details
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.name,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      event.description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+              SizedBox(height: 16),
+              ListTile(
+                leading: Icon(Icons.account_circle),
+                title: Text('Profile'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/profile');
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Settings'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/settings');
+                },
+              ),
+              if ((profile?.role ?? 'user') == 'admin') // Safeguard null role
+                ListTile(
+                  leading: Icon(Icons.admin_panel_settings),
+                  title: Text('Admin'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/admin-panel');
+                  },
                 ),
+              ListTile(
+                leading: Icon(Icons.logout, color: Colors.red),
+                title: Text('Logout', style: TextStyle(color: Colors.red)),
+                onTap: () async {
+                  try {
+                    ref.read(userProfileProvider.notifier).resetUserProfile();
+                    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Logged out successfully')),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error logging out: $e')),
+                    );
+                  }
+                },
               ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
