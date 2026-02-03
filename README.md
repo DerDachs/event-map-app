@@ -1,88 +1,105 @@
-# 🎄 Christmas Market Event App
+# 🎄 Market Mate
 
-Welcome to the Christmas Market Event App! This Flutter-based application is designed to enhance the experience of visitors to Christmas markets by providing interactive features like market maps, stand listings, and real-time location sharing with friends.
-
----
-
-## 🚀 Features
-
-- **Interactive Market Map**: View a detailed map of Christmas markets.
-- **Stand Listings**: Explore the available stands with descriptions, categories, and locations.
-- **Real-Time Location Sharing**: Share your location with friends in the market.
-- **User Authentication**: Secure login with email/password and social media options.
-- **Notifications**: Stay updated with push notifications about market events and announcements.
+**Market Mate** is a Flutter application that currently serves as a lean starting point for a community event app. The focus right now is on a stable Flutter foundation with Firebase initialization. This README reflects the **current state** of the repository and clarifies what is implemented today versus what may come next.
 
 ---
 
-## 🛠️ Project Setup
+## ✅ Current Status (As-Is)
+
+- **Flutter app with Firebase initialization** is in place.
+- **Minimal start screen** showing “Firebase Initialized!”.
+- **Firebase configuration** is set up via `firebase_options.dart`.
+
+The files in this repository indicate that the app is still in a very early phase. Functional features (e.g., maps, authentication, events, location sharing) are **not implemented yet**.
+
+---
+
+## 🚀 Features (Currently Available)
+
+- **Firebase initialization** on app start.
+- **Basic start screen** to confirm the connection.
+
+---
+
+## 🧩 Technology Stack
+
+- **Flutter** (app framework)
+- **Dart** (programming language)
+- **Firebase** (backend/services)
+- **Riverpod** (state management, available in dependencies)
+
+---
+
+## 📦 Project Setup
 
 ### Prerequisites
-- **Flutter**: [Install Flutter](https://flutter.dev/docs/get-started/install)
-- **Dart**: Comes bundled with Flutter.
-- **Azure DevOps**: Ensure you have access to the repository in Azure Repos.
+- Flutter SDK installed (includes Dart)
+- Firebase setup via FlutterFire CLI (if you use your own Firebase project)
 
-### Clone the Repository
+### Clone the repository
 ```bash
 git clone https://tdwdevelopments@dev.azure.com/tdwdevelopments/event_map_app/_git/event_map_app
 cd event_map_app
 ```
-### Install Dependencies
-Run the following command to fetch all required packages:
+
+### Install dependencies
 ```bash
 flutter pub get
 ```
----
-### Run the App
-1. Connect a device or start an emulator.
-2. Use the following command to run the app:
-   ```bash
-   flutter run
-   ```
+
 ---
 
-## 📂 File Structure
+## ▶️ Run the app
 
-```plaintext
-lib/
-├── main.dart                   # Application entry point
-├── core/                       # Core utilities (constants, themes)
-├── data/                       # Data models and repositories
-├── features/                   # Feature-specific code (auth, map, stands)
-├── shared/                     # Reusable widgets
-├── services/                   # Global services (location, Firebase)
-├── utils/                      # Helper functions and utilities
-assets/                         # Assets (images, icons, fonts)
+1. Start an emulator or connect a device.
+2. Run the app:
+
+```bash
+flutter run
 ```
 
 ---
 
-## 🔧 Development Workflow
+## 🔥 Firebase Configuration
 
-### Branching Strategy
-We follow a simplified GitFlow branching strategy:
-- `main`: Production-ready code.
-- `develop`: Integration branch for features.
-- `feature/*`: Feature-specific branches.
+Firebase options are already included in the repository (`lib/firebase_options.dart`).
+If you want to use your own Firebase project, regenerate the file via the FlutterFire CLI:
 
-### Commit Guidelines
-- **Format**: `[Feature]: Add user authentication`
-- Use meaningful and concise commit messages.
-
-### Pull Requests
-- Create pull requests from `feature/*` to `develop`.
-- Ensure all CI checks pass before merging.
+```bash
+flutterfire configure
+```
 
 ---
 
-## 🧩 Key Packages and Plugins
+## 📂 Repository Structure (As-Is)
 
-- **Maps Integration**: `google_maps_flutter` or `mapbox_gl`
-- **State Management**: `provider`, `riverpod`, or `flutter_bloc`
-- **Firebase**:
-    - `firebase_auth` for authentication
-    - `cloud_firestore` for data storage
-    - `firebase_messaging` for notifications
-- **Utilities**:
-    - `permission_handler` for managing permissions
-    - `flutter_secure_storage` for sensitive data
-    - `shared_preferences` for local storage
+```plaintext
+android/
+ios/
+linux/
+macos/
+web/
+windows/
+lib/
+├── main.dart                   # App entry point & Firebase init
+├── firebase_options.dart       # Firebase configuration
+test/
+```
+
+---
+
+## ✅ Possible Next Steps (Roadmap Suggestion)
+
+These items are **not implemented** yet, but could be good next steps:
+
+- ✅ User authentication (e.g., Firebase Auth)
+- ✅ Event / market listings
+- ✅ Interactive map view
+- ✅ Location sharing
+- ✅ Push notifications
+
+---
+
+## 📌 Note
+
+This README reflects the **current code state**. If specific features are planned, this document can be expanded or refined at any time.
