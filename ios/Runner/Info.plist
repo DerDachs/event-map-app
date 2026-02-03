@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Event Map App</string>
+	<string>Market Mate</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -45,5 +45,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSFaceIDUsageDescription</key>
+    <string>We use Face ID to authenticate you.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>App needs access to your photos to upload an image.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need your location to help you find stands on the map.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>We need your location to help you navigate the market.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>We need your location to provide navigation and nearby stand suggestions.</string>
 </dict>
 </plist>

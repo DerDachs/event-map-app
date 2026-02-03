@@ -13,15 +13,13 @@ jobs:
   - task: InstallAppleCertificate@2
     displayName: 'Install P12 Certificate'
     inputs:
-      certSecureFile: 'tdw_cert.p12'
-      certPwd: 'HcIx3X3Y'
-      keychain: 'temp'
+      certSecureFile: 'developerTDW.p12'
+      certPwd: '$(P12password)'
     
   - task: InstallAppleProvisioningProfile@1
     displayName: 'Install provisioning profile'
     inputs:
-      provisioningProfileLocation: 'secureFiles'
-      provProfileSecureFile: 'Market_mateazureprovisioning.mobileprovision'
+      provProfileSecureFile: 'ab1f5f68-553f-4e74-bd21-e6d152b104e2.mobileprovision'
 
   - task: FlutterInstall@0
     displayName: 'Flutter Install'
@@ -30,17 +28,29 @@ jobs:
       channel: 'stable'
       version: 'custom'
       customVersion: '3.24.5'
-  - task: CocoaPods@0
-    displayName: 'Pod Install'
-    inputs:
-      workingDirectory: '.'
-      forceRepoUpdate: false
+
   - task: FlutterCommand@0
     displayName: 'Flutter Clean'
     inputs:
       projectDirectory: '.'
       arguments: 'clean'
-
+  - task: FlutterCommand@0
+    displayName: 'Flutter Pub Get'
+    inputs:
+      projectDirectory: '.'
+      arguments: 'pub get'
+  
+  - task: CocoaPods@0
+    inputs:
+      workingDirectory: '$(Build.SourcesDirectory)/ios/Flutter'
+      forceRepoUpdate: false
+  - task: Bash@3
+    displayName: '[Flutter] Configure Flutter'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $(FlutterToolPath)/flutter doctor -v
+        $(FlutterToolPath)/flutter config --no-analytics
   - task: FlutterBuild@0
     inputs:
       target: 'ios'
@@ -49,14 +59,20 @@ jobs:
       buildNumber: '$(Build.BuildNumber)'
       entryPoint: 'lib/main.dart'
       iosCodesign: false
-
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+        # Write your commands here
+        
+        echo $APPLE_CERTIFICATE_SIGNING_IDENTITY
+        echo $APPLE_PROV_PROFILE_UUID
   - task: Xcode@5
     displayName: 'Xcode build staging'
     inputs:
       actions: 'build'
-      configuration: '$Configuration'
-      sdk: $SDK
-      xcWorkspacePath: '**/*.xcodeproj/Runner.xcworkspace'
+      sdk: 'iphoneos'
+      xcWorkspacePath: './ios/Runner.xcworkspace'
       scheme: 'Staging'
       packageApp: true
       archivePath: ./build/ios/iphoneos/Runner.xcarchive
@@ -64,8 +80,8 @@ jobs:
       exportOptions: plist
       exportOptionsPlist: ./ios/ExportOptions.plist
       signingOption: 'manual'
-      signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
-      provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
+      signingIdentity: $APPLE_CERTIFICATE_SIGNING_IDENTITY
+      provisioningProfileUuid: $APPLE_PROV_PROFILE_UUID
 
   - task: CopyFiles@2
     displayName: 'Copy Files'
