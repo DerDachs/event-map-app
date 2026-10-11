@@ -1,10 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import { defineSecret } from "firebase-functions/params";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
+import { requireAdmin } from "./auth.js";
 import { geocodeLandmarks } from "./geocode.js";
 import { analyzePlanImage, PlanAnalysisError, SUPPORTED_TYPES, type SupportedType } from "./analyze.js";
 
@@ -33,13 +33,7 @@ export const analyzeMarketPlan = onCall(
     secrets: [anthropicApiKey, geocodingApiKey],
   },
   async (request) => {
-    const uid = request.auth?.uid;
-    if (!uid) throw new HttpsError("unauthenticated", "Bitte zuerst anmelden.");
-
-    const profile = await getFirestore().collection("profiles").doc(uid).get();
-    if (profile.get("role") !== "admin") {
-      throw new HttpsError("permission-denied", "Nur Admins können Märkte anlegen.");
-    }
+    const uid = await requireAdmin(request);
 
     const { storagePath, locationHint = null } = (request.data ?? {}) as AnalyzeRequest;
     if (typeof storagePath !== "string" || !storagePath.startsWith(`market-plans/${uid}/`)) {
@@ -101,3 +95,5 @@ export const analyzeMarketPlan = onCall(
     };
   },
 );
+
+export { importEventFromUrl } from "./importEventFunction.js";

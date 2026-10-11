@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class Category {
@@ -19,11 +18,11 @@ class Category {
     final data = doc.data()!;
     return Category(
       id: doc.id,
-      name: data['name'],
-      icon: data['icon'] != null
-          ? IconData(data['icon'], fontFamily: 'MaterialIcons')
+      name: data['name'] as String? ?? doc.id,
+      icon: data['icon'] is int
+          ? IconData(data['icon'] as int, fontFamily: 'MaterialIcons')
           : null,
-      type: data['type'],
+      type: data['type'] as String? ?? 'stand',
     );
   }
 

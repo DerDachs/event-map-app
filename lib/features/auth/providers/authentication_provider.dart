@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../providers/user_provider.dart';
 import '../services/authentication_service.dart';
@@ -70,7 +69,7 @@ class AuthRepository {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Apple Sign-In failed. Please try again.')),
+        SnackBar(content: Text('Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut.')),
       );
     }
   }

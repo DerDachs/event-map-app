@@ -4,6 +4,7 @@ import '../../../data/models/profile.dart';
 import '../../../providers/user_provider.dart';
 import '../../../screens/profile_initialization_screen.dart';
 import '../providers/authentication_provider.dart';
+import '../services/auth_errors.dart';
 
 
 class RegisterScreen extends ConsumerWidget {
@@ -15,18 +16,20 @@ class RegisterScreen extends ConsumerWidget {
     final authRepository = ref.watch(authRepositoryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      appBar: AppBar(title: Text('Registrieren')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: 'E-Mail'),
+              keyboardType: TextInputType.emailAddress,
+              autocorrect: false,
             ),
             TextField(
               controller: passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(labelText: 'Passwort (mind. 6 Zeichen)'),
               obscureText: true,
             ),
             SizedBox(height: 20),
@@ -35,7 +38,7 @@ class RegisterScreen extends ConsumerWidget {
                 try {
                   // Register the user
                   final user = await authRepository.registerWithEmail(
-                    emailController.text,
+                    emailController.text.trim(),
                     passwordController.text,
                   );
 
@@ -64,11 +67,11 @@ class RegisterScreen extends ConsumerWidget {
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
+                    SnackBar(content: Text(authErrorMessage(e))),
                   );
                 }
               },
-              child: Text('Register'),
+              child: Text('Konto erstellen'),
             ),
           ],
         ),

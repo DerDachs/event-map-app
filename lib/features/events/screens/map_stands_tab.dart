@@ -1,397 +1,475 @@
+import 'dart:math' as math;
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import '../../../data/models/category.dart';
 import '../../../data/models/event.dart';
 import '../../../data/models/stand.dart';
 import '../../../providers/category_provider.dart';
+import '../../favorites/providers/favorite_provider.dart';
+import '../../market_builder/models/stand_categories.dart';
+import '../../market_builder/widgets/category_marker.dart';
 import '../../stands/providers/stand_provider.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:ui' as ui;
 
+/// How a stand category looks on the map and in the list.
+class _CategoryStyle {
+  final String key;
+  final String name;
+  final IconData icon;
+  final Color color;
+
+  const _CategoryStyle(this.key, this.name, this.icon, this.color);
+}
+
+/// Visitor map: every stand as a coloured category icon, with search,
+/// category filters and a pull-up list.
 class MapStandsTab extends ConsumerStatefulWidget {
   final Event event;
 
-  MapStandsTab({required this.event});
+  const MapStandsTab({super.key, required this.event});
 
   @override
-  _MapStandsTabState createState() => _MapStandsTabState();
+  ConsumerState<MapStandsTab> createState() => _MapStandsTabState();
 }
 
 class _MapStandsTabState extends ConsumerState<MapStandsTab> {
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = "";
-  String? _selectedStandId; // Track selected stand ID
-  double _currentZoomLevel = 18.0;
-  GoogleMapController? _mapController;
+  final _searchController = TextEditingController();
+  final _sheetController = DraggableScrollableController();
+  GoogleMapController? _map;
+
+  String _query = '';
+  final Set<String> _activeCategories = {};
+  String? _selectedStandId;
+  bool _showPlan = false;
+
+  Set<Marker> _markers = {};
+  String _markersKey = '';
+  GroundOverlay? _planOverlay;
+  bool _planLoading = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _sheetController.dispose();
+    super.dispose();
+  }
+
+  _CategoryStyle _styleFor(String? key, Map<String, Category> fromFirestore) {
+    final builtIn = standCategories.where((c) => c.key == key);
+    if (builtIn.isNotEmpty) {
+      final c = builtIn.first;
+      return _CategoryStyle(c.key, c.name, c.icon, c.color);
+    }
+    final doc = fromFirestore[key];
+    if (doc != null) {
+      return _CategoryStyle(doc.id, doc.name, doc.icon ?? Icons.storefront, const Color(0xFF6D4C41));
+    }
+    final other = standCategories.last;
+    return _CategoryStyle(key ?? other.key, other.name, other.icon, other.color);
+  }
+
+  bool _matches(Stand stand, _CategoryStyle style) {
+    if (_activeCategories.isNotEmpty && !_activeCategories.contains(style.key)) return false;
+    if (_query.isEmpty) return true;
+    return stand.name.toLowerCase().contains(_query) ||
+        stand.description.toLowerCase().contains(_query) ||
+        style.name.toLowerCase().contains(_query);
+  }
+
+  Future<void> _buildMarkers(List<Stand> stands, Map<String, Category> categories) async {
+    final key = [
+      stands.length,
+      categories.length,
+      _query,
+      (_activeCategories.toList()..sort()).join(','),
+      _selectedStandId,
+    ].join('|');
+    if (key == _markersKey) return;
+    _markersKey = key;
+
+    final markers = <Marker>{};
+    for (final stand in stands) {
+      if (stand.eventLatitude == null || stand.eventLongitude == null) continue;
+      final style = _styleFor(stand.standCategoryId, categories);
+      if (!_matches(stand, style)) continue;
+      final selected = stand.id == _selectedStandId;
+      markers.add(Marker(
+        markerId: MarkerId(stand.id),
+        position: LatLng(stand.eventLatitude!, stand.eventLongitude!),
+        icon: await iconMarker(style.key, style.icon, style.color, selected: selected),
+        anchor: const Offset(0.5, 0.5),
+        zIndexInt: selected ? 2 : 1,
+        onTap: () => _select(stand),
+      ));
+    }
+    if (mounted && key == _markersKey) setState(() => _markers = markers);
+  }
+
+  void _select(Stand stand) {
+    setState(() => _selectedStandId = stand.id);
+    if (stand.eventLatitude != null) {
+      _map?.animateCamera(
+        CameraUpdate.newLatLng(LatLng(stand.eventLatitude!, stand.eventLongitude!)),
+      );
+    }
+    if (_sheetController.isAttached && _sheetController.size > 0.3) {
+      _sheetController.animateTo(0.12,
+          duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+    }
+  }
+
+  void _fitToStands(List<Stand> stands) {
+    final points = stands
+        .where((s) => s.eventLatitude != null && s.eventLongitude != null)
+        .map((s) => LatLng(s.eventLatitude!, s.eventLongitude!))
+        .toList();
+    if (points.length < 2 || _map == null) return;
+    var south = points.first.latitude, north = south;
+    var west = points.first.longitude, east = west;
+    for (final p in points) {
+      south = math.min(south, p.latitude);
+      north = math.max(north, p.latitude);
+      west = math.min(west, p.longitude);
+      east = math.max(east, p.longitude);
+    }
+    _map!.animateCamera(CameraUpdate.newLatLngBounds(
+      LatLngBounds(southwest: LatLng(south, west), northeast: LatLng(north, east)),
+      48,
+    ));
+  }
+
+  Future<void> _togglePlan() async {
+    final plan = widget.event.plan;
+    if (plan == null) return;
+    if (_planOverlay != null || _showPlan) {
+      setState(() => _showPlan = !_showPlan);
+      return;
+    }
+    setState(() => _planLoading = true);
+    try {
+      final Uint8List? bytes =
+          await FirebaseStorage.instance.refFromURL(plan.imageUrl).getData(10 * 1024 * 1024);
+      if (bytes == null) throw Exception('leer');
+      final codec = await ui.instantiateImageCodec(bytes);
+      final width = (await codec.getNextFrame()).image.width;
+      final metersPerPixelAtZoom0 = 156543.03392 * math.cos(plan.latitude * math.pi / 180);
+      setState(() {
+        _planOverlay = GroundOverlay.fromPosition(
+          groundOverlayId: const GroundOverlayId('plan'),
+          image: BytesMapBitmap(bytes, bitmapScaling: MapBitmapScaling.none),
+          position: LatLng(plan.latitude, plan.longitude),
+          width: plan.widthMeters,
+          height: plan.heightMeters,
+          bearing: plan.bearing,
+          transparency: 0.35,
+          zoomLevel: math.log(metersPerPixelAtZoom0 * width / plan.widthMeters) / math.ln2,
+          clickable: false,
+        );
+        _showPlan = true;
+      });
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Der Lageplan konnte nicht geladen werden.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _planLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final standsAsync = ref.watch(standsForEventProvider(widget.event.id));
-    final categoriesAsync =
-        ref.watch(categoriesForEventProvider(widget.event.id));
+    final categoriesAsync = ref.watch(categoriesForEventProvider(widget.event.id));
+    final categories = {
+      for (final c in categoriesAsync.valueOrNull ?? const <Category>[]) c.id: c,
+    };
 
-    return Column(
-      children: [
-        // Search bar
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              labelText: 'Search Stands',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
+    return standsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => _Message(
+        icon: Icons.cloud_off,
+        text: 'Die Stände konnten nicht geladen werden.',
+        onRetry: () => ref.invalidate(standsForEventProvider(widget.event.id)),
+      ),
+      data: (stands) {
+        _buildMarkers(stands, categories);
+        final styles = <String, _CategoryStyle>{};
+        final counts = <String, int>{};
+        for (final s in stands) {
+          final style = _styleFor(s.standCategoryId, categories);
+          styles[style.key] = style;
+          counts[style.key] = (counts[style.key] ?? 0) + 1;
+        }
+        final selected = stands.where((s) => s.id == _selectedStandId).firstOrNull;
+
+        return Stack(
+          children: [
+            GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: LatLng(widget.event.latitude, widget.event.longitude),
+                zoom: 17,
+              ),
+              onMapCreated: (c) {
+                _map = c;
+                Future.delayed(const Duration(milliseconds: 300), () => _fitToStands(stands));
+              },
+              onTap: (_) => setState(() => _selectedStandId = null),
+              markers: _markers,
+              groundOverlays: {if (_showPlan && _planOverlay != null) _planOverlay!},
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              mapToolbarEnabled: false,
+              zoomControlsEnabled: false,
+              tiltGesturesEnabled: false,
+              padding: const EdgeInsets.only(top: 112, bottom: 96),
+            ),
+            // Search and filters
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              child: SafeArea(
+                bottom: false,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                      child: Material(
+                        elevation: 3,
+                        borderRadius: BorderRadius.circular(28),
+                        child: TextField(
+                          controller: _searchController,
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            hintText: 'Stand suchen, z. B. Crêpes',
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: _query.isEmpty
+                                ? null
+                                : IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() => _query = '');
+                                    },
+                                  ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 44,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        children: [
+                          for (final style in styles.values)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: FilterChip(
+                                avatar: Icon(style.icon, size: 18, color: style.color),
+                                label: Text('${style.name} ${counts[style.key]}'),
+                                selected: _activeCategories.contains(style.key),
+                                showCheckmark: false,
+                                backgroundColor: Colors.white,
+                                onSelected: (on) => setState(() {
+                                  on ? _activeCategories.add(style.key) : _activeCategories.remove(style.key);
+                                }),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value.toLowerCase();
-              });
-            },
-          ),
-        ),
-        // Map and Stands List
-        Expanded(
-          child: standsAsync.when(
-            data: (stands) => categoriesAsync.when(
-              data: (categories) =>
-                  _buildMapAndStands(context, stands, categories),
-              loading: () => Center(child: CircularProgressIndicator()),
-              error: (error, stack) =>
-                  Center(child: Text('Error loading categories')),
+            // Map buttons
+            Positioned(
+              right: 12,
+              bottom: 112,
+              child: Column(
+                children: [
+                  if (widget.event.plan != null)
+                    _MapButton(
+                      tooltip: _showPlan ? 'Lageplan ausblenden' : 'Lageplan einblenden',
+                      icon: _planLoading
+                          ? const SizedBox(
+                              width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                          : Icon(_showPlan ? Icons.layers_clear : Icons.layers),
+                      onPressed: _planLoading ? null : _togglePlan,
+                    ),
+                  const SizedBox(height: 8),
+                  _MapButton(
+                    tooltip: 'Ganzen Markt zeigen',
+                    icon: const Icon(Icons.zoom_out_map),
+                    onPressed: () => _fitToStands(stands),
+                  ),
+                ],
+              ),
             ),
-            loading: () => Center(child: CircularProgressIndicator()),
-            error: (error, stack) =>
-                Center(child: Text('Error loading stands')),
-          ),
-        ),
-      ],
+            // Stand list
+            DraggableScrollableSheet(
+              controller: _sheetController,
+              initialChildSize: 0.12,
+              minChildSize: 0.12,
+              maxChildSize: 0.85,
+              snap: true,
+              snapSizes: const [0.12, 0.45, 0.85],
+              builder: (context, scrollController) => _StandSheet(
+                scrollController: scrollController,
+                stands: stands,
+                styles: styles,
+                styleFor: (s) => _styleFor(s.standCategoryId, categories),
+                matches: _matches,
+                selected: selected,
+                onSelect: _select,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
+}
 
-  Widget _buildMapAndStands(BuildContext context, List<Stand> stands, List<Category> categories) {
-    // Group stands by category
-    final groupedStands = _groupStandsByCategory(stands, categories);
+class _MapButton extends StatelessWidget {
+  final String tooltip;
+  final Widget icon;
+  final VoidCallback? onPressed;
 
-    return Column(
-      children: [
-        // Map section with fixed height
-        Container(
-          height: 300,
-          margin: const EdgeInsets.only(bottom: 8.0),
-          child: SizedBox(
-              height: MediaQuery.of(context).size.height / 4, // Map section
-              child: FutureBuilder<Set<Marker>>(
-                  future: generateMarkers(stands, categories),
-                  builder: (context, snapshot) {
-                    return GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                            widget.event.latitude, widget.event.longitude),
-                        zoom: _currentZoomLevel,
-                      ),
-                      onMapCreated: (controller) => _mapController = controller,
-                      onCameraMove: (position) {
-                        setState(() {
-                          _currentZoomLevel = position.zoom; // Track zoom level
-                        });
-                      },
-                      markers: snapshot.data ?? {},
-                      scrollGesturesEnabled: true,
-                      zoomGesturesEnabled: true,
-                      rotateGesturesEnabled: true,
-                      tiltGesturesEnabled: false,
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                    );
-                  })),
+  const _MapButton({required this.tooltip, required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) => Material(
+        color: Colors.white,
+        shape: const CircleBorder(),
+        elevation: 3,
+        child: IconButton(tooltip: tooltip, icon: icon, onPressed: onPressed),
+      );
+}
+
+class _StandSheet extends ConsumerWidget {
+  final ScrollController scrollController;
+  final List<Stand> stands;
+  final Map<String, _CategoryStyle> styles;
+  final _CategoryStyle Function(Stand) styleFor;
+  final bool Function(Stand, _CategoryStyle) matches;
+  final Stand? selected;
+  final ValueChanged<Stand> onSelect;
+
+  const _StandSheet({
+    required this.scrollController,
+    required this.stands,
+    required this.styles,
+    required this.styleFor,
+    required this.matches,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favorites = ref.watch(favoritesProvider)['stands'] ?? const <String>[];
+    final visible = stands.where((s) => matches(s, styleFor(s))).toList()
+      ..sort((a, b) {
+        final fa = favorites.contains(a.id) ? 0 : 1, fb = favorites.contains(b.id) ? 0 : 1;
+        return fa != fb ? fa - fb : a.name.toLowerCase().compareTo(b.name.toLowerCase());
+      });
+
+    Widget tile(Stand stand) {
+      final style = styleFor(stand);
+      final isFavorite = favorites.contains(stand.id);
+      return ListTile(
+        selected: stand.id == selected?.id,
+        leading: CircleAvatar(
+          backgroundColor: style.color,
+          child: Icon(style.icon, color: Colors.white, size: 20),
         ),
-        // Stands grouped by categories
-        Expanded(
-          child: ListView(
-            children: groupedStands.entries.map((entry) {
-              final categoryName = entry.key;
-              final stands = entry.value.where((stand) {
-                return stand.name.toLowerCase().contains(_searchQuery) ||
-                    stand.description.toLowerCase().contains(_searchQuery);
-              }).toList();
-
-              if (stands.isEmpty) return SizedBox.shrink();
-
-              return ExpansionTile(
-                title: Text(categoryName),
-                children: stands.map((stand) {
-                  return ListTile(
-                    title: Text(stand.name),
-                    subtitle: Text(stand.description),
-                    onTap: () {
-                      _onStandSelected(stand);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Tapped on ${stand.name}')),
-                      );
-                    },
-                  );
-                }).toList(),
-              );
-            }).toList(),
-          ),
+        title: Text(stand.name),
+        subtitle: Text(
+          stand.description.isNotEmpty ? stand.description : style.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
-      ],
-    );
-  }
-
-  // Stand selection on Map
-  void _onStandSelected(Stand stand) {
-    setState(() {
-      _selectedStandId = stand.id;
-    });
-
-    // Animate camera to the selected stand's location
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(
-        LatLng(stand.eventLatitude!, stand.eventLongitude!),
-        _currentZoomLevel, // Keep current zoom level
-      ),
-    );
-  }
-
-  // Group stands by their categories
-  Map<String, List<Stand>> _groupStandsByCategory(List<Stand> stands, List<Category> categories) {
-    final categoryMap = {
-      for (var category in categories) category.id: category.name,
-    };
-
-    final Map<String, List<Stand>> groupedStands = {};
-
-    for (var stand in stands) {
-      final categoryName = categoryMap[stand.standCategoryId] ?? 'Untitled';
-      if (!groupedStands.containsKey(categoryName)) {
-        groupedStands[categoryName] = [];
-      }
-      groupedStands[categoryName]!.add(stand);
-    }
-
-    return groupedStands;
-  }
-
-  // Generate markers dynamically based on category icons
-  // Future<Set<Marker>> _generateDynamicMarkers(List<Stand> stands, List<Category> categories) async {
-  //   // Map category IDs to their corresponding icons
-  //   final categoryIconMap = {
-  //     for (var category in categories) category.id: category.icon,
-  //   };
-  //   final Set<Marker> markers = {};
-  //   stands.map((stand) async {
-  //     final icon = categoryIconMap[stand.standCategoryId] ?? Icons.store;
-  //
-  //     // Highlight selected marker
-  //     final isSelected = stand.id == _selectedStandId;
-  //     final markerColor = isSelected ? Colors.red : Colors.blue;
-  //     markers.add(Marker(
-  //       markerId: MarkerId(stand.id),
-  //       position: LatLng(stand.eventLatitude!, stand.eventLongitude!),
-  //       icon: await _createSelectedMarker(icon, markerColor, isSelected),
-  //       infoWindow: InfoWindow(
-  //         title: stand.name,
-  //         snippet: stand.description,
-  //       ),
-  //     ));
-  //   });
-  //   return markers;
-  // }
-
-  /// Create a BitmapDescriptor from an IconData
-  // Future<BitmapDescriptor> _createBitmapDescriptorFromIcon(IconData icon) async {
-  //   final pictureRecorder = ui.PictureRecorder();
-  //   final canvas = Canvas(pictureRecorder);
-  //   const double size = 48.0;
-  //
-  //   // Draw the icon
-  //   final textPainter = TextPainter(
-  //     text: TextSpan(
-  //       text: String.fromCharCode(icon.codePoint),
-  //       style: TextStyle(
-  //         fontSize: size,
-  //         fontFamily: icon.fontFamily,
-  //         color: Colors.blue, // Set a default color for the icon
-  //       ),
-  //     ),
-  //     textDirection: TextDirection.ltr,
-  //   );
-  //   textPainter.layout();
-  //   textPainter.paint(
-  //       canvas,
-  //       Offset(
-  //         (size - textPainter.width) / 2,
-  //         (size - textPainter.height) / 2,
-  //       ));
-  //
-  //   // Convert canvas to image
-  //   final image = await pictureRecorder
-  //       .endRecording()
-  //       .toImage(size.toInt(), size.toInt());
-  //   final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-  //
-  //   // Convert the image to a BitmapDescriptor
-  //   return BitmapDescriptor.bytes(bytes!.buffer.asUint8List());
-  // }
-
-  // Future<BitmapDescriptor> _createSelectedMarker(IconData icon, Color color, bool isSelected) async {
-  //   // Adjust size for selected marker
-  //   final double size = isSelected ? 60.0 : 40.0;
-  //
-  //   // Generate a custom marker
-  //   const double markerWidth = 30.0; // Marker width
-  //   const double markerHeight = 37.5; // Marker height
-  //
-  //   final pictureRecorder = ui.PictureRecorder();
-  //   final canvas = Canvas(pictureRecorder);
-  //
-  //   final paint = Paint()..color = color;
-  //
-  //   // Draw marker pin shape
-  //   final Path path = Path()
-  //     ..moveTo(markerWidth / 2, markerHeight)
-  //     ..lineTo(markerWidth * 0.1, markerHeight * 0.6)
-  //     ..quadraticBezierTo(
-  //       markerWidth / 2,
-  //       0,
-  //       markerWidth * 0.9,
-  //       markerHeight * 0.6,
-  //     )
-  //     ..close();
-  //   canvas.drawPath(path, paint);
-  //
-  //   // Draw white circle for the icon background
-  //   final iconBackgroundPaint = Paint()..color = Colors.white;
-  //   const double circleRadius = 10.0;
-  //   canvas.drawCircle(
-  //     Offset(markerWidth / 2, markerHeight * 0.4),
-  //     circleRadius,
-  //     iconBackgroundPaint,
-  //   );
-  //
-  //   // Draw the icon in the center
-  //   final textPainter = TextPainter(
-  //     text: TextSpan(
-  //       text: String.fromCharCode(icon.codePoint),
-  //       style: TextStyle(
-  //         fontSize: circleRadius * 1.5, // Adjust size based on circle radius
-  //         fontFamily: 'MaterialIcons', // Use MaterialIcons font
-  //         color: Colors.black, // Icon color
-  //       ),
-  //     ),
-  //     textDirection: TextDirection.ltr,
-  //   );
-  //   textPainter.layout();
-  //   textPainter.paint(
-  //     canvas,
-  //     Offset(
-  //       (markerWidth - textPainter.width) / 2,
-  //       (markerHeight * 0.4 - textPainter.height / 2),
-  //     ),
-  //   );
-  //
-  //   // Convert the canvas to an image
-  //   final image = await pictureRecorder
-  //       .endRecording()
-  //       .toImage(markerWidth.toInt(), markerHeight.toInt());
-  //   final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-  //
-  //   return BitmapDescriptor.bytes(byteData!.buffer.asUint8List());
-  //   // or use a simpler fallback like this:
-  //   return BitmapDescriptor.defaultMarkerWithHue(
-  //       isSelected ? BitmapDescriptor.hueRed : BitmapDescriptor.hueBlue);
-  // }
-
-  Future<BitmapDescriptor> createCustomMarker(IconData icon, Color markerColor, bool isSelected) async {
-    final double markerWidth = isSelected ? 50.0 : 30.0; // Marker width
-    final double markerHeight = isSelected ? 57.5 : 37.5; // Marker height
-
-    final pictureRecorder = ui.PictureRecorder();
-    final canvas = Canvas(pictureRecorder);
-
-    final paint = Paint()..color = markerColor;
-
-    // Draw marker pin shape
-    final Path path = Path()
-      ..moveTo(markerWidth / 2, markerHeight)
-      ..lineTo(markerWidth * 0.1, markerHeight * 0.6)
-      ..quadraticBezierTo(
-        markerWidth / 2,
-        0,
-        markerWidth * 0.9,
-        markerHeight * 0.6,
-      )
-      ..close();
-    canvas.drawPath(path, paint);
-
-    // Draw white circle for the icon background
-    final iconBackgroundPaint = Paint()..color = Colors.white;
-    const double circleRadius = 10.0;
-    canvas.drawCircle(
-      Offset(markerWidth / 2, markerHeight * 0.4),
-      circleRadius,
-      iconBackgroundPaint,
-    );
-
-    // Draw the icon in the center
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: String.fromCharCode(icon.codePoint),
-        style: TextStyle(
-          fontSize: circleRadius * 1.5, // Adjust size based on circle radius
-          fontFamily: 'MaterialIcons', // Use MaterialIcons font
-          color: Colors.black, // Icon color
+        trailing: IconButton(
+          tooltip: isFavorite ? 'Aus Favoriten entfernen' : 'Merken',
+          icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: Colors.red),
+          onPressed: () => ref.read(favoritesProvider.notifier).toggleFavorite('stands', stand.id),
         ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-        (markerWidth - textPainter.width) / 2,
-        (markerHeight * 0.4 - textPainter.height / 2),
-      ),
-    );
-
-    // Convert the canvas to an image
-    final image = await pictureRecorder
-        .endRecording()
-        .toImage(markerWidth.toInt(), markerHeight.toInt());
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-
-    return BitmapDescriptor.bytes(byteData!.buffer.asUint8List());
-  }
-
-  Future<Set<Marker>> generateMarkers(List<Stand> stands, List<Category> categories) async {
-    final categoryIconMap = {
-      for (var category in categories) category.id: category.icon,
-    };
-
-    final Set<Marker> markers = {};
-    for (var stand in stands) {
-      final icon = categoryIconMap[stand.standCategoryId] ?? Icons.store;
-
-      final isSelected = stand.id == _selectedStandId;
-      final markerColor = isSelected ? Colors.red : Colors.blue;
-      // Generate custom marker
-      final markerIcon = await createCustomMarker(icon, markerColor, isSelected);
-
-      markers.add(
-        Marker(
-          markerId: MarkerId(stand.id),
-          position: LatLng(stand.eventLatitude!, stand.eventLongitude!),
-          icon: markerIcon,
-          infoWindow: InfoWindow(
-            title: stand.name,
-            snippet: stand.description,
-          ),
-        ),
+        onTap: () => onSelect(stand),
       );
     }
-    return markers;
+
+    return Material(
+      elevation: 8,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      clipBehavior: Clip.antiAlias,
+      child: ListView(
+        controller: scrollController,
+        padding: EdgeInsets.zero,
+        children: [
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 8, bottom: 4),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(2)),
+            ),
+          ),
+          if (selected != null) ...[
+            tile(selected!),
+            const Divider(height: 1),
+          ] else
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: Text(
+                visible.length == stands.length
+                    ? '${stands.length} Stände – nach oben ziehen für die Liste'
+                    : '${visible.length} von ${stands.length} Ständen',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+          if (visible.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: Text('Kein Stand passt zur Suche.', textAlign: TextAlign.center),
+            ),
+          for (final stand in visible)
+            if (stand.id != selected?.id) tile(stand),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
   }
+}
+
+class _Message extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final VoidCallback onRetry;
+
+  const _Message({required this.icon, required this.text, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 48, color: Colors.grey),
+            const SizedBox(height: 12),
+            Text(text),
+            TextButton(onPressed: onRetry, child: const Text('Erneut versuchen')),
+          ],
+        ),
+      );
 }

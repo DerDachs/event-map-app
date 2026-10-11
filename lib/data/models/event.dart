@@ -40,63 +40,108 @@ class Event {
     this.eventTip,
     this.organizerInfo,
     this.categories,
+    this.plan,
   });
 
-  // From Firestore
+  /// The uploaded site plan and where it lies on the map, for markets created
+  /// with the market builder.
+  final EventPlan? plan;
+
+  // From Firestore. Tolerates missing fields so one incomplete document
+  // doesn't break the whole event list.
   factory Event.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> doc,
       SnapshotOptions? options,
       ) {
-    final data = doc.data()!;
+    final data = doc.data() ?? const <String, dynamic>{};
+    List<String> strings(Object? v) => v is List ? v.map((e) => e.toString()).toList() : <String>[];
+    List<Map<String, dynamic>> maps(Object? v) => v is List
+        ? v.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList()
+        : <Map<String, dynamic>>[];
+    DateTime time(Object? v) => v is Timestamp ? v.toDate() : DateTime.fromMillisecondsSinceEpoch(0);
+    double number(Object? v) => v is num ? v.toDouble() : 0;
+
     return Event(
       id: doc.id,
-      name: data['name'],
-      description: data['description'],
-      startTime: (data['startTime'] as Timestamp).toDate(),
-      endTime: (data['endTime'] as Timestamp).toDate(),
-      latitude: data['latitude'],
-      longitude: data['longitude'],
-      category: data['category'],
-      teamIds: List<String>.from(data['teamIds']),
-      images: (data['images'] as List)
-          .map((image) => EventImage.fromMap(image as Map<String, dynamic>))
+      name: data['name'] as String? ?? '',
+      description: data['description'] as String? ?? '',
+      startTime: time(data['startTime']),
+      endTime: time(data['endTime']),
+      latitude: number(data['latitude']),
+      longitude: number(data['longitude']),
+      category: data['category'] as String? ?? '',
+      teamIds: strings(data['teamIds']),
+      images: maps(data['images']).where((m) => m['url'] != null).map(EventImage.fromMap).toList(),
+      stands: maps(data['stands'])
+          .where((m) => m['standId'] != null && m['location'] is Map)
+          .map(StandInEvent.fromFirestore)
           .toList(),
-      stands: (data['stands'] as List)
-          .map((stand) => StandInEvent.fromFirestore(stand))
-          .toList(),
-      participants: List<String>.from(data['participants']) ?? [],
-      openingHours: (data['openingHours'] as List<dynamic>?)
-          ?.map((e) => OpeningHour.fromFirestore(e))
-          .toList() ?? [],
-      organizerName: data['organizerName'] ?? '',
-      ticketPrice: data['ticketPrice'] ?? '',
-      eventTip: data['eventTip'] ?? '',
-      organizerInfo: data['organizerInfo'] ?? '',
-      categories: List<String>.from(data['categories']) ?? [],
+      participants: strings(data['participants']),
+      openingHours: maps(data['openingHours']).map(OpeningHour.fromFirestore).toList(),
+      organizerName: data['organizerName'] as String? ?? '',
+      ticketPrice: data['ticketPrice'] as String? ?? '',
+      eventTip: data['eventTip'] as String? ?? '',
+      organizerInfo: data['organizerInfo'] as String? ?? '',
+      categories: strings(data['categories']),
+      plan: data['plan'] is Map ? EventPlan.fromMap(Map<String, dynamic>.from(data['plan'])) : null,
     );
   }
 
-  // Convert Event to Firestore Map‚
+  // Convert Event to Firestore Map
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,
       'description': description,
-      'startTime': startTime as Timestamp,
-      'endTime': endTime as Timestamp,
+      'startTime': Timestamp.fromDate(startTime),
+      'endTime': Timestamp.fromDate(endTime),
       'latitude': latitude,
       'longitude': longitude,
       'teamIds': teamIds,
       'images': images.map((image) => image.toFirestore()).toList(),
-      'stands': stands,
+      'stands': stands.map((stand) => stand.toFirestore()).toList(),
       'category': category,
-      'participants': participants,
-      'openingHours': openingHours?.map((hour) => hour.toFirestore()).toList(),
+      'participants': participants ?? [],
+      'openingHours': openingHours?.map((hour) => hour.toFirestore()).toList() ?? [],
       'organizerName': organizerName ?? '',
       'ticketPrice': ticketPrice ?? '',
       'eventTip': eventTip ?? '',
       'organizerInfo': organizerInfo ?? '',
-      'categories': categories,
+      'categories': categories ?? [],
     };
+  }
+}
+
+/// Where the organiser's site plan lies on the map (see the market builder).
+class EventPlan {
+  final String imageUrl;
+  final double latitude;
+  final double longitude;
+  final double widthMeters;
+  final double heightMeters;
+  final double bearing;
+
+  const EventPlan({
+    required this.imageUrl,
+    required this.latitude,
+    required this.longitude,
+    required this.widthMeters,
+    required this.heightMeters,
+    required this.bearing,
+  });
+
+  static EventPlan? fromMap(Map<String, dynamic> data) {
+    final overlay = data['overlay'];
+    final url = data['imageUrl'];
+    if (overlay is! Map || url is! String) return null;
+    double n(Object? v) => v is num ? v.toDouble() : 0;
+    return EventPlan(
+      imageUrl: url,
+      latitude: n(overlay['latitude']),
+      longitude: n(overlay['longitude']),
+      widthMeters: n(overlay['widthMeters']),
+      heightMeters: n(overlay['heightMeters']),
+      bearing: n(overlay['bearing']),
+    );
   }
 }
 
@@ -141,11 +186,18 @@ class StandInEvent {
 
   // From Firestore
   factory StandInEvent.fromFirestore(Map<String, dynamic> data) {
+    final location = Map<String, dynamic>.from(data['location'] as Map);
     return StandInEvent(
-      standId: data['standId'],
-      latitude: data['location']['latitude'],
-      longitude: data['location']['longitude'],
-      categoryId: data['category'] ?? '',
+      standId: data['standId'] as String,
+      latitude: (location['latitude'] as num).toDouble(),
+      longitude: (location['longitude'] as num).toDouble(),
+      categoryId: data['category'] as String? ?? '',
     );
   }
+
+  Map<String, dynamic> toFirestore() => {
+        'standId': standId,
+        'location': {'latitude': latitude, 'longitude': longitude},
+        'category': categoryId,
+      };
 }

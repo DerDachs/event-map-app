@@ -5,7 +5,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+import '../../../data/models/event.dart';
 import '../models/plan_draft.dart';
+import '../models/event_import.dart';
 import '../models/stand_categories.dart';
 import 'georeference.dart';
 
@@ -78,6 +80,16 @@ class MarketBuilderService {
     );
   }
 
+  /// Reads listing details and images from the event's web page.
+  Future<EventImport> importFromUrl(String url) async {
+    final callable = _functions.httpsCallable(
+      'importEventFromUrl',
+      options: HttpsCallableOptions(timeout: const Duration(minutes: 5)),
+    );
+    final result = await callable.call<Map<String, dynamic>>({'url': url});
+    return EventImport.fromMap(Map<String, dynamic>.from(result.data));
+  }
+
   /// Writes the market as an event with its stands, in the format the
   /// visitor screens read (see StandService.fetchStandsForEvent).
   Future<String> saveMarket({
@@ -87,6 +99,13 @@ class MarketBuilderService {
     required String description,
     required DateTime start,
     required DateTime end,
+    List<String> imageUrls = const [],
+    List<OpeningHour> openingHours = const [],
+    String? ticketPrice,
+    String? organizerName,
+    String? organizerInfo,
+    String? eventTip,
+    String? websiteUrl,
   }) async {
     final batch = _firestore.batch();
     final eventRef = _firestore.collection('events').doc();
@@ -135,16 +154,19 @@ class MarketBuilderService {
       'category': 'christmas_market',
       'teamIds': <String>[],
       'participants': <String>[],
+      // Pictures from the web page come first; the plan is the fallback cover.
       'images': [
-        {'url': draft.imageUrl, 'isStandard': true},
+        for (var i = 0; i < imageUrls.length; i++) {'url': imageUrls[i], 'isStandard': i == 0},
+        {'url': draft.imageUrl, 'isStandard': imageUrls.isEmpty},
       ],
       'stands': eventStands,
       'categories': usedCategories.toList(),
-      'openingHours': <Map<String, dynamic>>[],
-      'organizerName': '',
-      'ticketPrice': '',
-      'eventTip': '',
-      'organizerInfo': '',
+      'openingHours': openingHours.map((h) => h.toFirestore()).toList(),
+      'organizerName': organizerName ?? '',
+      'ticketPrice': ticketPrice ?? '',
+      'eventTip': eventTip ?? '',
+      'organizerInfo': organizerInfo ?? '',
+      if (websiteUrl != null) 'websiteUrl': websiteUrl,
       'plan': {
         'storagePath': draft.storagePath,
         'imageUrl': draft.imageUrl,

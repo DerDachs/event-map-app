@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/authentication_provider.dart';
+import '../services/auth_errors.dart';
 
 class ForgotPasswordScreen extends ConsumerWidget {
   final emailController = TextEditingController();
@@ -10,21 +11,21 @@ class ForgotPasswordScreen extends ConsumerWidget {
     final authRepository = ref.watch(authRepositoryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Forgot Password')),
+      appBar: AppBar(title: Text('Passwort vergessen')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Enter your email to reset your password.',
+              'Gib deine E-Mail ein – wir schicken dir einen Link zum Zurücksetzen.',
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 16),
             TextField(
               controller: emailController,
               decoration: InputDecoration(
-                labelText: 'Email',
+                labelText: 'E-Mail',
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
@@ -33,18 +34,18 @@ class ForgotPasswordScreen extends ConsumerWidget {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  await authRepository.sendPasswordResetEmail(emailController.text);
+                  await authRepository.sendPasswordResetEmail(emailController.text.trim());
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Password reset email sent!')),
+                    SnackBar(content: Text('E-Mail zum Zurücksetzen wurde gesendet.')),
                   );
                   Navigator.pop(context); // Return to the login screen
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
+                    SnackBar(content: Text(authErrorMessage(e))),
                   );
                 }
               },
-              child: Text('Send Reset Email'),
+              child: Text('Link senden'),
             ),
           ],
         ),

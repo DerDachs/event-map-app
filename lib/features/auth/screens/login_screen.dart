@@ -7,6 +7,7 @@ import 'register_screen.dart';
 import '../../../providers/state_provider.dart';
 import '../../../utils/custom_widgets.dart'; // Utility for reusable components
 import '../../../utils/apple_sign_in_button.dart'; // Apple sign-in button
+import '../services/auth_errors.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   @override
@@ -39,7 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             children: [
               Center(
                 child: Text(
-                  'Welcome Back!',
+                  'Willkommen bei Market Mate',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).primaryColor,
@@ -54,16 +55,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Email Input
                     CustomTextFormField(
                       controller: _emailController,
-                      label: 'Email',
+                      label: 'E-Mail',
                       icon: Icons.email,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return 'Bitte gib deine E-Mail ein';
                         }
                         final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                         if (!emailRegex.hasMatch(value)) {
-                          return 'Please enter a valid email';
+                          return 'Bitte gib eine gültige E-Mail ein';
                         }
                         return null;
                       },
@@ -73,12 +74,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Password Input
                     CustomTextFormField(
                       controller: _passwordController,
-                      label: 'Password',
+                      label: 'Passwort',
                       icon: Icons.lock,
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
+                          return 'Bitte gib dein Passwort ein';
                         }
                         return null;
                       },
@@ -89,7 +90,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     isLoading
                         ? Center(child: CircularProgressIndicator())
                         : CustomElevatedButton(
-                      label: 'Login',
+                      label: 'Anmelden',
                       onPressed: () async {
                         if (_formKey.currentState?.validate() ?? false) {
                           try {
@@ -99,7 +100,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                             // Perform login
                             final user = await authRepository.signInWithEmail(
-                              _emailController.text,
+                              _emailController.text.trim(),
                               _passwordController.text,
                             );
 
@@ -113,7 +114,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 context, '/home');
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: $e')),
+                              SnackBar(content: Text(authErrorMessage(e))),
                             );
                           } finally {
                             ref
@@ -133,7 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     // Register and Forgot Password Links
                     CustomTextButton(
-                      label: 'Don’t have an account? Register here',
+                      label: 'Noch kein Konto? Jetzt registrieren',
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -143,7 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       },
                     ),
                     CustomTextButton(
-                      label: 'Forgot Password?',
+                      label: 'Passwort vergessen?',
                       onPressed: () {
                         Navigator.push(
                           context,

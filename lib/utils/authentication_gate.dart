@@ -59,14 +59,14 @@ class _AuthenticationGateState extends ConsumerState<AuthenticationGate> {
             },
             loading: () => Scaffold(body: Center(child: CircularProgressIndicator())),
             error: (error, stackTrace) =>
-                Scaffold(body: Center(child: Text('Error loading profile: $error'))),
+                Scaffold(body: Center(child: Text('Dein Profil konnte nicht geladen werden.\n$error', textAlign: TextAlign.center))),
           );
         } else {
           return LoginScreen();
         }
       },
       loading: () => Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, stackTrace) => Scaffold(body: Center(child: Text('Error: $error'))),
+      error: (error, stackTrace) => Scaffold(body: Center(child: Text('Anmeldung fehlgeschlagen.\n$error', textAlign: TextAlign.center))),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/category_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 // Provider for managing the current tab index

@@ -33,9 +33,9 @@ class Stand {
     final data = doc.data()!;
     return Stand(
       id: doc.id,
-      name: data['name'],
-      description: data['description'],
-      standCategoryId: data['category'],
+      name: data['name'] as String? ?? '',
+      description: data['description'] as String? ?? '',
+      standCategoryId: data['category'] as String?,
       images: (data['images'] as List?)
           ?.map((image) => EventImage.fromMap(image as Map<String, dynamic>))
           .toList(),
