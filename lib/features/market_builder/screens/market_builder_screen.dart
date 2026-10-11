@@ -63,6 +63,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   // ---------------------------------------------------------------- Upload
 
   Future<void> _pickImage() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final file = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       maxWidth: 3000,
@@ -102,6 +103,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
       _showError('Das Bild ist größer als 5 MB. Bitte verkleinern.');
       return;
     }
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _step = _Step.analyzing);
     final service = ref.read(marketBuilderServiceProvider);
     try {
@@ -175,6 +177,66 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
         ..label = result.label
         ..category = result.category;
       _draft!.stands.add(stand);
+    });
+  }
+
+  void _showWarnings(List<String> warnings) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.6,
+        maxChildSize: 0.9,
+        builder: (context, controller) => ListView(
+          controller: controller,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          children: [
+            Text('Hinweise der KI', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            for (final w in warnings)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.info_outline),
+                title: Text(w),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _recategorize(StandCategory from) async {
+    final count = _draft!.stands.where((s) => s.category == from.key).length;
+    final to = await showModalBottomSheet<StandCategory>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Text('Alle $count Stände aus „${from.name}“ ändern zu:',
+                  style: Theme.of(context).textTheme.titleMedium),
+            ),
+            for (final c in standCategories)
+              if (c.key != from.key)
+                ListTile(
+                  leading: Icon(c.icon, color: c.color),
+                  title: Text(c.name),
+                  onTap: () => Navigator.pop(context, c),
+                ),
+          ],
+        ),
+      ),
+    );
+    if (to == null) return;
+    setState(() {
+      for (final s in _draft!.stands.where((s) => s.category == from.key)) {
+        s.category = to.key;
+      }
     });
   }
 
@@ -294,15 +356,18 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     final dateFormat = DateFormat('dd.MM.yyyy');
     return ListView(
       padding: const EdgeInsets.all(16),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: [
         TextField(
           controller: _nameController,
+          textInputAction: TextInputAction.next,
           decoration: const InputDecoration(labelText: 'Name des Marktes *'),
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: _locationController,
+          textInputAction: TextInputAction.next,
           decoration: const InputDecoration(
             labelText: 'Ort',
             hintText: 'z. B. Marienplatz, München',
@@ -314,6 +379,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
           controller: _descriptionController,
           decoration: const InputDecoration(labelText: 'Beschreibung'),
           maxLines: 2,
+          textInputAction: TextInputAction.done,
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
@@ -374,13 +440,19 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     return Column(
       children: [
         if (draft.warnings.isNotEmpty || uncertain > 0)
-          MaterialBanner(
-            leading: const Icon(Icons.info_outline),
-            content: Text([
-              ...draft.warnings,
-              if (uncertain > 0) '$uncertain Stände mit gelbem Rand sind unsicher – bitte prüfen.',
-            ].join('\n')),
-            actions: const [SizedBox.shrink()],
+          Material(
+            color: Theme.of(context).colorScheme.secondaryContainer,
+            child: ListTile(
+              dense: true,
+              leading: const Icon(Icons.info_outline),
+              title: Text([
+                if (draft.warnings.isNotEmpty)
+                  '${draft.warnings.length} ${draft.warnings.length == 1 ? 'Hinweis' : 'Hinweise'} der KI',
+                if (uncertain > 0) '$uncertain unsicher (gelber Rand)',
+              ].join(' · ')),
+              trailing: draft.warnings.isEmpty ? null : const Icon(Icons.expand_more),
+              onTap: draft.warnings.isEmpty ? null : () => _showWarnings(draft.warnings),
+            ),
           ),
         Expanded(
           child: PlanCanvas(
@@ -396,7 +468,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
           child: Text(
             'Tippen = bearbeiten · gedrückt halten & ziehen = verschieben · '
-            'freie Stelle antippen = Stand hinzufügen',
+            'freie Stelle antippen = Stand hinzufügen · Kategorie unten antippen = alle ändern',
             style: Theme.of(context).textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
@@ -411,9 +483,11 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
                 if (counts[c.key] != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Chip(
+                    child: ActionChip(
                       avatar: Icon(c.icon, color: c.color, size: 18),
                       label: Text('${c.name} ${counts[c.key]}'),
+                      tooltip: 'Alle ändern',
+                      onPressed: () => _recategorize(c),
                     ),
                   ),
             ],
