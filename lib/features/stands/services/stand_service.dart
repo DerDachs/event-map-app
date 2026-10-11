@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../data/models/stand.dart';
 
@@ -14,33 +13,35 @@ class StandService {
       throw Exception("Event not found");
     }
 
-    final standsData = List<Map<String, dynamic>>.from(eventDoc.data()!['stands']);
+    final standsData = (eventDoc.data()!['stands'] as List? ?? const [])
+        .whereType<Map>()
+        .map((m) => Map<String, dynamic>.from(m))
+        .where((m) => m['standId'] is String && m['location'] is Map)
+        .toList();
+
+    // Load all stand documents in parallel; markets have well over 100 stands.
+    final docs = await Future.wait(standsData.map(
+        (standData) => _firestore.collection('stands').doc(standData['standId'] as String).get()));
+
     final List<Stand> stands = [];
-
-    for (final standData in standsData) {
-      final standId = standData['standId'];
-      final location = standData['location'];
-      final category = standData['category'];
-      final standDoc = await _firestore.collection('stands').doc(standId).get();
-
-      if (standDoc.exists) {
-        final stand = Stand.fromFirestore(standDoc,null);
-        final updatedStand = Stand(
-          id: stand.id,
-          name: stand.name,
-          description: stand.description,
-          standCategoryId: category,
-          images: stand.images,
-          menu: stand.menu,
-          promotions: stand.promotions,
-          eventLatitude: location['latitude'],
-          eventLongitude: location['longitude'],
-        );
-        stands.add(updatedStand);
-      }
+    for (var i = 0; i < docs.length; i++) {
+      final standDoc = docs[i];
+      if (!standDoc.exists) continue;
+      final standData = standsData[i];
+      final location = Map<String, dynamic>.from(standData['location'] as Map);
+      final stand = Stand.fromFirestore(standDoc, null);
+      stands.add(Stand(
+        id: stand.id,
+        name: stand.name,
+        description: stand.description,
+        standCategoryId: standData['category'] as String? ?? stand.standCategoryId,
+        images: stand.images,
+        menu: stand.menu,
+        promotions: stand.promotions,
+        eventLatitude: (location['latitude'] as num).toDouble(),
+        eventLongitude: (location['longitude'] as num).toDouble(),
+      ));
     }
-
     return stands;
   }
-
 }

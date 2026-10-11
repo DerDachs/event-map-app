@@ -51,7 +51,11 @@ class Team {
       eventId: data['eventId'] ?? '',
       members: List<String>.from(data['memberIds'] ?? []),
       leaderId: data['leaderId'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: switch (data['createdAt']) {
+        Timestamp t => t.toDate(),
+        String s => DateTime.tryParse(s) ?? DateTime.now(),
+        _ => DateTime.now(),
+      },
       teamCode: data['teamCode'] ?? '',
     );
   }
