@@ -1,11 +1,12 @@
 name: iOS Build (Xcode)
 
+# Checks that the iOS app still compiles. macOS minutes are expensive, so this
+# only runs for pull requests into main.
 on:
-  push:
+  pull_request:
     branches:
       - main
-      - develop
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   ios-build:
@@ -24,4 +25,4 @@ jobs:
         run: flutter pub get
 
       - name: Build iOS app with Xcode (no code signing)
-        run: flutter build ios --no-codesign
+        run: flutter build ios --release --flavor Production --no-codesign --no-tree-shake-icons
