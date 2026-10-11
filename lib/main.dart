@@ -12,6 +12,7 @@ import 'features/auth/screens/login_screen.dart';
 import 'features/events/screens/event_detail_screen.dart';
 import 'features/events/screens/event_joined_screen.dart';
 import 'features/events/screens/event_page.dart';
+import 'features/market_builder/screens/market_builder_screen.dart';
 
 
 void main() async {
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         ),
         '/admin-panel': (context) => AdminPanelScreen(),
         '/create-event': (context) => CreateEventScreen(),
+        '/market-builder': (context) => const MarketBuilderScreen(),
         '/event-joined': (context) => EventPage(
           event: ModalRoute.of(context)!.settings.arguments as Event,
         ),

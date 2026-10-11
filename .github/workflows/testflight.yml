@@ -1,0 +1,128 @@
+name: iOS → TestFlight
+
+# Start manually under Actions → "iOS → TestFlight" → Run workflow,
+# or push a tag like testflight-2026-10-11.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'testflight-*'
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+env:
+  BUNDLE_ID: com.tdwdevelopments.event-map
+  TEAM_ID: 8598V53L45
+  FLAVOR: Production
+
+jobs:
+  testflight:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Import distribution certificate
+        id: certs
+        uses: apple-actions/import-codesign-certs@v7
+        with:
+          p12-file-base64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          p12-password: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+
+      - name: Download App Store provisioning profile
+        id: profiles
+        uses: apple-actions/download-provisioning-profiles@v7
+        with:
+          bundle-id: ${{ env.BUNDLE_ID }}
+          profile-type: IOS_APP_STORE
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+      # The Xcode project uses automatic signing, which needs a logged-in Apple
+      # account. On CI, switch the Runner target to the downloaded profile.
+      - name: Configure manual signing
+        env:
+          PROFILES: ${{ steps.profiles.outputs.profiles }}
+        run: |
+          PROFILE_NAME=$(echo "$PROFILES" | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['name'])")
+          echo "Using provisioning profile: $PROFILE_NAME"
+          python3 - "$PROFILE_NAME" <<'PY'
+          import re, sys
+          profile = sys.argv[1]
+          path = 'ios/Runner.xcodeproj/project.pbxproj'
+          s = open(path).read()
+          def patch(block):
+              body = block.group(0)
+              if 'PRODUCT_BUNDLE_IDENTIFIER = "com.tdwdevelopments.event-map";' not in body:
+                  return body
+              body = re.sub(r'\s*(CODE_SIGN_STYLE|CODE_SIGN_IDENTITY|"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]"|PROVISIONING_PROFILE_SPECIFIER|DEVELOPMENT_TEAM) = [^;]*;', '', body)
+              return body.replace('buildSettings = {', 'buildSettings = {\n'
+                  '\t\t\t\tCODE_SIGN_STYLE = Manual;\n'
+                  '\t\t\t\t"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";\n'
+                  '\t\t\t\tDEVELOPMENT_TEAM = 8598V53L45;\n'
+                  f'\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "{profile}";', 1)
+          patched, count = re.subn(r'isa = XCBuildConfiguration;.*?\n\t\t\};', patch, s, flags=re.S)
+          open(path, 'w').write(patched)
+          print('patched build configurations')
+          PY
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>${TEAM_ID}</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${BUNDLE_ID}</key><string>${PROFILE_NAME}</string>
+            </dict>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          PLIST
+
+      # Build numbers must increase across all uploads; date + run number does.
+      - name: Build IPA
+        run: |
+          BUILD_NUMBER="$(date -u +%Y%m%d).${GITHUB_RUN_NUMBER}"
+          echo "Build number: $BUILD_NUMBER"
+          flutter pub get
+          flutter build ipa --release \
+            --flavor "$FLAVOR" \
+            --build-number "$BUILD_NUMBER" \
+            --export-options-plist "$RUNNER_TEMP/ExportOptions.plist" \
+            --no-tree-shake-icons
+
+      - name: Upload to TestFlight
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          printf '%s' "$APPSTORE_PRIVATE_KEY" > ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
+          xcrun altool --upload-app --type ios \
+            --file build/ios/ipa/*.ipa \
+            --apiKey "$APPSTORE_KEY_ID" \
+            --apiIssuer "$APPSTORE_ISSUER_ID"
+
+      - name: Keep IPA for 7 days
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ipa
+          path: build/ios/ipa/*.ipa
+          retention-days: 7
+          if-no-files-found: ignore

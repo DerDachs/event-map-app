@@ -1,16 +1,18 @@
-# 🎄 Christmas Market Event App
+# 🛍️ Market Mate
 
-Welcome to the Christmas Market Event App! This Flutter-based application is designed to enhance the experience of visitors to Christmas markets by providing interactive features like market maps, stand listings, and real-time location sharing with friends.
+Market Mate is a Flutter app that helps visitors discover events, explore stands on an interactive map, and coordinate with friends through teams and location sharing.
 
 ---
 
 ## 🚀 Features
 
-- **Interactive Market Map**: View a detailed map of Christmas markets.
-- **Stand Listings**: Explore the available stands with descriptions, categories, and locations.
-- **Real-Time Location Sharing**: Share your location with friends in the market.
-- **User Authentication**: Secure login with email/password and social media options.
-- **Notifications**: Stay updated with push notifications about market events and announcements.
+- **Authentication & Profiles**: Email/password login, Apple Sign-In, and guided profile setup with avatar selection.
+- **Event Discovery**: Browse events, open details, and join events.
+- **Event Details**: Images, dates, organizer info, ticket price, opening hours, and a location map.
+- **Map & Stands**: Stand search, category grouping, and interactive Google Map markers.
+- **Favorites**: Save favorite events or stands for quick access.
+- **Teams**: Create or join teams, share location, and coordinate at events.
+- **Admin Tools**: Admin-only panel for creating events (with categories and image uploads).
 
 ---
 
@@ -45,12 +47,12 @@ flutter pub get
 ```plaintext
 lib/
 ├── main.dart                   # Application entry point
-├── core/                       # Core utilities (constants, themes)
-├── data/                       # Data models and repositories
-├── features/                   # Feature-specific code (auth, map, stands)
-├── shared/                     # Reusable widgets
-├── services/                   # Global services (location, Firebase)
-├── utils/                      # Helper functions and utilities
+├── data/                       # Data models (events, stands, teams, profiles)
+├── features/                   # Feature-specific code (auth, events, teams, stands)
+├── providers/                  # Riverpod state providers
+├── screens/                    # App screens and layouts
+├── services/                   # Firebase and domain services
+├── utils/                      # Helper widgets and utilities
 assets/                         # Assets (images, icons, fonts)
 ```
 
