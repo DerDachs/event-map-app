@@ -1,0 +1,80 @@
+name: Firebase deploy
+
+# Start under Actions → "Firebase deploy" → Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: What to deploy
+        type: choice
+        default: all
+        options:
+          - all
+          - functions
+          - rules
+          - hosting
+      update_api_keys:
+        description: Copy ANTHROPIC_API_KEY and GOOGLE_GEOCODING_API_KEY from GitHub secrets into Google Secret Manager first
+        type: boolean
+        default: false
+
+concurrency:
+  group: firebase-deploy
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: event-map-app-aab7b
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Install Firebase CLI and function dependencies
+        run: |
+          npm install -g firebase-tools
+          npm ci --prefix functions
+
+      - name: Store API keys in Secret Manager
+        if: inputs.update_api_keys
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_GEOCODING_API_KEY: ${{ secrets.GOOGLE_GEOCODING_API_KEY }}
+        run: |
+          for name in ANTHROPIC_API_KEY GOOGLE_GEOCODING_API_KEY; do
+            value="${!name}"
+            if [ -z "$value" ]; then
+              echo "::error::GitHub secret $name is empty or missing"
+              exit 1
+            fi
+            printf '%s' "$value" | firebase functions:secrets:set "$name" \
+              --data-file=- --project "$PROJECT_ID" --non-interactive
+          done
+
+      - name: Deploy
+        env:
+          TARGETS: ${{ inputs.targets }}
+        run: |
+          case "$TARGETS" in
+            all)       ONLY="functions,firestore:rules,storage,hosting" ;;
+            functions) ONLY="functions" ;;
+            rules)     ONLY="firestore:rules,storage" ;;
+            hosting)   ONLY="hosting" ;;
+          esac
+          firebase deploy --only "$ONLY" --project "$PROJECT_ID" --non-interactive --force \
+            --message "GitHub Actions run ${GITHUB_RUN_NUMBER} (${GITHUB_SHA::7})"

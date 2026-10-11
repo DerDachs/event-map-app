@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Mate für Veranstalter – Vom Lageplan zur digitalen Marktkarte</title>
+  <meta name="description" content="Laden Sie Ihren Lageplan hoch: Market Mate erkennt alle Stände automatisch und erstellt daraus eine interaktive Karte für Ihre Besucher.">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="index.html"><img src="assets/logo.png" alt="Market Mate" width="113" height="52"></a>
+      <nav class="nav" aria-label="Zielgruppe">
+        <a href="index.html">Für Besucher</a>
+        <a href="veranstalter.html" aria-current="page">Für Veranstalter</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <span class="eyebrow">Für Veranstalter und Stadtmarketing</span>
+          <h1>Vom Lageplan zur digitalen Marktkarte</h1>
+          <p class="lead">
+            Sie haben schon einen Lageplan für Ihren Markt? Dann sind Sie fast fertig. Laden Sie ihn hoch –
+            Market Mate erkennt jeden Stand, ordnet ihn einer Kategorie zu und legt ihn auf die echte Karte.
+            Ihre Besucher finden so jede Hütte auf Anhieb.
+          </p>
+          <div class="actions">
+            <!-- TODO: echte Kontaktadresse eintragen -->
+            <a class="btn btn-primary" href="mailto:kontakt@example.com?subject=Market%20Mate%20f%C3%BCr%20unseren%20Markt">Markt anmelden</a>
+            <a class="btn btn-ghost" href="#ablauf">So läuft es ab</a>
+          </div>
+        </div>
+
+        <div aria-hidden="true">
+          <svg viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" role="img">
+            <!-- paper plan -->
+            <g transform="rotate(-4 105 170)">
+              <rect x="10" y="40" width="190" height="250" rx="8" fill="#ffffff" stroke="#d9d2c6" stroke-width="2"/>
+              <text x="26" y="68" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#2b2b2b">LAGEPLAN</text>
+              <g fill="none" stroke="#2b2b2b" stroke-width="1.6">
+                <rect x="28" y="88" width="40" height="26"/><rect x="78" y="88" width="40" height="26"/>
+                <rect x="128" y="88" width="52" height="26"/><rect x="28" y="130" width="26" height="60"/>
+                <rect x="150" y="130" width="30" height="60"/><rect x="70" y="140" width="64" height="40" rx="20"/>
+                <rect x="28" y="206" width="40" height="26"/><rect x="78" y="206" width="40" height="26"/>
+                <rect x="128" y="206" width="52" height="26"/>
+              </g>
+              <g font-family="system-ui, sans-serif" font-size="11" fill="#2b2b2b" text-anchor="middle">
+                <text x="48" y="105">1</text><text x="98" y="105">2</text><text x="154" y="105">3</text>
+                <text x="41" y="164">4</text><text x="165" y="164">5</text><text x="102" y="164">Bühne</text>
+                <text x="48" y="223">6</text><text x="98" y="223">7</text><text x="154" y="223">8</text>
+              </g>
+              <path d="M28 252h150M28 266h110" stroke="#d9d2c6" stroke-width="5" stroke-linecap="round"/>
+            </g>
+            <!-- arrow with spark -->
+            <path d="M212 170h44" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round"/>
+            <path d="M248 160l12 10-12 10" fill="none" stroke="#2b2b2b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M234 132l4 9 9 4-9 4-4 9-4-9-9-4 9-4z" fill="#f9a825"/>
+            <!-- digital map -->
+            <rect x="270" y="30" width="140" height="280" rx="22" fill="#1d1d1d"/>
+            <rect x="278" y="38" width="124" height="264" rx="16" fill="#f4f1ea"/>
+            <path d="M270 110 L410 100" stroke="#ffffff" stroke-width="14"/>
+            <path d="M310 30 L318 310" stroke="#ffffff" stroke-width="12"/>
+            <rect x="325" y="130" width="62" height="120" rx="8" fill="#e6dfd2"/>
+            <g stroke="#ffffff" stroke-width="2.5">
+              <circle cx="336" cy="144" r="8" fill="#c62828"/><circle cx="356" cy="144" r="8" fill="#ef6c00"/>
+              <circle cx="376" cy="144" r="8" fill="#ad1457"/><circle cx="334" cy="185" r="8" fill="#2e7d32"/>
+              <circle cx="378" cy="185" r="8" fill="#f9a825"/><circle cx="356" cy="190" r="10" fill="#1565c0"/>
+              <circle cx="336" cy="234" r="8" fill="#c62828"/><circle cx="356" cy="234" r="8" fill="#2e7d32"/>
+              <circle cx="376" cy="234" r="8" fill="#455a64"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-alt">
+      <div class="wrap">
+        <div class="facts">
+          <div class="fact"><strong>1 Lageplan</strong><span>als Bild genügt – PNG, JPG oder Foto</span></div>
+          <div class="fact"><strong>Minuten</strong><span>statt Tage für die Marktkarte</span></div>
+          <div class="fact"><strong>0 Technik-Wissen</strong><span>keine GPS-Daten, keine Programmierung</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ablauf">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>So läuft es ab</h2>
+          <p>Sie behalten jederzeit die Kontrolle – die KI macht die Fleißarbeit.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <h3>Lageplan hochladen</h3>
+            <p>Name, Ort und Zeitraum eintragen, Plan auswählen. Die KI liest Standnummern, Legende und Beschriftungen und erkennt jeden Stand mit seiner Kategorie.</p>
+          </div>
+          <div class="step">
+            <h3>Prüfen &amp; anpassen</h3>
+            <p>Alle erkannten Stände erscheinen direkt auf Ihrem Plan. Antippen zum Umbenennen, ziehen zum Verschieben, unsichere Stände sind markiert.</p>
+          </div>
+          <div class="step">
+            <h3>Auf die Karte legen</h3>
+            <p>Market Mate erkennt Orientierungspunkte wie Kirchen, Plätze und Kreuzungen und richtet den Plan automatisch aus. Passt etwas nicht, genügen zwei Klicks.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-alt">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Ihr Nutzen</h2>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <div class="icon bg-red"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg></div>
+            <h3>Besucher finden jeden Stand</h3>
+            <p>Auch die Hütte in der hintersten Ecke wird gefunden. Das freut Ihre Standbetreiber – und verteilt die Besucher besser über den Markt.</p>
+          </article>
+          <article class="card">
+            <div class="icon bg-gold"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+            <h3>Fertig in Minuten</h3>
+            <p>Kein Abtippen von Standlisten, kein Setzen einzelner Pins. Sie prüfen nur noch, was die KI vorbereitet hat.</p>
+          </article>
+          <article class="card">
+            <div class="icon bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></div>
+            <h3>Jederzeit änderbar <span class="badge-soon">bald</span></h3>
+            <p>Neuer Stand oder anderer Platz? Einfach im Plan anpassen – Besucher sehen den aktuellen Stand sofort.</p>
+          </article>
+          <article class="card">
+            <div class="icon bg-ink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+            <h3>Ihr Plan bleibt Ihr Plan</h3>
+            <p>Sie nutzen den Lageplan, den Sie ohnehin für Genehmigungen und Flyer erstellen. Kein zweites System, keine neue Software.</p>
+          </article>
+          <article class="card">
+            <div class="icon bg-blue"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="8" r="3.2"/><circle cx="16.5" cy="9" r="2.7"/><path d="M2 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/><path d="M14.6 19c0-1.9-.7-3.5-1.9-4.6.9-.4 2-.6 3.3-.6 3 0 5 1.9 5 5.2z"/></svg></div>
+            <h3>Ein Erlebnis für Gruppen</h3>
+            <p>Besucher verabreden sich in der App zu Teams – gemeinsam bleiben sie länger und probieren mehr aus.</p>
+          </article>
+          <article class="card">
+            <div class="icon bg-purple"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 6.2 6.7.6-5.1 4.4 1.5 6.6L12 16.3 6.3 19.8l1.5-6.6L2.7 8.8l6.7-.6z"/></svg></div>
+            <h3>Alle Infos an einem Ort</h3>
+            <p>Öffnungszeiten, Eintritt, Programm und Tipps: Ihre Besucher bekommen alles in einer App statt auf vielen Kanälen.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="cta">
+          <div>
+            <h2>Bringen Sie Ihren Markt auf die Karte</h2>
+            <p>Schicken Sie uns Ihren Lageplan – wir melden uns mit allem Weiteren.</p>
+          </div>
+          <!-- TODO: echte Kontaktadresse eintragen -->
+          <a class="btn" href="mailto:kontakt@example.com?subject=Market%20Mate%20f%C3%BCr%20unseren%20Markt">Kontakt aufnehmen</a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="switch">
+          <p><strong>Sie wollen einfach nur über den Markt bummeln?</strong> So hilft Market Mate Besuchern.</p>
+          <a class="btn btn-ghost" href="index.html">Für Besucher</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Market Mate</span>
+      <span><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></span>
+    </div>
+  </footer>
+</body>
+</html>
