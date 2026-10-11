@@ -19,6 +19,14 @@ class AdminPanelScreen extends ConsumerWidget {
       body: ListView(
         children: [
           ListTile(
+            leading: Icon(Icons.auto_awesome),
+            title: Text('Markt aus Lageplan erstellen'),
+            subtitle: Text('Plan hochladen – die KI legt Stände und Karte an'),
+            onTap: () {
+              Navigator.pushNamed(context, '/market-builder');
+            },
+          ),
+          ListTile(
             title: Text('Create Event'),
             onTap: () {
               Navigator.pushNamed(context, '/create-event');

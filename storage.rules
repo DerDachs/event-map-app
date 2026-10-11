@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/profiles/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Market plans: uploaded by admins into their own folder, read by the
+    // Cloud Function (admin SDK) and shown to signed-in visitors.
+    match /market-plans/{uid}/{file} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin() && request.auth.uid == uid &&
+        request.resource.size < 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/(png|jpeg|webp)');
+    }
+
+    match /{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+  }
+}

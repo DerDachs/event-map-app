@@ -3,17 +3,54 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2024, 12, 19);
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Users manage their own profile but cannot make themselves admin.
+    match /profiles/{uid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.get('role', 'user') == 'user';
+      allow update: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.get('role', 'user') == resource.data.get('role', 'user');
+    }
+
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Events are created by admins. Visitors may only join (participants)
+    // and link teams (teamIds).
+    match /events/{eventId} {
+      allow read: if signedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (signedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants', 'teamIds']));
+    }
+
+    match /stands/{standId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /category/{categoryId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /teams/{teamId} {
+      allow read, write: if signedIn();
     }
   }
 }
