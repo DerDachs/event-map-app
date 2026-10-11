@@ -10,7 +10,7 @@ Besucherkarte jeden Stand als Icon.
 
 Admin-Menü → **Markt aus Lageplan erstellen**
 
-1. **Lageplan**: Name, Ort (z. B. „Marienplatz, München“), Zeitraum, Bild wählen → *Mit KI analysieren* (1–3 Minuten).
+1. **Lageplan** – optional zuerst die **Webadresse des Marktes** eintragen und *Infos laden*: Beschreibung, Zeitraum, Öffnungszeiten, Eintritt, Veranstalter und passende Bilder werden übernommen (Bilder werden in den eigenen Storage kopiert). Dann Name, Ort (z. B. „Marienplatz, München“), Zeitraum, Bild wählen → *Mit KI analysieren* (1–3 Minuten).
 2. **Stände prüfen**: Punkte auf dem Plan antippen = bearbeiten, gedrückt halten und ziehen = verschieben, freie Stelle antippen = Stand hinzufügen. Gelber Rand = unsicher erkannt.
 3. **Auf Karte ausrichten**: Der Plan liegt halbtransparent über dem Satellitenbild. Passt es nicht, *Punkt zuordnen*: Stelle auf dem Plan antippen, dann dieselbe Stelle auf der Karte. Zwei eigene Punkte ersetzen die automatischen, ab drei Punkten werden auch verzerrte, nicht maßstabsgetreue Pläne korrekt umgerechnet. Falsch erkannte Orientierungspunkte lassen sich per ✕ abwählen.
 4. **Speichern**: legt Event, Stände und Kategorien in Firestore an.
@@ -41,6 +41,15 @@ ANTHROPIC_API_KEY=... GOOGLE_GEOCODING_API_KEY=... \
 
 Gibt das erkannte JSON und die verorteten Orientierungspunkte aus.
 
+## Webseite lokal testen
+
+```bash
+cd functions
+ANTHROPIC_API_KEY=... npm run try-import -- https://www.example.org/weihnachtsmarkt
+```
+
+Seiten, die ihre Inhalte erst per JavaScript im Browser laden, liefern zu wenig Text – dann eine andere Unterseite des Marktes versuchen.
+
 ## Kosten
 
 Eine Analyse ist ein einzelner Claude-Aufruf mit einem Bild (Claude Opus 5.5,
@@ -54,6 +63,7 @@ Geocoding-Anfragen. Fällt nur beim Anlegen eines Marktes an.
 | Cloud Function `analyzeMarketPlan` (europe-west3) | `functions/src/index.ts` |
 | Claude-Aufruf, Prompt, Ausgabe-Schema | `functions/src/analyze.ts`, `prompt.ts`, `schema.ts` |
 | Geocoding der Orientierungspunkte | `functions/src/geocode.ts` |
+| Import von der Webseite (`importEventFromUrl`) | `functions/src/importEventFunction.ts`, `eventImport.ts`, `webpage.ts` |
 | Umrechnung Plan → GPS (Ähnlichkeits-/Affintransformation, Ausreißer-Filter) | `lib/features/market_builder/services/georeference.dart` |
 | Assistent (3 Schritte) | `lib/features/market_builder/screens/market_builder_screen.dart` |
 | Speichern in Firestore | `lib/features/market_builder/services/market_builder_service.dart` |

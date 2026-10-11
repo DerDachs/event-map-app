@@ -9,6 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../events/services/event_service.dart';
+import '../../../utils/formatters.dart';
+import '../models/event_import.dart';
 import '../models/plan_draft.dart';
 import '../models/stand_categories.dart';
 import '../services/georeference.dart';
@@ -35,7 +37,11 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   final _nameController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _urlController = TextEditingController();
   DateTimeRange? _dates;
+  EventImport? _import;
+  final Set<String> _selectedImages = {};
+  bool _importing = false;
   Uint8List? _imageBytes;
   String? _contentType;
   double _aspectRatio = 1;
@@ -57,6 +63,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     _nameController.dispose();
     _locationController.dispose();
     _descriptionController.dispose();
+    _urlController.dispose();
     super.dispose();
   }
 
@@ -93,6 +100,44 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     if (b.length > 3 && b[0] == 0xFF && b[1] == 0xD8) return 'image/jpeg';
     if (b.length > 12 && String.fromCharCodes(b.sublist(8, 12)) == 'WEBP') return 'image/webp';
     return null;
+  }
+
+  Future<void> _importFromUrl() async {
+    final url = _urlController.text.trim();
+    if (url.isEmpty) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() => _importing = true);
+    try {
+      final result = await ref.read(marketBuilderServiceProvider).importFromUrl(url);
+      if (!mounted) return;
+      setState(() {
+        _import = result;
+        _selectedImages
+          ..clear()
+          ..addAll(result.imageUrls);
+        // Only fill what the organiser hasn't typed yet.
+        void fill(TextEditingController c, String? value) {
+          if (value != null && c.text.trim().isEmpty) c.text = value;
+        }
+
+        fill(_nameController, result.name);
+        fill(_locationController, result.locationHint);
+        fill(_descriptionController, result.description);
+        if (_dates == null && result.startDate != null) {
+          final end = result.endDate ?? result.startDate!;
+          _dates = DateTimeRange(
+            start: result.startDate!,
+            end: end.add(const Duration(hours: 23, minutes: 59)),
+          );
+        }
+      });
+    } on FirebaseFunctionsException catch (e) {
+      _showError(e.message ?? 'Die Webseite konnte nicht ausgewertet werden.');
+    } catch (e) {
+      _showError('Die Webseite konnte nicht ausgewertet werden: $e');
+    } finally {
+      if (mounted) setState(() => _importing = false);
+    }
   }
 
   bool get _canAnalyze =>
@@ -293,6 +338,16 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
             description: _descriptionController.text.trim(),
             start: _dates!.start,
             end: _dates!.end,
+            imageUrls: [
+              for (final url in _import?.imageUrls ?? const <String>[])
+                if (_selectedImages.contains(url)) url,
+            ],
+            openingHours: _import?.openingHours ?? const [],
+            ticketPrice: _import?.ticketPrice,
+            organizerName: _import?.organizerName,
+            organizerInfo: _import?.organizerInfo,
+            eventTip: _import?.eventTip,
+            websiteUrl: _import?.sourceUrl,
           );
       final event = await EventService().getEventById(id);
       if (!mounted) return;
@@ -358,6 +413,8 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
       padding: const EdgeInsets.all(16),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: [
+        _buildImportCard(),
+        const SizedBox(height: 16),
         TextField(
           controller: _nameController,
           textInputAction: TextInputAction.next,
@@ -378,7 +435,8 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
         TextField(
           controller: _descriptionController,
           decoration: const InputDecoration(labelText: 'Beschreibung'),
-          maxLines: 2,
+          minLines: 2,
+          maxLines: 6,
           textInputAction: TextInputAction.done,
         ),
         const SizedBox(height: 12),
@@ -426,6 +484,128 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
           onPressed: _canAnalyze ? _analyze : null,
         ),
       ],
+    );
+  }
+
+  Widget _buildImportCard() {
+    final result = _import;
+    final details = <(IconData, String)>[
+      if (result != null && result.openingHours.isNotEmpty)
+        (Icons.schedule, formatOpeningHours(result.openingHours)),
+      if (result?.ticketPrice != null) (Icons.confirmation_number_outlined, result!.ticketPrice!),
+      if (result?.organizerName != null) (Icons.business_outlined, result!.organizerName!),
+      if (result?.eventTip != null) (Icons.lightbulb_outline, result!.eventTip!),
+    ];
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Infos von der Webseite übernehmen', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            const Text('Optional: Beschreibung, Zeitraum, Öffnungszeiten und Bilder werden automatisch ausgefüllt.'),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _urlController,
+                    keyboardType: TextInputType.url,
+                    autocorrect: false,
+                    textInputAction: TextInputAction.go,
+                    decoration: const InputDecoration(
+                      labelText: 'Webadresse des Marktes',
+                      hintText: 'https://…',
+                    ),
+                    onSubmitted: (_) => _importFromUrl(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _importing
+                    ? const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+                      )
+                    : FilledButton.tonal(onPressed: _importFromUrl, child: const Text('Infos laden')),
+              ],
+            ),
+            if (_importing)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('Die KI liest die Seite … (ca. 20–60 Sekunden)'),
+              ),
+            if (result != null) ...[
+              const SizedBox(height: 12),
+              if (result.imageUrls.isNotEmpty) ...[
+                const Text('Bilder – antippen zum Abwählen:'),
+                const SizedBox(height: 6),
+                SizedBox(
+                  height: 96,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      for (final url in result.imageUrls)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: GestureDetector(
+                            onTap: () => setState(() => _selectedImages.contains(url)
+                                ? _selectedImages.remove(url)
+                                : _selectedImages.add(url)),
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Opacity(
+                                    opacity: _selectedImages.contains(url) ? 1 : 0.35,
+                                    child: Image.network(url, width: 140, height: 96, fit: BoxFit.cover),
+                                  ),
+                                ),
+                                Positioned(
+                                  right: 4,
+                                  top: 4,
+                                  child: Icon(
+                                    _selectedImages.contains(url) ? Icons.check_circle : Icons.circle_outlined,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Nur Bilder verwenden, die ihr nutzen dürft (z. B. vom eigenen Markt).',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+              for (final (icon, text) in details)
+                ListTile(dense: true, contentPadding: EdgeInsets.zero, leading: Icon(icon), title: Text(text)),
+              for (final w in result.warnings)
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(w),
+                ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => setState(() {
+                    _import = null;
+                    _selectedImages.clear();
+                  }),
+                  child: const Text('Bilder & Zusatzinfos verwerfen'),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
