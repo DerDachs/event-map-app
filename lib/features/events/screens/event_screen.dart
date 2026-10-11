@@ -1,219 +1,102 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/models/profile.dart';
-import '../../../providers/user_provider.dart';
-import 'event_card.dart';
+
+import '../../../data/models/event.dart';
+import '../../../widgets/profile_menu.dart';
 import '../../favorites/providers/favorite_provider.dart';
 import '../providers/event_provider.dart';
-import 'event_detail_screen.dart';
+import 'event_card.dart';
 
+/// Start screen: all markets, grouped by whether they are running now.
 class EventScreen extends ConsumerWidget {
+  const EventScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eventsAsync = ref.watch(eventsProvider);
-    final favorites = ref.watch(favoritesProvider);
-    final favoriteEventIds = favorites['events'] ?? []; // Fetch favorite event IDs
-    final userProfileState = ref.watch(userProfileProvider);
+    final favoriteIds = ref.watch(favoritesProvider)['events'] ?? const <String>[];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Market Mate"),
-        actions: [
-          userProfileState.when(
-            data: (profile) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: GestureDetector(
-                  onTap: () {
-                    _showProfileMenu(context, profile!, ref);
-                  },
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundImage: profile?.profilePicture != null
-                        ? AssetImage(profile!.profilePicture!)
-                        : null,
-                    child: profile?.profilePicture == null
-                        ? Icon(Icons.person, size: 24, color: Colors.white)
-                        : null,
-                  ),
-                ),
-              );
-            },
-            loading: () => Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                radius: 20,
-                child: CircularProgressIndicator(color: Colors.white),
-              ),
-            ),
-            error: (error, _) => Icon(Icons.error, color: Colors.red),
-          ),
-        ],
+        title: const Text('Market Mate'),
+        actions: const [ProfileMenuButton()],
       ),
       body: eventsAsync.when(
-        data: (events) {
-          // Split events into categories for display
-          final generalEvents = events.take(5).toList(); // Example logic
-          final personalizedEvents = events.skip(5).take(3).toList(); // Example logic
-          final favoriteEvents = events
-              .where((event) => favoriteEventIds.contains(event.id))
-              .toList(); // Filter events by favorite IDs
-
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // General Events Section
-                  _buildEventSection(
-                    context,
-                    title: 'General Events',
-                    events: generalEvents,
-                  ),
-                  SizedBox(height: 20),
-
-                  // Personalized Events Section
-                  _buildEventSection(
-                    context,
-                    title: 'For You',
-                    events: personalizedEvents,
-                  ),
-                  SizedBox(height: 20),
-
-                  // Favorite Events Section (only if favorites exist)
-                  if (favoriteEvents.isNotEmpty)
-                    _buildEventSection(
-                      context,
-                      title: 'Favorites',
-                      events: favoriteEvents,
-                    ),
-                ],
-              ),
-            ),
-          );
-        },
-        loading: () => Center(child: CircularProgressIndicator()),
-        error: (error, stack) =>
-            Center(child: Text('Error loading events: $error')),
-      ),
-    );
-  }
-
-  Widget _buildEventSection(
-      BuildContext context, {
-        required String title,
-        required List events,
-      }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        SizedBox(height: 10),
-        SizedBox(
-          height: 200,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: events.length,
-            itemBuilder: (context, index) {
-              final event = events[index];
-              return EventCard(event: event);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showProfileMenu(BuildContext context, UserProfile? profile, WidgetRef ref) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          padding: const EdgeInsets.all(16.0),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundImage: profile?.profilePicture != null
-                        ? AssetImage(profile!.profilePicture!)
-                        : null,
-                    child: profile?.profilePicture == null
-                        ? Icon(Icons.person, size: 30, color: Colors.white)
-                        : null,
-                  ),
-                  SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        profile?.name ?? 'User',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        profile?.email ?? 'user@example.com',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              ListTile(
-                leading: Icon(Icons.account_circle),
-                title: Text('Profile'),
-                onTap: () {
-                  Navigator.pushNamed(context, '/profile');
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Settings'),
-                onTap: () {
-                  Navigator.pushNamed(context, '/settings');
-                },
-              ),
-              if ((profile?.role ?? 'user') == 'admin') // Safeguard null role
-                ListTile(
-                  leading: Icon(Icons.admin_panel_settings),
-                  title: Text('Admin'),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/admin-panel');
-                  },
-                ),
-              ListTile(
-                leading: Icon(Icons.logout, color: Colors.red),
-                title: Text('Logout', style: TextStyle(color: Colors.red)),
-                onTap: () async {
-                  try {
-                    ref.read(userProfileProvider.notifier).resetUserProfile();
-                    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Logged out successfully')),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error logging out: $e')),
-                    );
-                  }
-                },
+              const Icon(Icons.cloud_off, size: 48, color: Colors.grey),
+              const SizedBox(height: 12),
+              const Text('Die Märkte konnten nicht geladen werden.'),
+              TextButton(
+                onPressed: () => ref.invalidate(eventsProvider),
+                child: const Text('Erneut versuchen'),
               ),
             ],
           ),
-        );
-      },
+        ),
+        data: (events) {
+          final now = DateTime.now();
+          final sorted = [...events]..sort((a, b) => a.startTime.compareTo(b.startTime));
+          final running = sorted.where((e) => !e.startTime.isAfter(now) && e.endTime.isAfter(now)).toList();
+          final upcoming = sorted.where((e) => e.startTime.isAfter(now)).toList();
+          final past = sorted.where((e) => !e.endTime.isAfter(now)).toList().reversed.toList();
+          final favorites = sorted.where((e) => favoriteIds.contains(e.id) && e.endTime.isAfter(now)).toList();
+
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(eventsProvider),
+            child: events.isEmpty
+                ? ListView(
+                    children: const [
+                      SizedBox(height: 120),
+                      Icon(Icons.storefront_outlined, size: 56, color: Colors.grey),
+                      SizedBox(height: 12),
+                      Center(child: Text('Noch keine Märkte vorhanden.')),
+                    ],
+                  )
+                : ListView(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    children: [
+                      if (favorites.isNotEmpty) _EventSection(title: 'Deine Favoriten', events: favorites),
+                      if (running.isNotEmpty) _EventSection(title: 'Läuft gerade', events: running),
+                      if (upcoming.isNotEmpty) _EventSection(title: 'Demnächst', events: upcoming),
+                      if (past.isNotEmpty) _EventSection(title: 'Vergangene Märkte', events: past),
+                    ],
+                  ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _EventSection extends StatelessWidget {
+  final String title;
+  final List<Event> events;
+
+  const _EventSection({required this.title, required this.events});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+        ),
+        SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            itemCount: events.length,
+            itemBuilder: (context, index) => EventCard(event: events[index]),
+          ),
+        ),
+      ],
     );
   }
 }

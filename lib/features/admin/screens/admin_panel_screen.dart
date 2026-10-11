@@ -9,13 +9,13 @@ class AdminPanelScreen extends ConsumerWidget {
 
     if (userProfile.value?.role != 'admin') {
       return Scaffold(
-        appBar: AppBar(title: Text('Unauthorized')),
-        body: Center(child: Text('You do not have access to this page.')),
+        appBar: AppBar(title: Text('Kein Zugriff')),
+        body: Center(child: Text('Diese Seite ist nur für Admins.')),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Admin Panel')),
+      appBar: AppBar(title: Text('Admin')),
       body: ListView(
         children: [
           ListTile(
@@ -27,21 +27,11 @@ class AdminPanelScreen extends ConsumerWidget {
             },
           ),
           ListTile(
-            title: Text('Create Event'),
+            leading: Icon(Icons.edit_calendar_outlined),
+            title: Text('Event manuell anlegen'),
+            subtitle: Text('Ohne Lageplan, Koordinaten selbst eintragen'),
             onTap: () {
               Navigator.pushNamed(context, '/create-event');
-            },
-          ),
-          ListTile(
-            title: Text('Manage Stands'),
-            onTap: () {
-              Navigator.pushNamed(context, '/manage-stands');
-            },
-          ),
-          ListTile(
-            title: Text('Upload Images'),
-            onTap: () {
-              Navigator.pushNamed(context, '/upload-images');
             },
           ),
         ],

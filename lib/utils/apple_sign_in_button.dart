@@ -10,6 +10,7 @@ class AppleSignInButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SignInWithAppleButton(
       onPressed: onPressed,
+      text: 'Mit Apple anmelden',
       style: SignInWithAppleButtonStyle.black,
     );
   }

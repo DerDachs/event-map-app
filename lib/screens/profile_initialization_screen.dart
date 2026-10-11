@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/user_provider.dart';
 import '../data/models/profile.dart';
+import '../utils/avatars.dart';
 
 class ProfileInitializationScreen extends ConsumerStatefulWidget {
   final String uid; // Pass the user's UID to link the profile
@@ -18,20 +19,7 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
   final ageController = TextEditingController();
   String? selectedAvatar;
 
-  // List of generic avatars
-  final List<String> avatars = [
-    'assets/avatars/avatar_1.png',
-    'assets/avatars/avatar_2.png',
-    'assets/avatars/avatar_3.png',
-    'assets/avatars/avatar_4.png',
-    'assets/avatars/avatar_5.png',
-    'assets/avatars/avatar_6.png',
-    'assets/avatars/avatar_7.png',
-    'assets/avatars/avatar_8.png',
-    'assets/avatars/avatar_9.png',
-    'assets/avatars/avatar_10.png',
-    // Add paths to more avatar images here
-  ];
+  List<String> get avatars => avatarAssets;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +27,7 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Complete Your Profile'),
+        title: Text('Profil einrichten'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -47,7 +35,7 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Welcome! Let’s complete your profile.',
+              'Willkommen! Wie sollen dich deine Freunde im Team sehen?',
               style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: 20),
@@ -55,14 +43,9 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
               controller: nameController,
               decoration: InputDecoration(labelText: 'Name'),
             ),
-            TextField(
-              controller: ageController,
-              decoration: InputDecoration(labelText: 'Age'),
-              keyboardType: TextInputType.number,
-            ),
             SizedBox(height: 20),
             Text(
-              'Choose an Avatar',
+              'Wähle einen Avatar',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
@@ -103,7 +86,7 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
               onPressed: () async {
                 if (nameController.text.isEmpty || selectedAvatar == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please fill out all fields and select an avatar')),
+                    SnackBar(content: Text('Bitte gib einen Namen ein und wähle einen Avatar.')),
                   );
                   return;
                 }
@@ -113,7 +96,7 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
                   final profile = UserProfile(
                     uid: widget.uid,
                     email: widget.email,
-                    name: nameController.text,
+                    name: nameController.text.trim(),
                     age: int.tryParse(ageController.text),
                     profilePicture: selectedAvatar,
                     role: "user",
@@ -126,11 +109,11 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
                   Navigator.pushReplacementNamed(context, '/home');
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
+                    SnackBar(content: Text('Speichern fehlgeschlagen: $e')),
                   );
                 }
               },
-              child: Text('Save'),
+              child: Text('Los geht’s'),
             ),
           ],
         ),
