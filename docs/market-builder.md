@@ -1,6 +1,6 @@
 # Markt aus Lageplan erstellen
 
-Admins laden einen Lageplan (PNG/JPG/WebP) hoch. Claude erkennt alle Stände mit
+Admins laden einen Lageplan hoch – als Bild (PNG/JPG/WebP) oder PDF. Claude erkennt alle Stände mit
 Kategorie und Position sowie Orientierungspunkte (Kirchen, Plätze, Kreuzungen).
 Die Orientierungspunkte werden über die Google Geocoding API verortet, daraus
 berechnet die App, wo der Plan auf der echten Karte liegt. Danach zeigt die
@@ -40,6 +40,15 @@ ANTHROPIC_API_KEY=... GOOGLE_GEOCODING_API_KEY=... \
 ```
 
 Gibt das erkannte JSON und die verorteten Orientierungspunkte aus.
+
+### PDF-Pläne
+
+Die App rendert die gewählte PDF-Seite zu einem Bild (Grundlage für Positionen, Prüfansicht und
+Karten-Overlay) und lädt zusätzlich das Original-PDF hoch. Claude bekommt beides: aus dem PDF liest
+es Beschriftungen und Legende exakt (auch von anderen Seiten), die Koordinaten kommen aus dem Bild.
+Lokal: `PLAN_PDF=./plan.pdf PLAN_PDF_PAGE=1 npm run try-plan -- ./plan-seite1.jpg "Ort"`.
+
+**Interaktive Pläne** (Web-Karten): Screenshot machen und als Bild hochladen.
 
 ## Webseite lokal testen
 

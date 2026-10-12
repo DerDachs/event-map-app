@@ -30,7 +30,7 @@ class MarketBuilderService {
   /// Uploads the plan image and returns its storage path and download URL.
   Future<(String, String)> uploadPlan(Uint8List bytes, String contentType) async {
     final uid = _auth.currentUser!.uid;
-    final extension = contentType.split('/').last.replaceAll('jpeg', 'jpg');
+    final extension = contentType.split('/').last.replaceAll('jpeg', 'jpg'); // png, jpg, webp, pdf
     final path = 'market-plans/$uid/${DateTime.now().millisecondsSinceEpoch}.$extension';
     final ref = _storage.ref(path);
     await ref.putData(bytes, SettableMetadata(contentType: contentType));
@@ -44,6 +44,8 @@ class MarketBuilderService {
     required String imageUrl,
     required double aspectRatio,
     String? locationHint,
+    String? pdfStoragePath,
+    int? pdfPage,
   }) async {
     final callable = _functions.httpsCallable(
       'analyzeMarketPlan',
@@ -52,6 +54,8 @@ class MarketBuilderService {
     final result = await callable.call<Map<String, dynamic>>({
       'storagePath': storagePath,
       'locationHint': locationHint,
+      if (pdfStoragePath != null) 'pdfStoragePath': pdfStoragePath,
+      if (pdfPage != null) 'pdfPage': pdfPage,
     });
     final data = Map<String, dynamic>.from(result.data);
     final analysis = Map<String, dynamic>.from(data['analysis'] as Map);

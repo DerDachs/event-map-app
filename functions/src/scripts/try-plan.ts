@@ -16,6 +16,7 @@ if (!file) {
   process.exit(1);
 }
 
+const pdfPath = process.env.PLAN_PDF;
 const types: Record<string, SupportedType> = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -30,7 +31,8 @@ if (!mediaType) {
 
 async function main() {
   const started = Date.now();
-  const analysis = await analyzePlanImage(new Anthropic(), readFileSync(file), mediaType, locationHint);
+  const analysis = await analyzePlanImage(new Anthropic(), readFileSync(file), mediaType, locationHint,
+    pdfPath ? { data: readFileSync(pdfPath), page: Number(process.env.PLAN_PDF_PAGE ?? 1) } : null);
   console.log(JSON.stringify(analysis, null, 2));
   console.error(
     `\n${analysis.stands.length} stands, ${analysis.landmarks.length} landmarks in ${Math.round((Date.now() - started) / 1000)} s`,

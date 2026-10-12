@@ -18,7 +18,12 @@ const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 interface AnalyzeRequest {
   storagePath: string;
   locationHint?: string | null;
+  /** Original PDF the plan image was rendered from, and which page. */
+  pdfStoragePath?: string | null;
+  pdfPage?: number | null;
 }
+
+const MAX_PDF_BYTES = 20 * 1024 * 1024;
 
 /**
  * Reads an uploaded market plan from Cloud Storage, lets Claude extract all
@@ -35,7 +40,8 @@ export const analyzeMarketPlan = onCall(
   async (request) => {
     const uid = await requireAdmin(request);
 
-    const { storagePath, locationHint = null } = (request.data ?? {}) as AnalyzeRequest;
+    const { storagePath, locationHint = null, pdfStoragePath = null, pdfPage = 1 } =
+      (request.data ?? {}) as AnalyzeRequest;
     if (typeof storagePath !== "string" || !storagePath.startsWith(`market-plans/${uid}/`)) {
       throw new HttpsError("invalid-argument", "Ungültiger Speicherpfad für den Lageplan.");
     }
@@ -51,6 +57,20 @@ export const analyzeMarketPlan = onCall(
     }
     const [bytes] = await file.download();
 
+    let pdf: { data: Buffer; page: number } | null = null;
+    if (pdfStoragePath) {
+      if (typeof pdfStoragePath !== "string" || !pdfStoragePath.startsWith(`market-plans/${uid}/`)) {
+        throw new HttpsError("invalid-argument", "Ungültiger Speicherpfad für das PDF.");
+      }
+      const pdfFile = getStorage().bucket().file(pdfStoragePath);
+      const [pdfMeta] = await pdfFile.getMetadata();
+      if (pdfMeta.contentType !== "application/pdf" || Number(pdfMeta.size) > MAX_PDF_BYTES) {
+        throw new HttpsError("invalid-argument", "Das PDF ist ungültig oder größer als 20 MB.");
+      }
+      const [pdfBytes] = await pdfFile.download();
+      pdf = { data: pdfBytes, page: typeof pdfPage === "number" && pdfPage > 0 ? pdfPage : 1 };
+    }
+
     let analysis;
     try {
       analysis = await analyzePlanImage(
@@ -58,6 +78,7 @@ export const analyzeMarketPlan = onCall(
         bytes,
         mediaType,
         locationHint,
+        pdf,
       );
     } catch (err) {
       if (err instanceof PlanAnalysisError) {
