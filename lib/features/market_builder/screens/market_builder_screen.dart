@@ -5,6 +5,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -15,6 +16,7 @@ import '../models/plan_draft.dart';
 import '../models/stand_categories.dart';
 import '../services/georeference.dart';
 import '../services/market_builder_service.dart';
+import '../services/pdf_plan.dart';
 import '../widgets/category_marker.dart';
 import '../widgets/plan_canvas.dart';
 
@@ -44,6 +46,9 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   bool _importing = false;
   Uint8List? _imageBytes;
   String? _contentType;
+  Uint8List? _pdfBytes;
+  int _pdfPage = 1;
+  bool _renderingPdf = false;
   double _aspectRatio = 1;
   double _imageWidthPx = 1;
 
@@ -71,26 +76,131 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
 
   Future<void> _pickImage() async {
     FocusManager.instance.primaryFocus?.unfocus();
-    final file = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 3000,
-      maxHeight: 3000,
-      imageQuality: 90,
+    final source = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Bild aus Fotos'),
+              subtitle: const Text('Foto oder Screenshot des Plans'),
+              onTap: () => Navigator.pop(context, 'photos'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined),
+              title: const Text('Datei: PDF oder Bild'),
+              subtitle: const Text('z. B. der Lageplan von der Webseite des Marktes'),
+              onTap: () => Navigator.pop(context, 'files'),
+            ),
+          ],
+        ),
+      ),
     );
-    if (file == null) return;
-    final bytes = await file.readAsBytes();
-    final contentType = _detectContentType(bytes);
-    if (contentType == null) {
-      _showError('Bitte ein PNG-, JPG- oder WebP-Bild wählen. PDFs vorher als Bild exportieren.');
+    if (source == null) return;
+
+    Uint8List? bytes;
+    if (source == 'photos') {
+      final file = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 3000,
+        maxHeight: 3000,
+        imageQuality: 90,
+      );
+      bytes = await file?.readAsBytes();
+    } else {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const ['pdf', 'png', 'jpg', 'jpeg', 'webp'],
+        withData: true,
+      );
+      bytes = result?.files.single.bytes;
+    }
+    if (bytes == null) return;
+
+    if (isPdf(bytes)) {
+      await _usePdf(bytes);
       return;
     }
+    final contentType = _detectContentType(bytes);
+    if (contentType == null) {
+      _showError('Bitte ein PDF oder ein PNG-, JPG- oder WebP-Bild wählen.');
+      return;
+    }
+    await _useImage(bytes, contentType, pdf: null);
+  }
+
+  Future<void> _useImage(Uint8List bytes, String contentType, {required Uint8List? pdf, int page = 1}) async {
     final image = await decodeImageFromList(bytes);
     setState(() {
       _imageBytes = bytes;
       _contentType = contentType;
       _aspectRatio = image.width / image.height;
       _imageWidthPx = image.width.toDouble();
+      _pdfBytes = pdf;
+      _pdfPage = page;
     });
+  }
+
+  Future<void> _usePdf(Uint8List pdf) async {
+    if (pdf.lengthInBytes > 20 * 1024 * 1024) {
+      _showError('Das PDF ist größer als 20 MB.');
+      return;
+    }
+    setState(() => _renderingPdf = true);
+    try {
+      var page = 1;
+      final pages = await pdfPageCount(pdf);
+      if (pages > 1) {
+        final thumbs = await renderPdfThumbnails(pdf);
+        if (!mounted) return;
+        final chosen = await showDialog<int>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Welche Seite zeigt den Plan?'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: GridView.count(
+                shrinkWrap: true,
+                crossAxisCount: 2,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                children: [
+                  for (var i = 0; i < thumbs.length; i++)
+                    InkWell(
+                      onTap: () => Navigator.pop(context, i + 1),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(border: Border.all(color: Colors.black26)),
+                              child: Image.memory(thumbs[i], fit: BoxFit.contain),
+                            ),
+                          ),
+                          Text('Seite ${i + 1}'),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
+            ],
+          ),
+        );
+        if (chosen == null) return;
+        page = chosen;
+      }
+      final rendered = await renderPdfPage(pdf, page);
+      await _useImage(rendered, 'image/jpeg', pdf: pdf, page: page);
+    } catch (e) {
+      _showError('Das PDF konnte nicht geöffnet werden: $e');
+    } finally {
+      if (mounted) setState(() => _renderingPdf = false);
+    }
   }
 
   static String? _detectContentType(Uint8List b) {
@@ -153,12 +263,15 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     final service = ref.read(marketBuilderServiceProvider);
     try {
       final (path, url) = await service.uploadPlan(_imageBytes!, _contentType!);
+      final pdfPath = _pdfBytes == null ? null : (await service.uploadPlan(_pdfBytes!, 'application/pdf')).$1;
       final location = _locationController.text.trim();
       final draft = await service.analyzePlan(
         storagePath: path,
         imageUrl: url,
         aspectRatio: _aspectRatio,
         locationHint: location.isEmpty ? null : location,
+        pdfStoragePath: pdfPath,
+        pdfPage: pdfPath == null ? null : _pdfPage,
       );
       await _loadMarkerIcons();
       setState(() {
@@ -472,10 +585,18 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
             ),
           ),
         const SizedBox(height: 8),
+        if (_pdfBytes != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text('Seite $_pdfPage aus dem PDF – die KI liest zusätzlich den Text des PDFs.',
+                style: Theme.of(context).textTheme.bodySmall),
+          ),
         OutlinedButton.icon(
-          icon: const Icon(Icons.map_outlined),
-          label: Text(_imageBytes == null ? 'Lageplan auswählen *' : 'Anderen Plan wählen'),
-          onPressed: _pickImage,
+          icon: _renderingPdf
+              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+              : const Icon(Icons.map_outlined),
+          label: Text(_imageBytes == null ? 'Lageplan auswählen * (Bild oder PDF)' : 'Anderen Plan wählen'),
+          onPressed: _renderingPdf ? null : _pickImage,
         ),
         const SizedBox(height: 24),
         FilledButton.icon(

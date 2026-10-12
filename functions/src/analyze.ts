@@ -23,7 +23,12 @@ export async function analyzePlanImage(
   image: Buffer,
   mediaType: SupportedType,
   locationHint: string | null,
+  pdf?: { data: Buffer; page: number } | null,
 ): Promise<PlanAnalysis> {
+  const hint = locationHint ? ` Ort laut Veranstalter: ${locationHint}` : "";
+  const pdfNote = pdf
+    ? ` Zusätzlich liegt das Original-PDF bei; das Bild ist Seite ${pdf.page} daraus. Nutze das PDF, um Beschriftungen, Standnamen und die Legende (auch auf anderen Seiten) exakt zu lesen. Alle Koordinaten beziehen sich ausschließlich auf das Bild.`
+    : "";
   const message = await client.beta.messages
     .stream({
       model: "claude-opus-5-5",
@@ -39,15 +44,26 @@ export async function analyzePlanImage(
         {
           role: "user",
           content: [
+            ...(pdf
+              ? [
+                  {
+                    type: "document" as const,
+                    source: {
+                      type: "base64" as const,
+                      media_type: "application/pdf" as const,
+                      data: pdf.data.toString("base64"),
+                    },
+                    title: "Lageplan (PDF)",
+                  },
+                ]
+              : []),
             {
               type: "image",
               source: { type: "base64", media_type: mediaType, data: image.toString("base64") },
             },
             {
               type: "text",
-              text: locationHint
-                ? `Lageplan des Marktes. Ort laut Veranstalter: ${locationHint}`
-                : "Lageplan des Marktes.",
+              text: `Lageplan des Marktes.${hint}${pdfNote}`,
             },
           ],
         },
