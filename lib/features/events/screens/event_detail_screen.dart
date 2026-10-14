@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/event.dart';
 import '../../../providers/state_provider.dart';
 import '../../../providers/user_provider.dart';
+import '../../market_editor/widgets/edit_market_button.dart';
 import '../providers/event_provider.dart';
 import '../widgets/event_info.dart';
 
@@ -53,7 +54,10 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.event.name)),
+      appBar: AppBar(
+        title: Text(widget.event.name),
+        actions: [EditMarketButton(eventId: widget.event.id)],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(top: 16),
         child: EventInfo(

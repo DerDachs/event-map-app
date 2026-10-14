@@ -124,6 +124,17 @@ Das alte Netzwerk-Logo (`assets/logos/`) wird nicht mehr für öffentliche Auftr
 Text `dark-text #F3EFE8`, Sekundär `dark-text-soft #BDB7AE`, Links `dark-link #FF8A80`
 (Marktrot ist als Textfarbe auf Dunkel zu schwach; als Fläche, z. B. Button, bleibt es Marktrot).
 
+**Saison-Akzente** färben in der App nur Banner, Status-Pills und Saison-Icons auf der Startseite
+(Saisons pflegt man unter *Admin → Saisons*). Rest der App bleibt Marktrot/Kohle/Papier. Weiße
+Schrift ist auf allen Akzenten ≥ 5 : 1.
+
+| Token | Hex | Saison | Symbol |
+|---|---|---|---|
+| `season-christmas` | `#C62828` | Weihnachten (mit Lichtergold-Stern) | Stern |
+| `season-spring` | `#3F7D20` | Ostern, Pfingsten, Frühling | Blume |
+| `season-summer` | `#00796B` | Sommerfeste, Mittelaltermärkte | Sonne |
+| `season-autumn` | `#A0461C` | Herbst- und Weinfeste | Blatt |
+
 **Kategoriefarben** sind funktional (Kartenmarker in der App) und kein Teil der Markenpalette. Sie
 gelten überall, wo Stände dargestellt werden – Website-Mockups eingeschlossen:
 

@@ -1,0 +1,85 @@
+[
+  {
+    "id": "weihnachten-2026",
+    "name": "Weihnachtsmärkte 2026",
+    "tagline": "Glühwein, Lichter, Freunde – deine Märkte in der Adventszeit",
+    "startsAt": "2026-10-01T00:00:00+02:00",
+    "endsAt": "2027-01-07T00:00:00+01:00",
+    "marketTypes": [
+      "christmas_market"
+    ],
+    "accent": "christmas",
+    "countdownTo": "2026-12-24T12:00:00+01:00",
+    "countdownLabel": "Heiligabend",
+    "milestones": [
+      {
+        "label": "1. Advent",
+        "date": "2026-11-29T12:00:00+01:00"
+      },
+      {
+        "label": "2. Advent",
+        "date": "2026-12-06T12:00:00+01:00"
+      },
+      {
+        "label": "3. Advent",
+        "date": "2026-12-13T12:00:00+01:00"
+      },
+      {
+        "label": "4. Advent",
+        "date": "2026-12-20T12:00:00+01:00"
+      }
+    ]
+  },
+  {
+    "id": "ostern-2027",
+    "name": "Oster- & Frühlingsmärkte 2027",
+    "tagline": "Bunte Eier, erste Sonne, Kunsthandwerk",
+    "startsAt": "2027-03-01T00:00:00+01:00",
+    "endsAt": "2027-04-19T00:00:00+02:00",
+    "marketTypes": [
+      "easter_market",
+      "spring_market"
+    ],
+    "accent": "spring",
+    "countdownTo": "2027-03-28T12:00:00+01:00",
+    "countdownLabel": "Ostersonntag"
+  },
+  {
+    "id": "pfingsten-2027",
+    "name": "Pfingstmärkte 2027",
+    "tagline": "Lange Abende, Fahrgeschäfte und Märkte unter freiem Himmel",
+    "startsAt": "2027-04-19T00:00:00+02:00",
+    "endsAt": "2027-06-01T00:00:00+02:00",
+    "marketTypes": [
+      "pentecost_market",
+      "spring_market"
+    ],
+    "accent": "spring",
+    "countdownTo": "2027-05-16T12:00:00+02:00",
+    "countdownLabel": "Pfingstsonntag"
+  },
+  {
+    "id": "sommer-2027",
+    "name": "Sommerfeste 2027",
+    "tagline": "Altstadtfeste, Mittelaltermärkte und laue Nächte",
+    "startsAt": "2027-06-01T00:00:00+02:00",
+    "endsAt": "2027-09-01T00:00:00+02:00",
+    "marketTypes": [
+      "summer_festival",
+      "medieval_market"
+    ],
+    "accent": "summer"
+  },
+  {
+    "id": "herbst-2027",
+    "name": "Herbst- & Weinfeste 2027",
+    "tagline": "Neuer Wein, Zwiebelkuchen und bunte Blätter",
+    "startsAt": "2027-09-01T00:00:00+02:00",
+    "endsAt": "2027-11-01T00:00:00+01:00",
+    "marketTypes": [
+      "autumn_market",
+      "wine_festival"
+    ],
+    "accent": "autumn"
+  }
+]

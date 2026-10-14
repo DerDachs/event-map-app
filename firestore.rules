@@ -50,6 +50,18 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Start page posts, written by admins.
+    match /feed/{postId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Seasons (Weihnachten, Pfingsten …) for the start page, set by admins.
+    match /seasons/{seasonId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
     match /teams/{teamId} {
       allow read, write: if signedIn();
     }

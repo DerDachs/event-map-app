@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../events/services/event_service.dart';
+import '../../seasons/models/market_types.dart';
 import '../../../utils/formatters.dart';
 import '../models/event_import.dart';
 import '../models/plan_draft.dart';
@@ -19,6 +20,7 @@ import '../services/market_builder_service.dart';
 import '../services/pdf_plan.dart';
 import '../widgets/category_marker.dart';
 import '../widgets/plan_canvas.dart';
+import '../widgets/stand_editor.dart';
 
 final marketBuilderServiceProvider = Provider((ref) => MarketBuilderService());
 
@@ -41,6 +43,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   final _descriptionController = TextEditingController();
   final _urlController = TextEditingController();
   DateTimeRange? _dates;
+  String _marketType = 'christmas_market';
   EventImport? _import;
   final Set<String> _selectedImages = {};
   bool _importing = false;
@@ -299,10 +302,10 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   // ---------------------------------------------------------------- Review
 
   Future<void> _editStand(DraftStand stand) async {
-    final result = await showModalBottomSheet<_StandEdit>(
+    final result = await showModalBottomSheet<StandEdit>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _StandEditor(stand: stand),
+      builder: (_) => StandEditorSheet(label: stand.label, category: stand.category),
     );
     if (result == null) return;
     setState(() {
@@ -324,10 +327,10 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
       category: 'other',
       position: position,
     );
-    final result = await showModalBottomSheet<_StandEdit>(
+    final result = await showModalBottomSheet<StandEdit>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _StandEditor(stand: stand, isNew: true),
+      builder: (_) => StandEditorSheet(label: stand.label, category: stand.category, isNew: true),
     );
     if (result == null || result.delete) return;
     setState(() {
@@ -451,6 +454,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
             description: _descriptionController.text.trim(),
             start: _dates!.start,
             end: _dates!.end,
+            marketType: _marketType,
             imageUrls: [
               for (final url in _import?.imageUrls ?? const <String>[])
                 if (_selectedImages.contains(url)) url,
@@ -533,6 +537,15 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
           textInputAction: TextInputAction.next,
           decoration: const InputDecoration(labelText: 'Name des Marktes *'),
           onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          initialValue: _marketType,
+          decoration: const InputDecoration(labelText: 'Art des Marktes'),
+          items: [
+            for (final t in marketTypes) DropdownMenuItem(value: t.key, child: Text(t.name)),
+          ],
+          onChanged: (v) => setState(() => _marketType = v ?? _marketType),
         ),
         const SizedBox(height: 12),
         TextField(
@@ -1037,90 +1050,6 @@ class _Busy extends StatelessWidget {
           ],
         ),
       );
-}
-
-class _StandEdit {
-  final String label;
-  final String category;
-  final bool delete;
-
-  const _StandEdit(this.label, this.category, {this.delete = false});
-}
-
-class _StandEditor extends StatefulWidget {
-  final DraftStand stand;
-  final bool isNew;
-
-  const _StandEditor({required this.stand, this.isNew = false});
-
-  @override
-  State<_StandEditor> createState() => _StandEditorState();
-}
-
-class _StandEditorState extends State<_StandEditor> {
-  late final _label = TextEditingController(text: widget.stand.label);
-  late String _category = widget.stand.category;
-
-  @override
-  void dispose() {
-    _label.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(context).viewInsets.bottom + 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(widget.isNew ? 'Stand hinzufügen' : 'Stand bearbeiten',
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _label,
-            autofocus: widget.isNew,
-            decoration: const InputDecoration(labelText: 'Name'),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final c in standCategories)
-                ChoiceChip(
-                  avatar: Icon(c.icon, size: 18, color: c.color),
-                  label: Text(c.name),
-                  selected: _category == c.key,
-                  onSelected: (_) => setState(() => _category = c.key),
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              if (!widget.isNew)
-                TextButton.icon(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  label: const Text('Löschen', style: TextStyle(color: Colors.red)),
-                  onPressed: () => Navigator.pop(context, const _StandEdit('', '', delete: true)),
-                ),
-              const Spacer(),
-              FilledButton(
-                onPressed: () {
-                  final label = _label.text.trim();
-                  if (label.isEmpty) return;
-                  Navigator.pop(context, _StandEdit(label, _category));
-                },
-                child: const Text('Übernehmen'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _PickPlanPointPage extends StatelessWidget {

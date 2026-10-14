@@ -103,6 +103,7 @@ class MarketBuilderService {
     required String description,
     required DateTime start,
     required DateTime end,
+    String marketType = 'christmas_market',
     List<String> imageUrls = const [],
     List<OpeningHour> openingHours = const [],
     String? ticketPrice,
@@ -155,7 +156,7 @@ class MarketBuilderService {
       'endTime': Timestamp.fromDate(end),
       'latitude': overlay.center.latitude,
       'longitude': overlay.center.longitude,
-      'category': 'christmas_market',
+      'category': marketType,
       'teamIds': <String>[],
       'participants': <String>[],
       // Pictures from the web page come first; the plan is the fallback cover.

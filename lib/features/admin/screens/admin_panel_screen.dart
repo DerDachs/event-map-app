@@ -27,6 +27,30 @@ class AdminPanelScreen extends ConsumerWidget {
             },
           ),
           ListTile(
+            leading: Icon(Icons.wb_sunny_outlined),
+            title: Text('Saisons'),
+            subtitle: Text('Weihnachten, Pfingsten, Herbst … mit Banner und Countdown'),
+            onTap: () {
+              Navigator.pushNamed(context, '/admin/seasons');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.dynamic_feed_outlined),
+            title: Text('Startseite: Beiträge'),
+            subtitle: Text('Neuigkeiten und Tipps für den Feed schreiben'),
+            onTap: () {
+              Navigator.pushNamed(context, '/admin/feed');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.edit_location_alt_outlined),
+            title: Text('Märkte bearbeiten'),
+            subtitle: Text('Infos, Bilder und Stände bestehender Märkte ändern'),
+            onTap: () {
+              Navigator.pushNamed(context, '/admin/markets');
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.edit_calendar_outlined),
             title: Text('Event manuell anlegen'),
             subtitle: Text('Ohne Lageplan, Koordinaten selbst eintragen'),
