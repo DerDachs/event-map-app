@@ -12,7 +12,6 @@ on:
           - all
           - functions
           - rules
-          - hosting
       update_api_keys:
         description: Copy ANTHROPIC_API_KEY and GOOGLE_GEOCODING_API_KEY from GitHub secrets into Google Secret Manager first
         type: boolean
@@ -71,10 +70,9 @@ jobs:
           TARGETS: ${{ inputs.targets }}
         run: |
           case "$TARGETS" in
-            all)       ONLY="functions,firestore:rules,storage,hosting" ;;
+            all)       ONLY="functions,firestore:rules,storage" ;;
             functions) ONLY="functions" ;;
             rules)     ONLY="firestore:rules,storage" ;;
-            hosting)   ONLY="hosting" ;;
           esac
           firebase deploy --only "$ONLY" --project "$PROJECT_ID" --non-interactive --force \
             --message "GitHub Actions run ${GITHUB_RUN_NUMBER} (${GITHUB_SHA::7})"

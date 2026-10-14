@@ -31,7 +31,8 @@ cellarworks            ← Studio / Absender (cellarworks.dev)
 - Schreibweise: **Market Mate** (zwei Wörter, beide groß). **cellarworks** immer klein, auch am Satzanfang.
 
 **Domains:** `cellarworks.dev` = Studio-Seite, `marketmate.cellarworks.dev` = Produktseite
-(der `website/`-Ordner, Firebase Hosting).
+(der `website/`-Ordner, ausgeliefert über Cloudflare Workers – Konfiguration in `wrangler.jsonc`,
+jeder Push auf `main` wird automatisch veröffentlicht).
 
 **E-Mail:** öffentliche Kontaktadresse ist `info@cellarworks.dev` (Website, Impressum, App Store,
 Veranstalter-Anfragen). Wird später eine Trennung nötig, bekommt Market Mate eigene Adressen unter
@@ -201,8 +202,6 @@ cp brand/logo/market-mate-mark.svg website/assets/mark.svg
 
 ## 11. Offene Punkte
 
-- `marketmate.cellarworks.dev` in Firebase Hosting als Custom Domain verbinden (sonst greifen
-  `og:image` und Canonical-URLs noch nicht).
 - App-Icon in der App austauschen: `flutter_launcher_icons.yaml` auf
   `brand/logo/png/market-mate-app-icon-1024.png` zeigen lassen und
   `dart run flutter_launcher_icons` ausführen.
