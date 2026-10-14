@@ -5,13 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Market Mate – Dein Weihnachtsmarkt in der Hosentasche</title>
   <meta name="description" content="Market Mate zeigt dir alle Stände eines Weihnachtsmarkts auf einer Karte. Finde Glühwein, Crêpes und Kunsthandwerk sofort und triff dich mit Freunden.">
-  <link rel="icon" href="assets/favicon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Market Mate">
+  <meta property="og:title" content="Market Mate – Dein Weihnachtsmarkt in der Hosentasche">
+  <meta property="og:description" content="Market Mate zeigt dir alle Stände eines Weihnachtsmarkts auf einer Karte. Finde Glühwein, Crêpes und Kunsthandwerk sofort und triff dich mit Freunden.">
+  <!-- TODO: absolute URL once the final domain is set, e.g. https://<domain>/assets/og-image.png -->
+  <meta property="og:image" content="assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#C62828">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon.png" sizes="64x64">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header">
     <div class="wrap">
-      <a class="brand" href="index.html"><img src="assets/logo.png" alt="Market Mate" width="113" height="52"></a>
+      <a class="brand" href="index.html"><picture><source media="(max-width: 420px)" srcset="assets/mark.svg"><img src="assets/logo.svg" alt="Market Mate" width="157" height="40"></picture></a>
       <nav class="nav" aria-label="Zielgruppe">
         <a href="index.html" aria-current="page">Für Besucher</a>
         <a href="veranstalter.html">Für Veranstalter</a>
@@ -159,7 +169,7 @@
 
   <footer class="site-footer">
     <div class="wrap">
-      <span>© 2026 Market Mate</span>
+      <span>© 2026 Market Mate · <a class="maker" href="https://cellarworks.dev">ein Projekt von <img src="assets/cellarworks-logo.svg" alt="cellarworks" width="86" height="22"></a></span>
       <span><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></span>
     </div>
   </footer>
