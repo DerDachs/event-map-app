@@ -1,0 +1,11 @@
+// Cloudflare Workers config for the public website (marketmate.cellarworks.dev).
+// Serves the static files in website/ – no build step. Deployed by Workers Builds on push to main.
+{
+  "name": "marketmate-website",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./website",
+    // /veranstalter serves veranstalter.html, like Firebase's cleanUrls did.
+    "html_handling": "auto-trailing-slash"
+  }
+}
