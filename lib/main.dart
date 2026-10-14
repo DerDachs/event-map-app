@@ -14,6 +14,7 @@ import 'features/market_builder/screens/market_builder_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
+import 'theme/brand_tokens.dart';
 import 'utils/authentication_gate.dart';
 
 void main() async {
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
       title: 'Market Mate',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFC62828)),
+        colorScheme: ColorScheme.fromSeed(seedColor: BrandColors.red),
         useMaterial3: true,
       ),
       locale: const Locale('de'),

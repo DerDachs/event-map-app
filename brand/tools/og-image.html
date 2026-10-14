@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- Template for website/assets/og-image.png (1200 x 630). Rendered by export_png.js. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<style>
+  @font-face { font-family: "Bebas Neue"; src: url("../fonts/bebas-neue-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Figtree"; src: url("../fonts/figtree-latin-wght-normal.woff2") format("woff2"); font-weight: 300 900; }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background: var(--paper);
+    font-family: var(--font-body);
+    color: var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    align-items: center;
+    padding: 0 0 0 80px;
+    box-sizing: border-box;
+  }
+  .logo { height: 76px; display: block; margin-bottom: 44px; }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 96px;
+    line-height: 0.95;
+    margin: 0 0 24px;
+    text-transform: uppercase;
+  }
+  h1 em { font-style: normal; color: var(--red); }
+  p { font-size: 30px; color: var(--ink-soft); margin: 0; }
+  .map { height: 630px; background: var(--sand); position: relative; overflow: hidden; }
+  .map svg { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+  <div>
+    <img class="logo" src="../logo/market-mate-logo.svg" alt="">
+    <h1>Dein Markt<br>in der <em>Hosentasche</em></h1>
+    <p>Alle Stände auf einer Karte. Freunde inklusive.</p>
+  </div>
+  <div class="map">
+    <svg viewBox="0 0 420 630" width="420" height="630">
+      <path d="M-20 200 L440 160" stroke="#fff" stroke-width="34"/>
+      <path d="M-20 470 L440 510" stroke="#fff" stroke-width="28"/>
+      <path d="M110 -20 L140 660" stroke="#fff" stroke-width="26"/>
+      <path d="M320 -20 L300 660" stroke="#fff" stroke-width="24"/>
+      <rect x="160" y="225" width="120" height="220" rx="14" fill="#E7E3DD"/>
+      <g stroke="#fff" stroke-width="4">
+        <circle cx="180" cy="250" r="15" fill="#C62828"/>
+        <circle cx="240" cy="262" r="15" fill="#EF6C00"/>
+        <circle cx="172" cy="400" r="15" fill="#2E7D32"/>
+        <circle cx="258" cy="420" r="15" fill="#F9A825"/>
+        <circle cx="70" cy="330" r="15" fill="#455A64"/>
+        <circle cx="360" cy="300" r="15" fill="#6A1B9A"/>
+        <circle cx="360" cy="390" r="15" fill="#1565C0"/>
+        <circle cx="72" cy="250" r="15" fill="#AD1457"/>
+      </g>
+      <image href="../logo/market-mate-mark.svg" x="164" y="262" width="96" height="96"/>
+    </svg>
+  </div>
+</body>
+</html>

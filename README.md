@@ -16,6 +16,12 @@ Market Mate is a Flutter app that helps visitors discover events, explore stands
 
 ---
 
+## 🎨 Brand
+
+Logo, colours, fonts and tone of voice for every public appearance: see [`brand/README.md`](brand/README.md) (visual overview: `brand/index.html`).
+
+---
+
 ## 🛠️ Project Setup
 
 ### Prerequisites

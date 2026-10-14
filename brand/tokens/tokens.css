@@ -1,0 +1,43 @@
+/* Generated from brand/tokens/tokens.json by brand/tools/build_tokens.py. Do not edit. */
+:root {
+  --red: #C62828;
+  --red-dark: #9E1F1F;
+  --gold: #F9A825;
+  --gold-soft: #FFF3D6;
+  --gold-ink: #8A5A00;
+  --green: #2E7D32;
+  --ink: #2B2B2B;
+  --ink-soft: #5C5C5C;
+  --paper: #FBFAF8;
+  --sand: #F3EFE8;
+  --line: #E7E3DD;
+  --white: #FFFFFF;
+  --dark-bg: #1E1C1B;
+  --dark-surface: #2B2B2B;
+  --dark-text: #F3EFE8;
+  --dark-text-soft: #BDB7AE;
+  --dark-link: #FF8A80;
+  --category-gluehwein: #C62828;
+  --category-food-savory: #EF6C00;
+  --category-food-sweet: #AD1457;
+  --category-crafts: #2E7D32;
+  --category-decoration: #F9A825;
+  --category-kids: #6A1B9A;
+  --category-stage: #1565C0;
+  --category-service: #455A64;
+  --category-other: #6D4C41;
+  --font-display: "Bebas Neue", Oswald, "Arial Narrow", sans-serif;
+  --font-body: Figtree, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+}

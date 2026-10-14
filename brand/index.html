@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Market Mate Markenleitfaden</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="tokens/tokens.css">
+<style>
+  @font-face { font-family: "Bebas Neue"; src: url("fonts/bebas-neue-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Figtree"; src: url("fonts/figtree-latin-wght-normal.woff2") format("woff2"); font-weight: 300 900; font-display: swap; }
+
+  /* Layout: one reading column; logo and colour specimens sit on fixed-colour tiles so they look identical in both themes. */
+  :root {
+    --bg: var(--paper);
+    --bg-alt: var(--sand);
+    --fg: var(--ink);
+    --fg-soft: var(--ink-soft);
+    --rule: var(--line);
+    --surface: var(--white);
+    --accent-text: var(--red-dark);
+    --display: var(--font-display);
+    --body: var(--font-body);
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: var(--dark-bg); --bg-alt: #252321; --fg: var(--dark-text); --fg-soft: var(--dark-text-soft);
+      --rule: #3A3633; --surface: var(--dark-surface); --accent-text: var(--dark-link); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: var(--dark-bg); --bg-alt: #252321; --fg: var(--dark-text); --fg-soft: var(--dark-text-soft);
+    --rule: #3A3633; --surface: var(--dark-surface); --accent-text: var(--dark-link); color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 400 16px/1.6 var(--body); -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1040px; margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  section { padding-block: 56px; border-top: 1px solid var(--rule); }
+  h1, h2 { font-family: var(--display); font-weight: 400; text-transform: uppercase; line-height: 1; letter-spacing: 0.01em; margin: 0; text-wrap: balance; }
+  h1 { font-size: clamp(2.6rem, 8vw, 5rem); }
+  h2 { font-size: clamp(2rem, 5vw, 2.8rem); margin-bottom: 8px; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 0 0 4px; }
+  p { margin: 0; }
+  .lede { color: var(--fg-soft); max-width: 40em; font-size: 1.05rem; }
+  .eyebrow { font-weight: 700; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 10px; display: block; }
+  code, .file { font-family: var(--mono); font-size: 0.82rem; color: var(--fg-soft); overflow-wrap: anywhere; }
+  .head { display: grid; gap: 8px; margin-bottom: 28px; }
+
+  /* Top bar */
+  .top { padding-block: 18px; display: flex; align-items: center; gap: 10px; }
+  .top img { width: 32px; height: 32px; }
+  .top span { font-family: var(--display); font-size: 1.4rem; letter-spacing: 0.02em; }
+  .top .doc { margin-left: auto; font-family: var(--body); font-size: 0.85rem; color: var(--fg-soft); letter-spacing: 0; }
+
+  /* Hero */
+  .hero { padding-block: 40px 64px; display: grid; gap: 28px; }
+  .hero-logo { background: var(--paper); border-radius: var(--radius-lg); padding: clamp(28px, 6vw, 64px); display: grid; place-items: center; border: 1px solid var(--line); }
+  .hero-logo img { width: min(520px, 100%); height: auto; }
+  .arch { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; color: var(--fg-soft); font-size: 0.95rem; }
+  .arch strong { color: var(--fg); }
+
+  /* Tiles */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .tile { display: grid; gap: 10px; min-width: 0; }
+  .tile .stage { border-radius: var(--radius-md); aspect-ratio: 16 / 10; display: grid; place-items: center; padding: 20px; max-width: 100%; }
+  .stage img { max-height: 100%; max-width: 100%; }
+  .on-paper { background: var(--paper); border: 1px solid var(--line); }
+  .on-dark { background: var(--dark-bg); }
+  .on-red { background: var(--red); }
+  .on-sand { background: var(--sand); }
+
+  .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 24px; }
+  .rule { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-md); padding: 20px; }
+  .rule p { color: var(--fg-soft); font-size: 0.95rem; }
+  .sizes { display: flex; align-items: flex-end; gap: 18px; margin-top: 12px; padding: 16px; background: var(--paper); border-radius: var(--radius-sm); border: 1px solid var(--line); }
+
+  .donts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 16px; }
+  .dont { display: grid; gap: 6px; font-size: 0.85rem; color: var(--fg-soft); }
+  .dont .stage { aspect-ratio: 4 / 3; border-radius: var(--radius-sm); display: grid; place-items: center; position: relative; overflow: hidden; }
+  .dont .stage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top right, transparent calc(50% - 1.5px), var(--red) calc(50% - 1.5px), var(--red) calc(50% + 1.5px), transparent calc(50% + 1.5px)); opacity: 0.85; }
+
+  /* Colours */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+  .swatch { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--rule); background: var(--surface); }
+  .chip { height: 110px; padding: 14px; display: flex; align-items: flex-end; font-weight: 700; font-size: 0.85rem; }
+  .swatch .meta { padding: 12px 14px 14px; display: grid; gap: 2px; }
+  .swatch .meta strong { font-size: 0.95rem; }
+  .swatch .meta span { font-size: 0.85rem; color: var(--fg-soft); }
+  .ratio { height: 18px; display: flex; border-radius: 999px; overflow: hidden; margin: 24px 0 6px; }
+  .ratio-legend { font-size: 0.85rem; color: var(--fg-soft); }
+  .cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 16px; }
+  .cat { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+  .cat i { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--white); box-shadow: 0 0 0 1px var(--rule); flex: none; }
+  .cat code { margin-left: auto; white-space: nowrap; }
+
+  /* Type */
+  .type { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .specimen { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-md); padding: 24px; min-width: 0; }
+  .specimen .big { font-size: clamp(3rem, 9vw, 4.5rem); line-height: 1; margin: 8px 0 12px; overflow-wrap: anywhere; }
+  .bebas { font-family: var(--display); text-transform: uppercase; }
+  .figtree { font-family: var(--body); font-weight: 700; }
+  .specimen p { color: var(--fg-soft); font-size: 0.95rem; }
+  .scale { margin-top: 20px; display: grid; gap: 14px; }
+  .scale div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: baseline; min-width: 0; }
+  .scale div > * { min-width: 0; }
+
+  /* Elements */
+  .demo { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .panel { border-radius: var(--radius-md); padding: 24px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+  .panel.light { background: var(--paper); border: 1px solid var(--line); color: var(--ink); }
+  .panel.dark { background: var(--dark-bg); color: var(--dark-text); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .btn { display: inline-flex; padding: 11px 20px; border-radius: var(--radius-pill); font: 700 0.95rem var(--body); border: 2px solid; text-decoration: none; }
+  .btn-red { background: var(--red); border-color: var(--red); color: var(--white); }
+  .btn-ghost { border-color: var(--ink); color: var(--ink); }
+  .btn-white { background: var(--white); border-color: var(--white); color: var(--ink); }
+  .badge { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: var(--gold-soft); color: var(--gold-ink); border-radius: 999px; padding: 2px 8px; }
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 20px; color: var(--ink); }
+  .card p { color: var(--ink-soft); font-size: 0.92rem; }
+  .icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: var(--white); background: var(--red); margin-bottom: 12px; }
+  .icon svg { width: 24px; height: 24px; }
+  .dark h3 { color: var(--dark-text); }
+  .dark p { color: var(--dark-text-soft); }
+
+  /* Voice */
+  .voice { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .voice .rule h3 { font-family: var(--display); font-weight: 400; font-size: 1.6rem; text-transform: uppercase; }
+  .say { display: grid; gap: 10px; margin-top: 12px; }
+  .say p { padding-left: 14px; border-left: 3px solid var(--green); color: var(--fg); }
+  .say p.no { border-left-color: var(--red); color: var(--fg-soft); text-decoration: line-through; text-decoration-color: var(--red); }
+
+  /* Applications */
+  .apps { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; }
+  .apps figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+  .apps figure img { border-radius: var(--radius-md); border: 1px solid var(--rule); width: 100%; height: auto; }
+  figcaption { font-size: 0.85rem; color: var(--fg-soft); }
+  .homescreen { background: linear-gradient(160deg, #3b2b2b, #1e1c1b); border-radius: var(--radius-lg); padding: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; justify-items: center; }
+  .homescreen div { display: grid; gap: 6px; justify-items: center; font-size: 0.7rem; color: #fff; }
+  .homescreen img, .homescreen i { width: 58px; height: 58px; border-radius: 14px; }
+  .homescreen i { background: rgba(255,255,255,0.14); }
+
+  .files { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .files li { display: grid; grid-template-columns: minmax(0, 260px) 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+  .files li > * { min-width: 0; }
+  footer { padding-block: 32px 48px; color: var(--fg-soft); font-size: 0.85rem; border-top: 1px solid var(--rule); }
+
+  @media (max-width: 720px) {
+    .apps { grid-template-columns: 1fr; }
+    .files li, .scale div { grid-template-columns: 1fr; gap: 2px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <img src="logo/market-mate-mark.svg" alt="">
+    <span>Market Mate</span>
+    <span class="doc">Markenleitfaden · v1 · Oktober 2026</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-logo"><img src="logo/market-mate-logo.svg" alt="Market Mate Logo"></div>
+    <div class="head">
+      <span class="eyebrow">Corporate Identity</span>
+      <h1>Weniger suchen, mehr genießen</h1>
+      <p class="lede">Ein Pin, eine Marktbude, ein warmes Rot. So sieht Market Mate überall aus: auf der Website, in der App, im App Store und auf dem Flyer am Glühweinstand. Ausführliche Regeln stehen in <code>brand/README.md</code>.</p>
+    </div>
+    <div class="arch">
+      <img src="logo/cellarworks-logo.svg" alt="cellarworks" style="height:28px">
+      <span><strong>cellarworks</strong> ist das Studio dahinter und tritt zurück („ein Projekt von cellarworks“).<br><strong>Market Mate</strong> ist die Produktmarke, die Besucher und Veranstalter sehen.</span>
+    </div>
+  </div>
+</div>
+
+<section id="logo">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Logo</span>
+      <h2>Pin trifft Marktbude</h2>
+      <p class="lede">Das Zeichen verbindet Karte und Hütte. Die goldenen Markisenstreifen stehen für Lichterketten. Die Wortmarke in Bebas Neue greift das bisherige Logo auf.</p>
+    </div>
+    <div class="tiles">
+      <div class="tile"><div class="stage on-paper"><img src="logo/market-mate-logo.svg" alt=""></div><h3>Standard</h3><span class="file">market-mate-logo.svg</span></div>
+      <div class="tile"><div class="stage on-dark"><img src="logo/market-mate-logo-on-dark.svg" alt=""></div><h3>Auf dunklem Grund</h3><span class="file">market-mate-logo-on-dark.svg</span></div>
+      <div class="tile"><div class="stage on-paper"><img src="logo/market-mate-logo-stacked.svg" alt=""></div><h3>Gestapelt</h3><span class="file">market-mate-logo-stacked.svg</span></div>
+      <div class="tile"><div class="stage on-sand"><img src="logo/market-mate-mark.svg" alt="" style="height:96px"></div><h3>Zeichen</h3><span class="file">market-mate-mark.svg</span></div>
+      <div class="tile"><div class="stage on-sand"><img src="logo/market-mate-app-icon-rounded.svg" alt="" style="height:110px"></div><h3>App-Icon</h3><span class="file">market-mate-app-icon.svg</span></div>
+      <div class="tile"><div class="stage on-red"><img src="logo/market-mate-logo-mono-white.svg" alt=""></div><h3>Einfarbig</h3><span class="file">market-mate-logo-mono-white.svg · -mono-ink.svg</span></div>
+    </div>
+
+    <div class="rules">
+      <div class="rule">
+        <h3>Schutzzone</h3>
+        <p>Rundum mindestens eine Markisenbreite frei lassen, etwa ein Viertel der Zeichenhöhe.</p>
+      </div>
+      <div class="rule">
+        <h3>Mindestgröße</h3>
+        <p>Logo 24 px hoch (Druck 8 mm), Zeichen 16 px (5 mm). Das Favicon verzichtet auf die Streifen.</p>
+        <div class="sizes">
+          <img src="logo/favicon.svg" alt="" style="height:16px">
+          <img src="logo/market-mate-mark.svg" alt="" style="height:24px">
+          <img src="logo/market-mate-mark.svg" alt="" style="height:40px">
+          <img src="logo/market-mate-logo.svg" alt="" style="height:24px">
+        </div>
+      </div>
+    </div>
+
+    <div class="donts">
+      <div class="dont"><div class="stage on-paper"><img src="logo/market-mate-mark.svg" alt="" style="height:64px;filter:hue-rotate(160deg)"></div>Keine anderen Farben</div>
+      <div class="dont"><div class="stage on-paper"><img src="logo/market-mate-logo.svg" alt="" style="width:80%;height:30px"></div>Nicht verzerren</div>
+      <div class="dont"><div class="stage on-red"><img src="logo/market-mate-mark.svg" alt="" style="height:64px"></div>Kein Rot auf Rot</div>
+      <div class="dont"><div class="stage on-paper"><img src="logo/market-mate-mark.svg" alt="" style="height:64px;filter:drop-shadow(4px 6px 4px rgba(0,0,0,.5))"></div>Keine Effekte</div>
+    </div>
+  </div>
+</section>
+
+<section id="farben">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Farben</span>
+      <h2>Marktrot, Kohle, Papier</h2>
+      <p class="lede">Warmes Papier als Grund, Kohle für Text, Rot für alles, was zählt. Gold ist nur der Funke. Weiße Schrift nie auf Gold.</p>
+    </div>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:#C62828;color:#fff">Aa 5,6 : 1</div><div class="meta"><strong>Marktrot</strong><code>#C62828 · --red</code><span>Logo, Haupt-Buttons, Akzente</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#9E1F1F;color:#fff">Aa 7,9 : 1</div><div class="meta"><strong>Marktrot dunkel</strong><code>#9E1F1F · --red-dark</code><span>Hover, Links im Text</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#F9A825;color:#2B2B2B">Aa 7,2 : 1</div><div class="meta"><strong>Lichtergold</strong><code>#F9A825 · --gold</code><span>Akzent, sparsam</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#2E7D32;color:#fff">Aa 5,1 : 1</div><div class="meta"><strong>Tannengrün</strong><code>#2E7D32 · --green</code><span>unterstützend</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#2B2B2B;color:#FBFAF8">Aa 13,6 : 1</div><div class="meta"><strong>Kohle</strong><code>#2B2B2B · --ink</code><span>Text, dunkle Flächen</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#FBFAF8;color:#5C5C5C;border-bottom:1px solid #E7E3DD">Aa 6,4 : 1</div><div class="meta"><strong>Papier</strong><code>#FBFAF8 · --paper</code><span>Seitenhintergrund</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#F3EFE8;color:#5C5C5C">Aa 5,8 : 1</div><div class="meta"><strong>Sand</strong><code>#F3EFE8 · --sand</code><span>abgesetzte Sektionen</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#1E1C1B;color:#FF8A80">Aa 7,4 : 1</div><div class="meta"><strong>Abendmarkt</strong><code>#1E1C1B · --dark-bg</code><span>dunkle Flächen, Link #FF8A80</span></div></div>
+    </div>
+    <div class="ratio" aria-hidden="true">
+      <span style="flex:60;background:#F3EFE8"></span><span style="flex:30;background:#2B2B2B"></span><span style="flex:9;background:#C62828"></span><span style="flex:1;background:#F9A825"></span>
+    </div>
+    <p class="ratio-legend">Verteilung: rund 60 % Papier/Sand · 30 % Kohle · 10 % Rot · ein Hauch Gold</p>
+
+    <h3 style="margin-top:36px">Kategoriefarben (nur für Stände auf der Karte)</h3>
+    <div class="cats">
+      <div class="cat"><i style="background:#C62828"></i>Glühwein &amp; Heißgetränke<code>#C62828</code></div>
+      <div class="cat"><i style="background:#EF6C00"></i>Herzhaftes<code>#EF6C00</code></div>
+      <div class="cat"><i style="background:#AD1457"></i>Süßes &amp; Gebäck<code>#AD1457</code></div>
+      <div class="cat"><i style="background:#2E7D32"></i>Handwerk &amp; Geschenke<code>#2E7D32</code></div>
+      <div class="cat"><i style="background:#F9A825"></i>Weihnachtsdeko<code>#F9A825</code></div>
+      <div class="cat"><i style="background:#6A1B9A"></i>Für Kinder<code>#6A1B9A</code></div>
+      <div class="cat"><i style="background:#1565C0"></i>Bühne &amp; Programm<code>#1565C0</code></div>
+      <div class="cat"><i style="background:#455A64"></i>Service<code>#455A64</code></div>
+      <div class="cat"><i style="background:#6D4C41"></i>Sonstiges<code>#6D4C41</code></div>
+    </div>
+  </div>
+</section>
+
+<section id="schrift">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Typografie</span>
+      <h2>Laut in der Headline, ruhig im Text</h2>
+      <p class="lede">Zwei freie Schriften (SIL Open Font License), selbst gehostet. Keine Google-Fonts-Einbindung auf der Website, damit keine Daten an Dritte gehen.</p>
+    </div>
+    <div class="type">
+      <div class="specimen">
+        <span class="eyebrow">Display</span>
+        <div class="big bebas">Bebas Neue</div>
+        <p>Headlines, Zahlen, Wortmarke. Immer Versalien, nur Gewicht 400, nie unter 20 px und nie für Fließtext.</p>
+      </div>
+      <div class="specimen">
+        <span class="eyebrow">Text</span>
+        <div class="big figtree">Figtree</div>
+        <p>Fließtext 400, Hervorhebung 600–700, Buttons und Eyebrows 700. Variable Schrift, ein File für alle Stärken.</p>
+      </div>
+    </div>
+    <div class="scale">
+      <div><code>H1 · 3,8 rem</code><span class="bebas" style="font-size:clamp(2rem,5.5vw,3.8rem);line-height:1">Dein Markt in der Hosentasche</span></div>
+      <div><code>H2 · 2,5 rem</code><span class="bebas" style="font-size:clamp(1.6rem,3.6vw,2.5rem);line-height:1.1">So einfach geht’s</span></div>
+      <div><code>H3 · 1,25 rem</code><span style="font-weight:700;font-size:1.25rem">Alle Stände auf einer Karte</span></div>
+      <div><code>Eyebrow</code><span class="eyebrow" style="margin:0">Für Veranstalter</span></div>
+      <div><code>Text · 1 rem</code><span>Wo gibt’s hier Crêpes? Welche Hütte hat den Kinderpunsch? Market Mate zeigt dir alle Stände auf einer Karte.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="elemente">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Elemente</span>
+      <h2>Rund, flach, freundlich</h2>
+      <p class="lede">Pill-Buttons, weiße Karten mit feinem Rand, Icons auf farbigen Kacheln. Keine Verläufe, keine schweren Schatten.</p>
+    </div>
+    <div class="demo">
+      <div class="panel light">
+        <div class="row"><a class="btn btn-red" href="#elemente">Markt anmelden</a><a class="btn btn-ghost" href="#elemente">So läuft es ab</a></div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg></div>
+          <h3>Alle Stände auf einer Karte</h3>
+          <p>Jede Hütte mit eigenem Symbol, auf einen Blick sortiert. <span class="badge">bald</span></p>
+        </div>
+      </div>
+      <div class="panel dark">
+        <h3 class="bebas" style="font-size:2rem;font-weight:400;line-height:1">Ihr Markt auf der Karte</h3>
+        <p>Schicken Sie uns Ihren Lageplan, wir melden uns mit allem Weiteren.</p>
+        <div class="row"><a class="btn btn-white" href="#elemente">Kontakt aufnehmen</a></div>
+        <img src="logo/cellarworks-logo-on-dark.svg" alt="cellarworks" style="height:22px;width:auto;opacity:.85">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sprache">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Sprache</span>
+      <h2>Du am Glühweinstand, Sie im Rathaus</h2>
+      <p class="lede">Deutsch zuerst, kurz und konkret. Crêpes statt „gastronomische Angebote“. Typografisch sauber: „…“, –, ’.</p>
+    </div>
+    <div class="voice">
+      <div class="rule">
+        <h3>Besucher · du</h3>
+        <p>Locker, warm, gesellig.</p>
+        <div class="say">
+          <p>Wo gibt’s hier Crêpes?</p>
+          <p>Gründe ein Team und teile den Code.</p>
+          <p class="no">Nutzen Sie unsere innovative Social-Funktion.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <h3>Veranstalter · Sie</h3>
+        <p>Freundlich-professionell, Nutzen zuerst.</p>
+        <div class="say">
+          <p>Laden Sie Ihren Lageplan hoch, den Rest erledigen wir.</p>
+          <p>Ihre Besucher finden jede Hütte auf Anhieb.</p>
+          <p class="no">Unsere KI-Lösung digitalisiert Ihr Event-Management.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="anwendungen">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Anwendungen</span>
+      <h2>Überall gleich erkennbar</h2>
+    </div>
+    <div class="apps">
+      <figure><img src="../website/assets/og-image.png" alt="Social-Media-Vorschau mit Logo, Claim und Kartenillustration" width="1200" height="630"><figcaption>Social-Vorschau (1200 × 630) · <code>website/assets/og-image.png</code></figcaption></figure>
+      <figure>
+        <div class="homescreen">
+          <div><i></i>Karten</div><div><img src="logo/market-mate-app-icon-rounded.svg" alt="">Market Mate</div><div><i></i>Kamera</div>
+          <div><i></i>Wetter</div><div><i></i>Fotos</div><div><i></i>Uhr</div>
+        </div>
+        <figcaption>App-Icon auf dem Homescreen · <code>png/market-mate-app-icon-1024.png</code></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="dateien">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Dateien</span>
+      <h2>Eine Quelle für alles</h2>
+      <p class="lede">Generierte Dateien nie von Hand ändern. Quelle bearbeiten, Generatoren laufen lassen (Anleitung in <code>brand/README.md</code>, Abschnitt 10).</p>
+    </div>
+    <ul class="files">
+      <li><code>brand/README.md</code><span>Der vollständige Leitfaden</span></li>
+      <li><code>brand/logo/</code><span>Alle Logos als SVG, PNG-Exporte in <code>png/</code></span></li>
+      <li><code>brand/tokens/tokens.json</code><span>Farben, Schriften, Radien, Abstände (W3C Design Tokens)</span></li>
+      <li><code>website/tokens.css</code><span>Dieselben Tokens als CSS-Variablen für die Website</span></li>
+      <li><code>lib/theme/brand_tokens.dart</code><span><code>BrandColors</code> für die Flutter-App</span></li>
+      <li><code>brand/fonts/</code><span>Bebas Neue und Figtree als woff2 mit Lizenz</span></li>
+      <li><code>.claude/skills/brand/</code><span>Skill, damit Claude die Marke bei jeder Aufgabe anwendet</span></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Market Mate · ein Projekt von cellarworks · Markenleitfaden v1</div>
+</footer>
+</body>
+</html>
