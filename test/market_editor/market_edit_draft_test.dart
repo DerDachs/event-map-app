@@ -39,6 +39,7 @@ void main() {
       eventId: 'e',
       name: 'Markt',
       description: '',
+      marketType: 'christmas_market',
       start: DateTime(2026, 11, 26),
       end: DateTime(2026, 12, 23),
       openingHours: [],

@@ -111,4 +111,5 @@ flutter:
   assets:
     - assets/avatars/
     - assets/feed/
+    - assets/seasons/
 

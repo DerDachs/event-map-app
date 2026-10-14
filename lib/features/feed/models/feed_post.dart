@@ -38,6 +38,9 @@ class FeedPost {
   /// Pinned posts stay on top.
   final bool pinned;
 
+  /// Only shown while this season runs; null = all year.
+  final String? seasonId;
+
   const FeedPost({
     required this.id,
     required this.type,
@@ -50,6 +53,7 @@ class FeedPost {
     this.linkLabel,
     this.expiresAt,
     this.pinned = false,
+    this.seasonId,
   });
 
   bool isVisibleAt(DateTime now) =>
@@ -70,6 +74,7 @@ class FeedPost {
       publishAt: time(data['publishAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
       expiresAt: time(data['expiresAt']),
       pinned: data['pinned'] == true,
+      seasonId: text(data['seasonId']),
     );
   }
 
@@ -87,5 +92,6 @@ class FeedPost {
         'publishAt': Timestamp.fromDate(publishAt),
         'expiresAt': expiresAt == null ? null : Timestamp.fromDate(expiresAt!),
         'pinned': pinned,
+        'seasonId': seasonId,
       };
 }

@@ -117,7 +117,7 @@ class _FeedAdminScreenState extends ConsumerState<FeedAdminScreen> {
                   return ListTile(
                     leading: Icon(post.pinned ? Icons.push_pin : Icons.article_outlined),
                     title: Text(post.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-                    subtitle: Text('${post.type.label} · $state'),
+                    subtitle: Text([post.type.label, state, if (post.seasonId != null) 'Saison'].join(' · ')),
                     onTap: () => _edit(post),
                   );
                 },

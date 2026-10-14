@@ -12,6 +12,7 @@ import 'features/events/screens/event_detail_screen.dart';
 import 'features/events/screens/event_page.dart';
 import 'features/feed/screens/feed_admin_screen.dart';
 import 'features/market_builder/screens/market_builder_screen.dart';
+import 'features/seasons/screens/season_admin_screen.dart';
 import 'features/market_editor/screens/market_list_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
         '/market-builder': (context) => const MarketBuilderScreen(),
         '/admin/markets': (context) => const MarketListScreen(),
         '/admin/feed': (context) => const FeedAdminScreen(),
+        '/admin/seasons': (context) => const SeasonAdminScreen(),
         '/event-joined': (context) => EventPage(
               event: ModalRoute.of(context)!.settings.arguments as Event,
             ),

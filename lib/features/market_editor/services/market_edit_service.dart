@@ -8,6 +8,7 @@ import '../../../data/models/event.dart';
 import '../../../data/models/eventImage.dart';
 import '../../market_builder/models/stand_categories.dart';
 import '../../market_builder/services/georeference.dart';
+import '../../seasons/models/market_types.dart';
 import '../models/market_edit_draft.dart';
 
 /// Loads a market for the admin editor and writes the changes back in the
@@ -84,6 +85,7 @@ class MarketEditService {
       eventId: eventId,
       name: event.name,
       description: event.description,
+      marketType: marketTypeFor(event.category).key,
       start: event.startTime,
       end: event.endTime,
       openingHours: [...?event.openingHours],
@@ -167,6 +169,7 @@ class MarketEditService {
     final eventUpdate = {
       'name': draft.name,
       'description': draft.description,
+      'category': draft.marketType,
       'startTime': Timestamp.fromDate(draft.start),
       'endTime': Timestamp.fromDate(draft.end),
       'openingHours': draft.openingHours.map((h) => h.toFirestore()).toList(),

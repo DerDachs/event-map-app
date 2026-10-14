@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../events/providers/event_provider.dart';
+import '../../seasons/models/season.dart';
+import '../../seasons/providers/season_provider.dart';
 import '../models/feed_post.dart';
 import '../providers/feed_provider.dart';
 import '../widgets/feed_cards.dart';
@@ -31,6 +33,7 @@ class _FeedPostEditScreenState extends ConsumerState<FeedPostEditScreen> {
   late DateTime _publishAt = widget.post?.publishAt ?? DateTime.now();
   late DateTime? _expiresAt = widget.post?.expiresAt;
   late bool _pinned = widget.post?.pinned ?? false;
+  late String? _seasonId = widget.post?.seasonId;
   bool _busy = false;
 
   @override
@@ -55,6 +58,7 @@ class _FeedPostEditScreenState extends ConsumerState<FeedPostEditScreen> {
       publishAt: _publishAt,
       expiresAt: _expiresAt,
       pinned: _pinned,
+      seasonId: _seasonId,
     );
   }
 
@@ -139,6 +143,7 @@ class _FeedPostEditScreenState extends ConsumerState<FeedPostEditScreen> {
     final events = ref.watch(eventsProvider).valueOrNull ?? const [];
     final format = DateFormat('dd.MM.yyyy, HH:mm', 'de');
     final linkedEvent = events.where((e) => e.id == _eventId).firstOrNull;
+    final seasons = ref.watch(seasonsProvider).valueOrNull ?? const <Season>[];
 
     return Scaffold(
       appBar: AppBar(
@@ -250,6 +255,19 @@ class _FeedPostEditScreenState extends ConsumerState<FeedPostEditScreen> {
               final t = await _pickDateTime(_expiresAt ?? linkedEvent?.endTime ?? DateTime.now());
               if (t != null) setState(() => _expiresAt = t);
             },
+          ),
+          DropdownButtonFormField<String?>(
+            initialValue: seasons.any((s) => s.id == _seasonId) ? _seasonId : null,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Nur in Saison zeigen',
+              helperText: 'Ohne Saison erscheint der Beitrag das ganze Jahr.',
+            ),
+            items: [
+              const DropdownMenuItem(value: null, child: Text('Ganzjährig')),
+              for (final s in seasons) DropdownMenuItem(value: s.id, child: Text(s.name)),
+            ],
+            onChanged: (v) => setState(() => _seasonId = v),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,

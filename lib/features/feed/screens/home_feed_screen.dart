@@ -6,13 +6,15 @@ import '../../../widgets/profile_menu.dart';
 import '../../events/providers/event_provider.dart';
 import '../../events/screens/event_card.dart';
 import '../../favorites/providers/favorite_provider.dart';
+import '../../seasons/models/season.dart';
+import '../../seasons/providers/season_provider.dart';
 import '../logic/home_feed.dart';
 import '../models/feed_post.dart';
 import '../providers/feed_provider.dart';
 import '../widgets/feed_cards.dart';
 
-/// Start page: countdown, the market of the moment, favourites, news and
-/// all markets.
+/// Start page: season banner, the market of the moment, favourites, news
+/// and all markets.
 class HomeFeedScreen extends ConsumerWidget {
   const HomeFeedScreen({super.key});
 
@@ -22,6 +24,7 @@ class HomeFeedScreen extends ConsumerWidget {
     // News are a bonus: if they fail to load, the markets still show.
     final posts = ref.watch(feedPostsProvider).valueOrNull ?? const <FeedPost>[];
     final favoriteIds = {...?ref.watch(favoritesProvider)['events']};
+    final seasons = ref.watch(seasonsProvider).valueOrNull ?? const <Season>[];
 
     return Scaffold(
       appBar: AppBar(
@@ -46,23 +49,31 @@ class HomeFeedScreen extends ConsumerWidget {
         ),
         data: (events) {
           final now = DateTime.now();
-          final feed = buildHomeFeed(events: events, posts: posts, favoriteIds: favoriteIds, now: now);
+          final feed = buildHomeFeed(
+            events: events,
+            posts: posts,
+            favoriteIds: favoriteIds,
+            now: now,
+            season: currentSeason(seasons, now),
+          );
           final eventsById = {for (final e in events) e.id: e};
 
           return RefreshIndicator(
             onRefresh: () async {
               ref.invalidate(eventsProvider);
               ref.invalidate(feedPostsProvider);
+              ref.invalidate(seasonsProvider);
             },
             child: ListView(
               padding: const EdgeInsets.only(bottom: 32),
               children: [
-                if (feed.countdown != null) CountdownBanner(countdown: feed.countdown!),
+                if (feed.banner != null) SeasonBannerCard(banner: feed.banner!),
                 if (feed.highlight != null)
                   HighlightCard(
                     event: feed.highlight!,
                     now: now,
                     isFavorite: favoriteIds.contains(feed.highlight!.id),
+                    accent: feed.season?.accent,
                   ),
                 if (feed.favorites.any((e) => e.id != feed.highlight?.id))
                   _EventRow(title: 'Deine Favoriten', events: feed.favorites),

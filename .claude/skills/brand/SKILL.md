@@ -22,7 +22,7 @@ public. Visual overview: `brand/index.html`.
 - **Colors:** take them from `brand/tokens/tokens.json` (CSS: `website/tokens.css` vars like
   `var(--red)`; Flutter: `BrandColors.red` from `lib/theme/brand_tokens.dart`). No new hex values.
   Marktrot `#C62828` is primary, Kohle `#2B2B2B` text, Papier `#FBFAF8`/Sand `#F3EFE8` backgrounds,
-  Lichtergold `#F9A825` only as a small accent and never with white text. Category colors are for
+  Lichtergold `#F9A825` only as a small accent and never with white text. Seasonal accents (`season-*`, e.g. `BrandColors.seasonSpring`) only for season banners, pills and icons. Category colors are for
   stand markers only.
 - **Type:** headlines Bebas Neue, uppercase, weight 400 (never faux-bold, never body text); everything
   else Figtree. Fonts are self-hosted from `website/assets/fonts/` — never link Google Fonts or other

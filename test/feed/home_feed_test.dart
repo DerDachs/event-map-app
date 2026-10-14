@@ -3,8 +3,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:market_mates/data/models/event.dart';
 import 'package:market_mates/features/feed/logic/home_feed.dart';
 import 'package:market_mates/features/feed/models/feed_post.dart';
+import 'package:market_mates/features/seasons/models/season.dart';
 
-Event _market(String id, DateTime start, DateTime end, {DateTime? createdAt}) => Event(
+Event _market(String id, DateTime start, DateTime end, {DateTime? createdAt, String type = 'christmas_market'}) =>
+    Event(
       id: id,
       name: 'Markt $id',
       description: '',
@@ -12,14 +14,15 @@ Event _market(String id, DateTime start, DateTime end, {DateTime? createdAt}) =>
       endTime: end,
       latitude: 0,
       longitude: 0,
-      category: 'christmas_market',
+      category: type,
       teamIds: const [],
       images: const [],
       stands: const [],
       createdAt: createdAt,
     );
 
-FeedPost _post(String id, DateTime publishAt, {bool pinned = false, DateTime? expiresAt}) => FeedPost(
+FeedPost _post(String id, DateTime publishAt, {bool pinned = false, DateTime? expiresAt, String? seasonId}) =>
+    FeedPost(
       id: id,
       type: FeedPostType.news,
       title: id,
@@ -27,6 +30,7 @@ FeedPost _post(String id, DateTime publishAt, {bool pinned = false, DateTime? ex
       publishAt: publishAt,
       pinned: pinned,
       expiresAt: expiresAt,
+      seasonId: seasonId,
     );
 
 void main() {
@@ -39,14 +43,43 @@ void main() {
     expect(firstAdventSunday(2023), DateTime(2023, 12, 3)); // Christmas Eve on a Sunday
   });
 
-  test('countdown runs from October to Christmas Eve', () {
-    final c = SeasonCountdown.at(DateTime(2026, 10, 14, 15))!;
-    expect(c.daysToChristmasEve, 71);
-    expect(c.headline, 'Noch 71 Tage bis Heiligabend');
-    expect(c.subline, '1. Advent am 29. November');
-    expect(SeasonCountdown.at(DateTime(2026, 12, 24, 20))!.headline, 'Heute ist Heiligabend');
-    expect(SeasonCountdown.at(DateTime(2026, 9, 30)), isNull);
-    expect(SeasonCountdown.at(DateTime(2026, 12, 26)), isNull);
+  final christmas = Season(
+    id: 'xmas',
+    name: 'Weihnachtsmärkte 2026',
+    tagline: 'Glühwein und Lichter',
+    startsAt: DateTime(2026, 10, 1),
+    endsAt: DateTime(2027, 1, 7),
+    marketTypes: const ['christmas_market'],
+    countdownTo: DateTime(2026, 12, 24),
+    countdownLabel: 'Heiligabend',
+    milestones: [SeasonMilestone('1. Advent', DateTime(2026, 11, 29)), SeasonMilestone('2. Advent', DateTime(2026, 12, 6))],
+  );
+
+  test('season banner counts down and names the next milestone', () {
+    final b = SeasonBanner.of(christmas, DateTime(2026, 10, 14, 15));
+    expect(b.bigNumber, 71);
+    expect(b.headline, 'Tage bis Heiligabend');
+    expect(b.subline, '1. Advent am 29. November');
+    expect(SeasonBanner.of(christmas, DateTime(2026, 11, 28)).subline, 'Morgen: 1. Advent');
+    expect(SeasonBanner.of(christmas, DateTime(2026, 12, 1)).subline, '2. Advent am 6. Dezember');
+
+    final eve = SeasonBanner.of(christmas, DateTime(2026, 12, 24, 20));
+    expect(eve.bigNumber, isNull);
+    expect(eve.headline, 'Heute ist Heiligabend');
+    expect(eve.subline, 'Weihnachtsmärkte 2026');
+
+    final after = SeasonBanner.of(christmas, DateTime(2026, 12, 28));
+    expect(after.headline, 'Weihnachtsmärkte 2026');
+    expect(after.subline, 'Glühwein und Lichter');
+  });
+
+  test('current season: running and active, the most recently started wins', () {
+    final autumn = Season(id: 'autumn', name: 'Herbst', startsAt: DateTime(2026, 9, 1), endsAt: DateTime(2026, 11, 1));
+    final off = Season(
+        id: 'off', name: 'Aus', startsAt: DateTime(2026, 10, 10), endsAt: DateTime(2026, 10, 20), active: false);
+    expect(currentSeason([autumn, christmas, off], DateTime(2026, 9, 15))?.id, 'autumn');
+    expect(currentSeason([autumn, christmas, off], DateTime(2026, 10, 14))?.id, 'xmas');
+    expect(currentSeason([autumn, christmas], DateTime(2027, 2, 1)), isNull);
   });
 
   test('status labels', () {
@@ -100,5 +133,27 @@ void main() {
     expect(ids, isNot(contains('later')));
     expect(ids, containsAll(['soon', 'new', 'old']));
     expect(ids.indexOf('new'), lessThan(ids.indexOf('old')), reason: 'newest first');
+  });
+
+  test('a season prefers its own markets and hides other seasons\' posts', () {
+    final now = DateTime(2026, 11, 26, 12);
+    final wine = _market('wine', DateTime(2026, 11, 1), DateTime(2026, 11, 30), type: 'wine_festival');
+    final xmas = _market('xmas', DateTime(2026, 11, 27), DateTime(2026, 12, 24));
+    final posts = [
+      _post('all-year', DateTime(2026, 10, 1)),
+      _post('xmas-post', DateTime(2026, 10, 2), seasonId: 'xmas'),
+      _post('spring-post', DateTime(2026, 10, 3), seasonId: 'spring'),
+    ];
+    final withSeason =
+        buildHomeFeed(events: [wine, xmas], posts: posts, favoriteIds: const {}, now: now, season: christmas);
+    expect(withSeason.highlight?.id, 'xmas', reason: 'season market beats an open market of another kind');
+    final ids = withSeason.items.whereType<PostItem>().map((i) => i.post.id).toList();
+    expect(ids, containsAll(['all-year', 'xmas-post']));
+    expect(ids, isNot(contains('spring-post')));
+
+    final without = buildHomeFeed(events: [wine, xmas], posts: posts, favoriteIds: const {}, now: now);
+    expect(without.highlight?.id, 'wine');
+    expect(without.banner, isNull);
+    expect(without.items.whereType<PostItem>().map((i) => i.post.id), ['all-year']);
   });
 }

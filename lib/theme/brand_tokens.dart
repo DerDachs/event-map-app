@@ -37,4 +37,12 @@ abstract final class BrandColors {
   static const darkTextSoft = Color(0xFFBDB7AE);
   /// Links/Rot-Akzent auf dunklem Grund (Marktrot ist dort zu dunkel für Text)
   static const darkLink = Color(0xFFFF8A80);
+  /// Weihnachten – Marktrot, dazu Lichtergold als Funke
+  static const seasonChristmas = Color(0xFFC62828);
+  /// Ostern, Pfingsten, Frühling – Maigrün
+  static const seasonSpring = Color(0xFF3F7D20);
+  /// Sommerfeste – Petrol
+  static const seasonSummer = Color(0xFF00796B);
+  /// Herbst- und Weinfeste – Rost
+  static const seasonAutumn = Color(0xFFA0461C);
 }

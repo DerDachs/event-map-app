@@ -53,7 +53,7 @@ dart = [
     "/// Market Mate brand colours. See brand/README.md for when to use which.",
     "abstract final class BrandColors {",
 ]
-for group in ("brand", "neutral", "dark"):
+for group in ("brand", "neutral", "dark", "season"):
     for path, value in leaves(tokens["color"][group]):
         name = camel(path if group in ("brand", "neutral") else (group,) + path)
         hexv = value["$value"].lstrip("#").upper()

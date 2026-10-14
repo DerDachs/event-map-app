@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../events/services/event_service.dart';
+import '../../seasons/models/market_types.dart';
 import '../../../utils/formatters.dart';
 import '../models/event_import.dart';
 import '../models/plan_draft.dart';
@@ -42,6 +43,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   final _descriptionController = TextEditingController();
   final _urlController = TextEditingController();
   DateTimeRange? _dates;
+  String _marketType = 'christmas_market';
   EventImport? _import;
   final Set<String> _selectedImages = {};
   bool _importing = false;
@@ -452,6 +454,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
             description: _descriptionController.text.trim(),
             start: _dates!.start,
             end: _dates!.end,
+            marketType: _marketType,
             imageUrls: [
               for (final url in _import?.imageUrls ?? const <String>[])
                 if (_selectedImages.contains(url)) url,
@@ -534,6 +537,15 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
           textInputAction: TextInputAction.next,
           decoration: const InputDecoration(labelText: 'Name des Marktes *'),
           onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          initialValue: _marketType,
+          decoration: const InputDecoration(labelText: 'Art des Marktes'),
+          items: [
+            for (final t in marketTypes) DropdownMenuItem(value: t.key, child: Text(t.name)),
+          ],
+          onChanged: (v) => setState(() => _marketType = v ?? _marketType),
         ),
         const SizedBox(height: 12),
         TextField(

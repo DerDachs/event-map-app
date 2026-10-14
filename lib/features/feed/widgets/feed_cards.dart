@@ -6,6 +6,7 @@ import '../../../data/models/event.dart';
 import '../../../theme/brand_tokens.dart';
 import '../../../utils/formatters.dart';
 import '../../events/screens/event_detail_screen.dart';
+import '../../seasons/models/season.dart';
 import '../logic/home_feed.dart';
 import '../models/feed_post.dart';
 
@@ -28,24 +29,25 @@ String relativeDay(DateTime time, DateTime now) {
   };
 }
 
-/// Red banner counting down to Christmas Eve.
-class CountdownBanner extends StatelessWidget {
-  final SeasonCountdown countdown;
+/// Banner of the current season in its accent colour, with countdown.
+class SeasonBannerCard extends StatelessWidget {
+  final SeasonBanner banner;
 
-  const CountdownBanner({super.key, required this.countdown});
+  const SeasonBannerCard({super.key, required this.banner});
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final days = countdown.daysToChristmasEve;
+    final accent = banner.season.accent;
+    final number = banner.bigNumber;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       padding: const EdgeInsets.fromLTRB(20, 16, 16, 16),
-      decoration: BoxDecoration(color: BrandColors.red, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: accent.color, borderRadius: BorderRadius.circular(20)),
       child: Row(
         children: [
-          if (days > 1) ...[
-            Text('$days',
+          if (number != null) ...[
+            Text('$number',
                 style: text.displayMedium?.copyWith(
                     color: BrandColors.white, fontWeight: FontWeight.w800, height: 1, letterSpacing: -1)),
             const SizedBox(width: 14),
@@ -54,14 +56,18 @@ class CountdownBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(days > 1 ? 'Tage bis Heiligabend' : countdown.headline,
+                Text(banner.headline,
                     style: text.titleMedium?.copyWith(color: BrandColors.white, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 2),
-                Text(countdown.subline, style: text.bodyMedium?.copyWith(color: BrandColors.white.withValues(alpha: 0.85))),
+                if (banner.subline.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(banner.subline,
+                      style: text.bodyMedium?.copyWith(color: BrandColors.white.withValues(alpha: 0.85))),
+                ],
               ],
             ),
           ),
-          const Icon(Icons.star_rounded, color: BrandColors.gold, size: 36),
+          const SizedBox(width: 8),
+          Icon(accent.icon, color: accent.sparkle, size: 36),
         ],
       ),
     );
@@ -74,7 +80,10 @@ class HighlightCard extends StatelessWidget {
   final DateTime now;
   final bool isFavorite;
 
-  const HighlightCard({super.key, required this.event, required this.now, this.isFavorite = false});
+  /// Season colours for the status pill; null outside any season.
+  final SeasonAccent? accent;
+
+  const HighlightCard({super.key, required this.event, required this.now, this.isFavorite = false, this.accent});
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +130,12 @@ class HighlightCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Wrap(spacing: 6, children: [
-                        _Pill(label: marketStatusLabel(event, now), color: BrandColors.gold, textColor: BrandColors.ink),
+                        _Pill(
+                          label: marketStatusLabel(event, now),
+                          color: accent == null || accent == SeasonAccent.christmas ? BrandColors.gold : accent!.color,
+                          textColor:
+                              accent == null || accent == SeasonAccent.christmas ? BrandColors.ink : BrandColors.white,
+                        ),
                         if (isFavorite)
                           const _Pill(label: 'Favorit', color: BrandColors.white, textColor: BrandColors.ink),
                       ]),

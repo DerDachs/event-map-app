@@ -53,6 +53,9 @@ class MarketEditDraft {
 
   String name;
   String description;
+
+  /// Market type key (event `category`), see marketTypes.
+  String marketType;
   DateTime start;
   DateTime end;
   List<OpeningHour> openingHours;
@@ -81,6 +84,7 @@ class MarketEditDraft {
     required this.eventId,
     required this.name,
     required this.description,
+    required this.marketType,
     required this.start,
     required this.end,
     required this.openingHours,

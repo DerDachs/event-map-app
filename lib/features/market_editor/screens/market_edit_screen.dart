@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import '../../../data/models/eventImage.dart';
 import '../../events/providers/event_provider.dart';
+import '../../seasons/models/market_types.dart';
 import '../models/market_edit_draft.dart';
 import '../services/market_edit_service.dart';
 import '../widgets/image_list_editor.dart';
@@ -304,6 +305,24 @@ class _MarketEditScreenState extends ConsumerState<MarketEditScreen> {
         ),
         const SizedBox(height: 16),
         field(_name, 'Name des Marktes *'),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: DropdownButtonFormField<String>(
+            initialValue: draft.marketType,
+            decoration: const InputDecoration(
+              labelText: 'Art des Marktes',
+              helperText: 'Bestimmt, in welcher Saison der Markt hervorgehoben wird.',
+            ),
+            items: [
+              for (final t in marketTypes) DropdownMenuItem(value: t.key, child: Text(t.name)),
+            ],
+            onChanged: (v) {
+              if (v == null) return;
+              setState(() => draft.marketType = v);
+              _markDirty();
+            },
+          ),
+        ),
         field(_description, 'Beschreibung', maxLines: 8),
         OutlinedButton.icon(
           icon: const Icon(Icons.date_range),

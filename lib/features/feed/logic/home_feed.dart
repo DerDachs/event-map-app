@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 import '../../../data/models/event.dart';
+import '../../seasons/models/season.dart';
 import '../models/feed_post.dart';
 
 /// Whole calendar days from [from] to [to] (negative if [to] is earlier).
@@ -18,42 +19,48 @@ DateTime firstAdventSunday(int year) {
   return DateTime(fourth.year, fourth.month, fourth.day - 21);
 }
 
-/// Countdown for the header, shown from October until Christmas Eve.
-class SeasonCountdown {
-  final int daysToChristmasEve;
-  final DateTime firstAdvent;
-  final int daysToFirstAdvent;
+/// Text for the season banner at the top of the start page.
+class SeasonBanner {
+  final Season season;
 
-  const SeasonCountdown({
-    required this.daysToChristmasEve,
-    required this.firstAdvent,
-    required this.daysToFirstAdvent,
-  });
+  /// Days until [Season.countdownTo]; null when there is nothing (left) to
+  /// count down to.
+  final int? days;
+  final String headline;
+  final String subline;
 
-  static SeasonCountdown? at(DateTime now) {
-    if (now.month < 10) return null;
-    final days = calendarDaysBetween(now, DateTime(now.year, 12, 24));
-    if (days < 0) return null;
-    final advent = firstAdventSunday(now.year);
-    return SeasonCountdown(
-      daysToChristmasEve: days,
-      firstAdvent: advent,
-      daysToFirstAdvent: calendarDaysBetween(now, advent),
-    );
-  }
+  const SeasonBanner._(this.season, this.days, this.headline, this.subline);
 
-  String get headline => switch (daysToChristmasEve) {
-        0 => 'Heute ist Heiligabend',
-        1 => 'Morgen ist Heiligabend',
-        _ => 'Noch $daysToChristmasEve Tage bis Heiligabend',
+  factory SeasonBanner.of(Season season, DateTime now) {
+    final target = season.countdownTo;
+    final days = target == null ? null : calendarDaysBetween(now, target);
+    final counting = days != null && days >= 0 && season.countdownLabel.isNotEmpty;
+
+    final next = season.milestones.where((m) => calendarDaysBetween(now, m.date) >= 0).firstOrNull;
+    String? milestone;
+    if (next != null) {
+      final d = calendarDaysBetween(now, next.date);
+      milestone = switch (d) {
+        0 => 'Heute: ${next.label}',
+        1 => 'Morgen: ${next.label}',
+        _ => '${next.label} am ${DateFormat('d. MMMM', 'de').format(next.date)}',
       };
+    }
 
-  String get subline {
-    if (daysToFirstAdvent > 1) return '1. Advent am ${DateFormat('d. MMMM', 'de').format(firstAdvent)}';
-    if (daysToFirstAdvent == 1) return 'Morgen ist der 1. Advent';
-    if (daysToFirstAdvent == 0) return 'Heute ist der 1. Advent';
-    return 'Die Märkte haben geöffnet';
+    if (!counting) {
+      return SeasonBanner._(season, null, season.name, milestone ?? season.tagline);
+    }
+    final label = season.countdownLabel;
+    final headline = switch (days) {
+      0 => 'Heute ist $label',
+      1 => 'Morgen ist $label',
+      _ => 'Tage bis $label',
+    };
+    return SeasonBanner._(season, days, headline, milestone ?? season.name);
   }
+
+  /// Big number in front of the headline, only while it is more than a day.
+  int? get bigNumber => days != null && days! > 1 ? days : null;
 }
 
 /// Short status of a market relative to [now], e.g. "Öffnet in 3 Tagen".
@@ -106,10 +113,11 @@ class MarketItem extends FeedItem {
 }
 
 class HomeFeed {
-  final SeasonCountdown? countdown;
+  final Season? season;
+  final SeasonBanner? banner;
 
   /// The market to show big at the top: open favourites first, then any open
-  /// market, then the next one to open.
+  /// market, then the next one to open – markets of the current season first.
   final Event? highlight;
   final List<FeedItem> items;
   final List<Event> favorites;
@@ -118,7 +126,8 @@ class HomeFeed {
   final List<Event> past;
 
   const HomeFeed({
-    required this.countdown,
+    required this.season,
+    required this.banner,
     required this.highlight,
     required this.items,
     required this.favorites,
@@ -133,6 +142,7 @@ HomeFeed buildHomeFeed({
   required List<FeedPost> posts,
   required Set<String> favoriteIds,
   required DateTime now,
+  Season? season,
   int maxItems = 30,
 }) {
   final sorted = [...events]..sort((a, b) => a.startTime.compareTo(b.startTime));
@@ -142,10 +152,13 @@ HomeFeed buildHomeFeed({
   final favorites = sorted.where((e) => favoriteIds.contains(e.id) && e.endTime.isAfter(now)).toList();
 
   Event? first(Iterable<Event> list) => list.isEmpty ? null : list.first;
-  final highlight = first(running.where((e) => favoriteIds.contains(e.id))) ??
-      first(running) ??
-      first(upcoming.where((e) => favoriteIds.contains(e.id))) ??
-      first(upcoming);
+  Event? pick(bool Function(Event) include) =>
+      first(running.where((e) => include(e) && favoriteIds.contains(e.id))) ??
+      first(running.where(include)) ??
+      first(upcoming.where((e) => include(e) && favoriteIds.contains(e.id))) ??
+      first(upcoming.where(include));
+  final highlight =
+      (season == null ? null : pick((e) => season.includesMarketType(e.category))) ?? pick((_) => true);
 
   final marketItems = <MarketItem>[];
   for (final event in sorted) {
@@ -166,7 +179,9 @@ HomeFeed buildHomeFeed({
     if (item != null) marketItems.add(item);
   }
 
-  final visiblePosts = posts.where((p) => p.isVisibleAt(now)).toList();
+  final visiblePosts = posts
+      .where((p) => p.isVisibleAt(now) && (p.seasonId == null || p.seasonId == season?.id))
+      .toList();
   final pinned = visiblePosts.where((p) => p.pinned).map(PostItem.new).toList()
     ..sort((a, b) => b.time.compareTo(a.time));
   final rest = <FeedItem>[
@@ -175,7 +190,8 @@ HomeFeed buildHomeFeed({
   ]..sort((a, b) => b.time.compareTo(a.time));
 
   return HomeFeed(
-    countdown: SeasonCountdown.at(now),
+    season: season,
+    banner: season == null ? null : SeasonBanner.of(season, now),
     highlight: highlight,
     items: [...pinned, ...rest].take(maxItems).toList(),
     favorites: favorites,

@@ -6,7 +6,8 @@
     "title": "Die Weihnachtsmarkt-Saison 2026 steht vor der Tür",
     "body": "Mitte November geht es los: In Köln öffnen die ersten Märkte schon am 13. und 16. November, Ende November folgen Nürnberg, Dresden und viele andere. Hier findest du die wichtigsten Termine – und nach und nach jeden Markt mit allen Hütten auf der Karte.",
     "publishAt": "2026-10-14T00:00:00+02:00",
-    "expiresAt": "2026-12-24T23:59:00+01:00"
+    "expiresAt": "2026-12-24T23:59:00+01:00",
+    "seasonId": "weihnachten-2026"
   },
   {
     "id": "koeln-2026",
@@ -16,7 +17,8 @@
     "linkUrl": "https://www.koeln.de/weihnachten/weihnachtsmaerkte-koeln/",
     "linkLabel": "Alle Kölner Märkte",
     "publishAt": "2026-10-14T00:05:00+02:00",
-    "expiresAt": "2027-01-10T23:59:00+01:00"
+    "expiresAt": "2027-01-10T23:59:00+01:00",
+    "seasonId": "weihnachten-2026"
   },
   {
     "id": "frankfurt-2026",
@@ -26,7 +28,8 @@
     "linkUrl": "https://www.frankfurt-tipp.de/en/index/events/s/event/frankfurter-weihnachtsmarkt.html",
     "linkLabel": "Mehr zum Markt",
     "publishAt": "2026-10-14T00:04:00+02:00",
-    "expiresAt": "2026-12-22T23:59:00+01:00"
+    "expiresAt": "2026-12-22T23:59:00+01:00",
+    "seasonId": "weihnachten-2026"
   },
   {
     "id": "nuernberg-2026",
@@ -36,7 +39,8 @@
     "linkUrl": "https://www.alle-weihnachtsmaerkte.de/weihnachtsmaerkte/nuernberg/",
     "linkLabel": "Termine in Nürnberg",
     "publishAt": "2026-10-14T00:03:00+02:00",
-    "expiresAt": "2026-12-24T23:59:00+01:00"
+    "expiresAt": "2026-12-24T23:59:00+01:00",
+    "seasonId": "weihnachten-2026"
   },
   {
     "id": "dresden-2026",
@@ -46,7 +50,8 @@
     "linkUrl": "https://www.kukksi.de/weihnachtsmaerkte-2026-das-sind-alle-termine/",
     "linkLabel": "Termine 2026",
     "publishAt": "2026-10-14T00:02:00+02:00",
-    "expiresAt": "2026-12-24T23:59:00+01:00"
+    "expiresAt": "2026-12-24T23:59:00+01:00",
+    "seasonId": "weihnachten-2026"
   },
   {
     "id": "tip-team",
@@ -60,13 +65,15 @@
     "type": "tip",
     "title": "Tipp: Unter der Woche bummeln",
     "body": "Freitag- und Samstagabend ist es auf den großen Märkten am vollsten. Wer kann, kommt unter der Woche oder am frühen Nachmittag – dann findest du deine Lieblingshütte ohne Gedränge.",
-    "publishAt": "2026-11-13T09:00:00+01:00"
+    "publishAt": "2026-11-13T09:00:00+01:00",
+    "seasonId": "weihnachten-2026"
   },
   {
     "id": "tip-pfand",
     "type": "tip",
     "title": "Becher-Pfand nicht vergessen",
     "body": "Glühwein gibt’s meist im Pfandbecher. Zurückgeben kannst du ihn an den Ständen des Marktes – oder du behältst ihn als Andenken, viele Märkte haben jedes Jahr ein neues Motiv.",
-    "publishAt": "2026-11-16T09:00:00+01:00"
+    "publishAt": "2026-11-16T09:00:00+01:00",
+    "seasonId": "weihnachten-2026"
   }
 ]

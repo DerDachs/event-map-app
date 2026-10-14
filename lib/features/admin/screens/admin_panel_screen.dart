@@ -27,6 +27,14 @@ class AdminPanelScreen extends ConsumerWidget {
             },
           ),
           ListTile(
+            leading: Icon(Icons.wb_sunny_outlined),
+            title: Text('Saisons'),
+            subtitle: Text('Weihnachten, Pfingsten, Herbst … mit Banner und Countdown'),
+            onTap: () {
+              Navigator.pushNamed(context, '/admin/seasons');
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.dynamic_feed_outlined),
             title: Text('Startseite: Beiträge'),
             subtitle: Text('Neuigkeiten und Tipps für den Feed schreiben'),
