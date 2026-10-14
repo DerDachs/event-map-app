@@ -41,7 +41,14 @@ class Event {
     this.organizerInfo,
     this.categories,
     this.plan,
+    this.websiteUrl,
+    this.createdAt,
   });
+
+  final String? websiteUrl;
+
+  /// When the market was added to the app; null for older markets.
+  final DateTime? createdAt;
 
   /// The uploaded site plan and where it lies on the map, for markets created
   /// with the market builder.
@@ -84,6 +91,8 @@ class Event {
       organizerInfo: data['organizerInfo'] as String? ?? '',
       categories: strings(data['categories']),
       plan: data['plan'] is Map ? EventPlan.fromMap(Map<String, dynamic>.from(data['plan'])) : null,
+      websiteUrl: data['websiteUrl'] as String?,
+      createdAt: data['createdAt'] is Timestamp ? (data['createdAt'] as Timestamp).toDate() : null,
     );
   }
 

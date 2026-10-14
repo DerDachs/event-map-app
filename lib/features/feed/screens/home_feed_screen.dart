@@ -1,0 +1,141 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../data/models/event.dart';
+import '../../../widgets/profile_menu.dart';
+import '../../events/providers/event_provider.dart';
+import '../../events/screens/event_card.dart';
+import '../../favorites/providers/favorite_provider.dart';
+import '../logic/home_feed.dart';
+import '../models/feed_post.dart';
+import '../providers/feed_provider.dart';
+import '../widgets/feed_cards.dart';
+
+/// Start page: countdown, the market of the moment, favourites, news and
+/// all markets.
+class HomeFeedScreen extends ConsumerWidget {
+  const HomeFeedScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final eventsAsync = ref.watch(eventsProvider);
+    // News are a bonus: if they fail to load, the markets still show.
+    final posts = ref.watch(feedPostsProvider).valueOrNull ?? const <FeedPost>[];
+    final favoriteIds = {...?ref.watch(favoritesProvider)['events']};
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Market Mate'),
+        actions: const [ProfileMenuButton()],
+      ),
+      body: eventsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.cloud_off, size: 48, color: Colors.grey),
+              const SizedBox(height: 12),
+              const Text('Die Märkte konnten nicht geladen werden.'),
+              TextButton(
+                onPressed: () => ref.invalidate(eventsProvider),
+                child: const Text('Erneut versuchen'),
+              ),
+            ],
+          ),
+        ),
+        data: (events) {
+          final now = DateTime.now();
+          final feed = buildHomeFeed(events: events, posts: posts, favoriteIds: favoriteIds, now: now);
+          final eventsById = {for (final e in events) e.id: e};
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(eventsProvider);
+              ref.invalidate(feedPostsProvider);
+            },
+            child: ListView(
+              padding: const EdgeInsets.only(bottom: 32),
+              children: [
+                if (feed.countdown != null) CountdownBanner(countdown: feed.countdown!),
+                if (feed.highlight != null)
+                  HighlightCard(
+                    event: feed.highlight!,
+                    now: now,
+                    isFavorite: favoriteIds.contains(feed.highlight!.id),
+                  ),
+                if (feed.favorites.any((e) => e.id != feed.highlight?.id))
+                  _EventRow(title: 'Deine Favoriten', events: feed.favorites),
+                if (feed.items.isNotEmpty) ...[
+                  const _SectionTitle('Neuigkeiten'),
+                  for (final item in feed.items)
+                    switch (item) {
+                      PostItem(:final post) => FeedPostCard(
+                          key: ValueKey('post_${post.id}'),
+                          post: post,
+                          event: post.eventId == null ? null : eventsById[post.eventId],
+                          now: now,
+                        ),
+                      MarketItem() => MarketNewsCard(key: ValueKey('market_${item.event.id}'), item: item, now: now),
+                    },
+                ],
+                if (events.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Column(
+                      children: [
+                        Icon(Icons.storefront_outlined, size: 56, color: Colors.grey),
+                        SizedBox(height: 12),
+                        Text('Noch keine Märkte vorhanden.'),
+                      ],
+                    ),
+                  ),
+                if (feed.running.isNotEmpty) _EventRow(title: 'Läuft gerade', events: feed.running),
+                if (feed.upcoming.isNotEmpty) _EventRow(title: 'Demnächst', events: feed.upcoming),
+                if (feed.past.isNotEmpty) _EventRow(title: 'Vergangene Märkte', events: feed.past),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  final String title;
+
+  const _SectionTitle(this.title);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
+        child: Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+      );
+}
+
+class _EventRow extends StatelessWidget {
+  final String title;
+  final List<Event> events;
+
+  const _EventRow({required this.title, required this.events});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title),
+        SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            itemCount: events.length,
+            itemBuilder: (context, index) => EventCard(event: events[index]),
+          ),
+        ),
+      ],
+    );
+  }
+}

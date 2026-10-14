@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/event.dart';
 import '../../../providers/state_provider.dart';
 import '../../../screens/layout/base_layout.dart';
+import '../../market_editor/widgets/edit_market_button.dart';
 import 'event_details_tab.dart';
 import 'map_stands_tab.dart';
 import 'team_tab.dart';
@@ -46,6 +47,7 @@ class _EventPageState extends ConsumerState<EventPage>
 
     return BaseLayout(
       title: widget.event.name,
+      actions: [EditMarketButton(eventId: widget.event.id)],
       body: screens[currentIndex],
     );
   }

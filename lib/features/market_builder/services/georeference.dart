@@ -204,6 +204,18 @@ class Georeference {
     return _fromMeters(origin, east, north);
   }
 
+  /// The plan position that [toGeo] maps onto [g], e.g. after a stand was
+  /// dragged on the map. Null if the transform cannot be inverted.
+  PlanPoint? toPlan(GeoPoint g) {
+    final (east, north) = _toMeters(origin, g);
+    final det = a * e - b * d;
+    if (det.abs() < 1e-12) return null;
+    final de = east - c, dn = north - f;
+    final u = (e * de - b * dn) / det;
+    final v = (a * dn - d * de) / det;
+    return PlanPoint(u / aspectRatio * 1000, -v * 1000);
+  }
+
   /// Distance in metres between where [p] really is and where the transform
   /// puts its plan position.
   double errorAt(ControlPoint p) {

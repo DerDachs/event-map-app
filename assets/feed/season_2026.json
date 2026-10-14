@@ -1,0 +1,72 @@
+[
+  {
+    "id": "season-2026-start",
+    "type": "news",
+    "pinned": true,
+    "title": "Die Weihnachtsmarkt-Saison 2026 steht vor der Tür",
+    "body": "Mitte November geht es los: In Köln öffnen die ersten Märkte schon am 13. und 16. November, Ende November folgen Nürnberg, Dresden und viele andere. Hier findest du die wichtigsten Termine – und nach und nach jeden Markt mit allen Hütten auf der Karte.",
+    "publishAt": "2026-10-14T00:00:00+02:00",
+    "expiresAt": "2026-12-24T23:59:00+01:00"
+  },
+  {
+    "id": "koeln-2026",
+    "type": "opening",
+    "title": "Köln macht den Anfang",
+    "body": "Der Hafen-Weihnachtsmarkt am Rheinauhafen öffnet am 13. November und läuft bis 3. Januar. Am 16. November folgen der Weihnachtsmarkt am Dom und der Markt der Engel am Neumarkt. Heinzels Wintermärchen auf dem Heumarkt startet am 23. November und bleibt bis 10. Januar. Am Totensonntag (22. November) haben einige Märkte geschlossen.",
+    "linkUrl": "https://www.koeln.de/weihnachten/weihnachtsmaerkte-koeln/",
+    "linkLabel": "Alle Kölner Märkte",
+    "publishAt": "2026-10-14T00:05:00+02:00",
+    "expiresAt": "2027-01-10T23:59:00+01:00"
+  },
+  {
+    "id": "frankfurt-2026",
+    "type": "opening",
+    "title": "Frankfurt: Eröffnung am Römerberg",
+    "body": "Der Frankfurter Weihnachtsmarkt läuft vom 23. November bis 22. Dezember. Eröffnet wird am 23. November um 17:10 Uhr auf der Bühne am Römerberg, zusammen mit der Oper Frankfurt. Geöffnet ist Montag bis Samstag 10–21 Uhr, sonntags 11–21 Uhr.",
+    "linkUrl": "https://www.frankfurt-tipp.de/en/index/events/s/event/frankfurter-weihnachtsmarkt.html",
+    "linkLabel": "Mehr zum Markt",
+    "publishAt": "2026-10-14T00:04:00+02:00",
+    "expiresAt": "2026-12-22T23:59:00+01:00"
+  },
+  {
+    "id": "nuernberg-2026",
+    "type": "opening",
+    "title": "Nürnberg: Das Christkind eröffnet am 27. November",
+    "body": "Der Christkindlesmarkt auf dem Hauptmarkt startet am Freitag, 27. November, mit dem Prolog des Christkinds um 17:30 Uhr und läuft bis Heiligabend.",
+    "linkUrl": "https://www.alle-weihnachtsmaerkte.de/weihnachtsmaerkte/nuernberg/",
+    "linkLabel": "Termine in Nürnberg",
+    "publishAt": "2026-10-14T00:03:00+02:00",
+    "expiresAt": "2026-12-24T23:59:00+01:00"
+  },
+  {
+    "id": "dresden-2026",
+    "type": "opening",
+    "title": "Dresden: Striezelmarkt ab 25. November",
+    "body": "Der Striezelmarkt auf dem Altmarkt – seit 1434 einer der ältesten Weihnachtsmärkte Deutschlands – öffnet am Mittwoch vor dem 1. Advent, dem 25. November, und läuft bis Heiligabend.",
+    "linkUrl": "https://www.kukksi.de/weihnachtsmaerkte-2026-das-sind-alle-termine/",
+    "linkLabel": "Termine 2026",
+    "publishAt": "2026-10-14T00:02:00+02:00",
+    "expiresAt": "2026-12-24T23:59:00+01:00"
+  },
+  {
+    "id": "tip-team",
+    "type": "tip",
+    "title": "Mit Freunden unterwegs? Gründe ein Team",
+    "body": "Öffne einen Markt, wechsle in den Tab „Team“ und erstelle ein Team. Den Code schickst du deinen Freunden – so seid ihr für den Abend verbunden.",
+    "publishAt": "2026-10-14T00:01:00+02:00"
+  },
+  {
+    "id": "tip-weekday",
+    "type": "tip",
+    "title": "Tipp: Unter der Woche bummeln",
+    "body": "Freitag- und Samstagabend ist es auf den großen Märkten am vollsten. Wer kann, kommt unter der Woche oder am frühen Nachmittag – dann findest du deine Lieblingshütte ohne Gedränge.",
+    "publishAt": "2026-11-13T09:00:00+01:00"
+  },
+  {
+    "id": "tip-pfand",
+    "type": "tip",
+    "title": "Becher-Pfand nicht vergessen",
+    "body": "Glühwein gibt’s meist im Pfandbecher. Zurückgeben kannst du ihn an den Ständen des Marktes – oder du behältst ihn als Andenken, viele Märkte haben jedes Jahr ein neues Motiv.",
+    "publishAt": "2026-11-16T09:00:00+01:00"
+  }
+]

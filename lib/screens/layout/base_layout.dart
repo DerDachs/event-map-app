@@ -6,11 +6,13 @@ import '../../providers/state_provider.dart';
 class BaseLayout extends ConsumerWidget {
   final Widget body;
   final String title;
+  final List<Widget> actions;
 
   const BaseLayout({
     Key? key,
     required this.body,
     required this.title,
+    this.actions = const [],
   }) : super(key: key);
 
   @override
@@ -18,7 +20,7 @@ class BaseLayout extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        actions: const [ProfileMenuButton()],
+        actions: [...actions, const ProfileMenuButton()],
       ),
       body: body,
       bottomNavigationBar: BottomNavigationBar(

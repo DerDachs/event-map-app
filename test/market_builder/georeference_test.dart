@@ -108,4 +108,17 @@ void main() {
     const p = PlanPoint(500, 100);
     expect(_distance(g.toGeo(p), _truth(p)), lessThan(0.05));
   });
+
+  test('toPlan inverts toGeo, also for stretched plans', () {
+    final g = Georeference.fit(
+      [_cp(100, 100, rotationDeg: 30, stretchX: 1.3), _cp(900, 200, rotationDeg: 30, stretchX: 1.3),
+       _cp(400, 900, rotationDeg: 30, stretchX: 1.3)],
+      aspectRatio: _aspect,
+    )!;
+    for (final p in const [PlanPoint(0, 0), PlanPoint(500, 500), PlanPoint(731, 88)]) {
+      final back = g.toPlan(g.toGeo(p))!;
+      expect(back.x, closeTo(p.x, 0.01));
+      expect(back.y, closeTo(p.y, 0.01));
+    }
+  });
 }
