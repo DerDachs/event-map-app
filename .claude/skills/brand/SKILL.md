@@ -12,6 +12,9 @@ public. Visual overview: `brand/index.html`.
 
 - **Architecture:** Market Mate is the product brand in front. cellarworks (always lowercase) is the
   studio behind it — only as endorsement ("ein Projekt von cellarworks"), footer, imprint, store publisher.
+- **Contact & domains:** public contact is `info@cellarworks.dev`; the product site is
+  `https://marketmate.cellarworks.dev`, the studio site `https://cellarworks.dev`. Don't invent other
+  addresses.
 - **Logo:** use the files in `brand/logo/` as they are (pin with market-stall awning + "MARKET MATE"
   in Bebas Neue). Never redraw, recolor, stretch or re-typeset it. Light background →
   `market-mate-logo.svg`; dark/photo → `-on-dark`; tight space → `market-mate-mark.svg`;

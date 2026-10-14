@@ -30,9 +30,13 @@ cellarworks            ← Studio / Absender (cellarworks.dev)
   Künftige Produkte hängen sich genauso darunter und bekommen eigene Produktmarken.
 - Schreibweise: **Market Mate** (zwei Wörter, beide groß). **cellarworks** immer klein, auch am Satzanfang.
 
-**Domain-Vorschlag:** `cellarworks.dev` = Studio-Seite, `marketmate.cellarworks.dev` = Produktseite
-(der heutige `website/`-Ordner). Kontakt-Adressen: `hallo@cellarworks.dev`, für Veranstalter
-`maerkte@cellarworks.dev`.
+**Domains:** `cellarworks.dev` = Studio-Seite, `marketmate.cellarworks.dev` = Produktseite
+(der `website/`-Ordner, Firebase Hosting).
+
+**E-Mail:** öffentliche Kontaktadresse ist `info@cellarworks.dev` (Website, Impressum, App Store,
+Veranstalter-Anfragen). Wird später eine Trennung nötig, bekommt Market Mate eigene Adressen unter
+`@marketmate.cellarworks.dev` (z. B. `support@` für App-Nutzer, `maerkte@` für Veranstalter).
+Bis dahin keine weiteren Adressen veröffentlichen, damit nichts ins Leere läuft.
 
 ## 2. Markenkern
 
@@ -178,7 +182,7 @@ kommt dort über Farbe und Icon. Bebas Neue optional für große Überschriften 
 | **App** | Seed-Farbe `BrandColors.red` (`lib/theme/brand_tokens.dart`). App-Icon aus `brand/logo/png/market-mate-app-icon-1024.png`. |
 | **App Store** | Icon wie App. Screenshots auf Papier/Sand mit Bebas-Headline (max. 4 Wörter) über dem Gerät. Anbieter: cellarworks. |
 | **Social Media** | Profilbild: App-Icon. Posts: Papier oder `dark-bg`, eine Headline in Bebas, ein Rot-Akzent. Logo gestapelt unten. |
-| **E-Mail-Signatur** | Name · Market Mate · ein Projekt von cellarworks · cellarworks.dev – reiner Text, kein Bild. |
+| **E-Mail-Signatur** | Name · Market Mate · ein Projekt von cellarworks · info@cellarworks.dev · marketmate.cellarworks.dev – reiner Text, kein Bild. |
 | **Druck** | Rot ≈ Pantone 1795 C, Gold ≈ Pantone 130 C – Näherungen, vor dem ersten Druck mit Proof abstimmen. |
 
 ## 10. Pflege
@@ -197,9 +201,9 @@ cp brand/logo/market-mate-mark.svg website/assets/mark.svg
 
 ## 11. Offene Punkte
 
-- Finale Domain festlegen, dann `og:image` in `website/*.html` auf absolute URL setzen.
+- `marketmate.cellarworks.dev` in Firebase Hosting als Custom Domain verbinden (sonst greifen
+  `og:image` und Canonical-URLs noch nicht).
 - App-Icon in der App austauschen: `flutter_launcher_icons.yaml` auf
   `brand/logo/png/market-mate-app-icon-1024.png` zeigen lassen und
   `dart run flutter_launcher_icons` ausführen.
-- Kontaktadresse auf `veranstalter.html` (aktuell `kontakt@example.com`) ersetzen.
 - Studio-Seite für cellarworks.dev (nutzt dieselben Tokens, Logo `cellarworks-logo.svg`).
