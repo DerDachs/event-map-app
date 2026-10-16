@@ -5,7 +5,7 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>de</string>
 	<key>CFBundleDisplayName</key>
 	<string>Market Mate</string>
 	<key>CFBundleExecutable</key>
@@ -59,26 +59,22 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>The camera is used to take a photo of a market plan or an event image to upload.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>NSFaceIDUsageDescription</key>
-    <string>We use Face ID to authenticate you.</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>App needs access to your photos to upload an image.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>We need your location to help you find stands on the map.</string>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>We need your location to help you navigate the market.</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>We need your location to provide navigation and nearby stand suggestions.</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>de</string>
+		<string>en</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Mit der Kamera kannst du einen Lageplan oder ein Bild des Marktes fotografieren und hochladen.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Wähle Fotos aus, zum Beispiel einen Lageplan oder Bilder eines Marktes, um sie hochzuladen.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Market Mate zeigt deinen Standort auf der Marktkarte, damit du Stände in deiner Nähe findest. Dein Standort wird nicht gespeichert.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Market Mate nutzt deinen Standort nur, während du die App verwendest, um dich auf der Marktkarte zu zeigen.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Market Mate nutzt deinen Standort nur, während du die App verwendest, um dich auf der Marktkarte zu zeigen.</string>
 </dict>
 </plist>

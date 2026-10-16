@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/profile.dart';
 import '../features/auth/services/session.dart';
 import '../providers/user_provider.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 /// Avatar button for app bars that opens the account menu.
 class ProfileMenuButton extends ConsumerWidget {
@@ -32,14 +33,14 @@ class ProfileMenuButton extends ConsumerWidget {
           children: [
             ListTile(
               leading: UserAvatar(profile: profile, radius: 24),
-              title: Text(profile?.name ?? 'Unbekannt',
+              title: Text(profile?.name ?? context.l10n.unknownUser,
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text(profile?.email ?? ''),
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.account_circle_outlined),
-              title: const Text('Profil'),
+              title: Text(context.l10n.menuProfile),
               onTap: () {
                 Navigator.pop(sheetContext);
                 Navigator.pushNamed(context, '/profile');
@@ -47,7 +48,7 @@ class ProfileMenuButton extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
-              title: const Text('Einstellungen'),
+              title: Text(context.l10n.menuSettings),
               onTap: () {
                 Navigator.pop(sheetContext);
                 Navigator.pushNamed(context, '/settings');
@@ -56,7 +57,7 @@ class ProfileMenuButton extends ConsumerWidget {
             if (profile?.role == 'admin')
               ListTile(
                 leading: const Icon(Icons.admin_panel_settings_outlined),
-                title: const Text('Admin'),
+                title: Text(context.l10n.menuAdmin),
                 onTap: () {
                   Navigator.pop(sheetContext);
                   Navigator.pushNamed(context, '/admin-panel');
@@ -64,7 +65,7 @@ class ProfileMenuButton extends ConsumerWidget {
               ),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Abmelden', style: TextStyle(color: Colors.red)),
+              title: Text(context.l10n.menuSignOut, style: const TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(sheetContext);
                 signOutAndReturnToStart(context, ref);

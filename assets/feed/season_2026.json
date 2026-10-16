@@ -7,7 +7,11 @@
     "body": "Mitte November geht es los: In Köln öffnen die ersten Märkte schon am 13. und 16. November, Ende November folgen Nürnberg, Dresden und viele andere. Hier findest du die wichtigsten Termine – und nach und nach jeden Markt mit allen Hütten auf der Karte.",
     "publishAt": "2026-10-14T00:00:00+02:00",
     "expiresAt": "2026-12-24T23:59:00+01:00",
-    "seasonId": "weihnachten-2026"
+    "seasonId": "weihnachten-2026",
+    "en": {
+      "title": "The 2026 Christmas market season is almost here",
+      "body": "It all starts in mid-November: the first markets in Cologne open on 13 and 16 November, followed by Nuremberg, Dresden and many more at the end of the month. Here you’ll find the key dates – and, step by step, every market with all its stalls on the map."
+    }
   },
   {
     "id": "koeln-2026",
@@ -18,7 +22,12 @@
     "linkLabel": "Alle Kölner Märkte",
     "publishAt": "2026-10-14T00:05:00+02:00",
     "expiresAt": "2027-01-10T23:59:00+01:00",
-    "seasonId": "weihnachten-2026"
+    "seasonId": "weihnachten-2026",
+    "en": {
+      "title": "Cologne gets things going",
+      "body": "The Harbour Christmas Market at the Rheinauhafen opens on 13 November and runs until 3 January. On 16 November the Christmas market at the Cathedral and the Market of Angels at Neumarkt follow. Heinzels Wintermärchen on the Heumarkt starts on 23 November and stays until 10 January. Some markets are closed on 22 November (Totensonntag).",
+      "linkLabel": "All Cologne markets"
+    }
   },
   {
     "id": "frankfurt-2026",
@@ -29,7 +38,12 @@
     "linkLabel": "Mehr zum Markt",
     "publishAt": "2026-10-14T00:04:00+02:00",
     "expiresAt": "2026-12-22T23:59:00+01:00",
-    "seasonId": "weihnachten-2026"
+    "seasonId": "weihnachten-2026",
+    "en": {
+      "title": "Frankfurt: opening on the Römerberg",
+      "body": "The Frankfurt Christmas market runs from 23 November to 22 December. It opens on 23 November at 5:10 pm on the stage at the Römerberg, together with the Frankfurt Opera. Open Monday to Saturday 10 am–9 pm, Sundays 11 am–9 pm.",
+      "linkLabel": "More about the market"
+    }
   },
   {
     "id": "nuernberg-2026",
@@ -40,7 +54,12 @@
     "linkLabel": "Termine in Nürnberg",
     "publishAt": "2026-10-14T00:03:00+02:00",
     "expiresAt": "2026-12-24T23:59:00+01:00",
-    "seasonId": "weihnachten-2026"
+    "seasonId": "weihnachten-2026",
+    "en": {
+      "title": "Nuremberg: the Christkind opens the market on 27 November",
+      "body": "The Christkindlesmarkt on the Hauptmarkt opens on Friday, 27 November, with the Christkind’s prologue at 5:30 pm and runs until Christmas Eve.",
+      "linkLabel": "Dates in Nuremberg"
+    }
   },
   {
     "id": "dresden-2026",
@@ -51,14 +70,23 @@
     "linkLabel": "Termine 2026",
     "publishAt": "2026-10-14T00:02:00+02:00",
     "expiresAt": "2026-12-24T23:59:00+01:00",
-    "seasonId": "weihnachten-2026"
+    "seasonId": "weihnachten-2026",
+    "en": {
+      "title": "Dresden: Striezelmarkt from 25 November",
+      "body": "The Striezelmarkt on the Altmarkt – held since 1434 and one of Germany’s oldest Christmas markets – opens on the Wednesday before the first Sunday of Advent, 25 November, and runs until Christmas Eve.",
+      "linkLabel": "2026 dates"
+    }
   },
   {
     "id": "tip-team",
     "type": "tip",
     "title": "Mit Freunden unterwegs? Gründe ein Team",
     "body": "Öffne einen Markt, wechsle in den Tab „Team“ und erstelle ein Team. Den Code schickst du deinen Freunden – so seid ihr für den Abend verbunden.",
-    "publishAt": "2026-10-14T00:01:00+02:00"
+    "publishAt": "2026-10-14T00:01:00+02:00",
+    "en": {
+      "title": "Out with friends? Start a team",
+      "body": "Open a market, switch to the “Team” tab and create a team. Send the code to your friends – and you’re connected for the evening."
+    }
   },
   {
     "id": "tip-weekday",
@@ -66,7 +94,11 @@
     "title": "Tipp: Unter der Woche bummeln",
     "body": "Freitag- und Samstagabend ist es auf den großen Märkten am vollsten. Wer kann, kommt unter der Woche oder am frühen Nachmittag – dann findest du deine Lieblingshütte ohne Gedränge.",
     "publishAt": "2026-11-13T09:00:00+01:00",
-    "seasonId": "weihnachten-2026"
+    "seasonId": "weihnachten-2026",
+    "en": {
+      "title": "Tip: go on a weekday",
+      "body": "Friday and Saturday evenings are the busiest on the big markets. If you can, come on a weekday or early in the afternoon – you’ll find your favourite stall without the crowds."
+    }
   },
   {
     "id": "tip-pfand",
@@ -74,6 +106,10 @@
     "title": "Becher-Pfand nicht vergessen",
     "body": "Glühwein gibt’s meist im Pfandbecher. Zurückgeben kannst du ihn an den Ständen des Marktes – oder du behältst ihn als Andenken, viele Märkte haben jedes Jahr ein neues Motiv.",
     "publishAt": "2026-11-16T09:00:00+01:00",
-    "seasonId": "weihnachten-2026"
+    "seasonId": "weihnachten-2026",
+    "en": {
+      "title": "Don’t forget your mug deposit",
+      "body": "Mulled wine usually comes in a mug with a deposit. You can return it at the market’s stalls – or keep it as a souvenir, many markets have a new design every year."
+    }
   }
 ]

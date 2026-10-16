@@ -1,0 +1,7 @@
+/* Permission texts shown by iOS. Keep in sync with Info.plist. */
+"CFBundleDisplayName" = "Market Mate";
+"NSCameraUsageDescription" = "Use the camera to take a photo of a site plan or of the market and upload it.";
+"NSPhotoLibraryUsageDescription" = "Choose photos, for example a site plan or pictures of a market, to upload them.";
+"NSLocationWhenInUseUsageDescription" = "Market Mate shows your location on the market map so you can find stalls near you. Your location is not stored.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Market Mate only uses your location while you use the app, to show you on the market map.";
+"NSLocationAlwaysUsageDescription" = "Market Mate only uses your location while you use the app, to show you on the market map.";

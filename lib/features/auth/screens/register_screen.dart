@@ -5,6 +5,7 @@ import '../../../providers/user_provider.dart';
 import '../../../screens/profile_initialization_screen.dart';
 import '../providers/authentication_provider.dart';
 import '../services/auth_errors.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 
 class RegisterScreen extends ConsumerWidget {
@@ -16,20 +17,20 @@ class RegisterScreen extends ConsumerWidget {
     final authRepository = ref.watch(authRepositoryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Registrieren')),
+      appBar: AppBar(title: Text(context.l10n.registerTitle)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: 'E-Mail'),
+              decoration: InputDecoration(labelText: context.l10n.emailLabel),
               keyboardType: TextInputType.emailAddress,
               autocorrect: false,
             ),
             TextField(
               controller: passwordController,
-              decoration: InputDecoration(labelText: 'Passwort (mind. 6 Zeichen)'),
+              decoration: InputDecoration(labelText: context.l10n.registerPasswordLabel),
               obscureText: true,
             ),
             SizedBox(height: 20),
@@ -67,11 +68,11 @@ class RegisterScreen extends ConsumerWidget {
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(authErrorMessage(e))),
+                    SnackBar(content: Text(authErrorMessage(e, context.l10n))),
                   );
                 }
               },
-              child: Text('Konto erstellen'),
+              child: Text(context.l10n.registerButton),
             ),
           ],
         ),

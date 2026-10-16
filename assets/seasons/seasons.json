@@ -14,21 +14,30 @@
     "milestones": [
       {
         "label": "1. Advent",
-        "date": "2026-11-29T12:00:00+01:00"
+        "date": "2026-11-29T12:00:00+01:00",
+        "labelEn": "1st Sunday of Advent"
       },
       {
         "label": "2. Advent",
-        "date": "2026-12-06T12:00:00+01:00"
+        "date": "2026-12-06T12:00:00+01:00",
+        "labelEn": "2nd Sunday of Advent"
       },
       {
         "label": "3. Advent",
-        "date": "2026-12-13T12:00:00+01:00"
+        "date": "2026-12-13T12:00:00+01:00",
+        "labelEn": "3rd Sunday of Advent"
       },
       {
         "label": "4. Advent",
-        "date": "2026-12-20T12:00:00+01:00"
+        "date": "2026-12-20T12:00:00+01:00",
+        "labelEn": "4th Sunday of Advent"
       }
-    ]
+    ],
+    "en": {
+      "name": "Christmas markets 2026",
+      "tagline": "Mulled wine, lights, friends – your markets for Advent",
+      "countdownLabel": "Christmas Eve"
+    }
   },
   {
     "id": "ostern-2027",
@@ -42,7 +51,12 @@
     ],
     "accent": "spring",
     "countdownTo": "2027-03-28T12:00:00+01:00",
-    "countdownLabel": "Ostersonntag"
+    "countdownLabel": "Ostersonntag",
+    "en": {
+      "name": "Easter & spring markets 2027",
+      "tagline": "Painted eggs, first sunshine, crafts",
+      "countdownLabel": "Easter Sunday"
+    }
   },
   {
     "id": "pfingsten-2027",
@@ -56,7 +70,12 @@
     ],
     "accent": "spring",
     "countdownTo": "2027-05-16T12:00:00+02:00",
-    "countdownLabel": "Pfingstsonntag"
+    "countdownLabel": "Pfingstsonntag",
+    "en": {
+      "name": "Whitsun markets 2027",
+      "tagline": "Long evenings, fairground rides and open-air markets",
+      "countdownLabel": "Whit Sunday"
+    }
   },
   {
     "id": "sommer-2027",
@@ -68,7 +87,11 @@
       "summer_festival",
       "medieval_market"
     ],
-    "accent": "summer"
+    "accent": "summer",
+    "en": {
+      "name": "Summer festivals 2027",
+      "tagline": "Old-town festivals, medieval markets and warm nights"
+    }
   },
   {
     "id": "herbst-2027",
@@ -80,6 +103,10 @@
       "autumn_market",
       "wine_festival"
     ],
-    "accent": "autumn"
+    "accent": "autumn",
+    "en": {
+      "name": "Autumn & wine festivals 2027",
+      "tagline": "New wine, onion tart and colourful leaves"
+    }
   }
 ]

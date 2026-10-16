@@ -1,0 +1,356 @@
+{
+  "@@locale": "de",
+  "appTitle": "Market Mate",
+  "loginWelcome": "Willkommen bei Market Mate",
+  "emailLabel": "E-Mail",
+  "passwordLabel": "Passwort",
+  "loginEmailRequired": "Bitte gib deine E-Mail ein",
+  "loginEmailInvalid": "Bitte gib eine gültige E-Mail ein",
+  "loginPasswordRequired": "Bitte gib dein Passwort ein",
+  "loginButton": "Anmelden",
+  "loginNoAccount": "Noch kein Konto? Jetzt registrieren",
+  "loginForgotPassword": "Passwort vergessen?",
+  "signInWithApple": "Mit Apple anmelden",
+  "registerTitle": "Registrieren",
+  "registerPasswordLabel": "Passwort (mind. 6 Zeichen)",
+  "registerButton": "Konto erstellen",
+  "forgotTitle": "Passwort vergessen",
+  "forgotIntro": "Gib deine E-Mail ein – wir schicken dir einen Link zum Zurücksetzen.",
+  "forgotSent": "E-Mail zum Zurücksetzen wurde gesendet.",
+  "forgotButton": "Link senden",
+  "profileSetupTitle": "Profil einrichten",
+  "profileSetupIntro": "Willkommen! Wie sollen dich deine Freunde im Team sehen?",
+  "nameLabel": "Name",
+  "chooseAvatar": "Wähle einen Avatar",
+  "profileSetupMissing": "Bitte gib einen Namen ein und wähle einen Avatar.",
+  "saveFailed": "Speichern fehlgeschlagen: {error}",
+  "@saveFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "profileSetupStart": "Los geht’s",
+  "profileLoadFailed": "Dein Profil konnte nicht geladen werden.\n{error}",
+  "@profileLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "signInFailedWithError": "Anmeldung fehlgeschlagen.\n{error}",
+  "@signInFailedWithError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "unknownUser": "Unbekannt",
+  "menuProfile": "Profil",
+  "menuSettings": "Einstellungen",
+  "menuAdmin": "Admin",
+  "menuSignOut": "Abmelden",
+  "navInfo": "Infos",
+  "navMap": "Karte",
+  "navTeam": "Team",
+  "authErrorGeneric": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+  "authErrorInvalidEmail": "Diese E-Mail-Adresse ist ungültig.",
+  "authErrorUserDisabled": "Dieses Konto wurde deaktiviert.",
+  "authErrorWrongCredentials": "E-Mail oder Passwort ist falsch.",
+  "authErrorEmailInUse": "Für diese E-Mail gibt es schon ein Konto. Melde dich an.",
+  "authErrorWeakPassword": "Das Passwort ist zu schwach – bitte mindestens 6 Zeichen.",
+  "authErrorTooManyRequests": "Zu viele Versuche. Bitte warte kurz.",
+  "authErrorNetwork": "Keine Internetverbindung.",
+  "authErrorOtherCredential": "Für diese E-Mail gibt es schon ein Konto mit Passwort. Melde dich damit an.",
+  "authErrorFallback": "Anmeldung fehlgeschlagen.",
+  "pageOpenFailed": "Seite konnte nicht geöffnet werden.",
+  "locationAllowed": "Erlaubt, während die App genutzt wird",
+  "locationNotYet": "Noch nicht erlaubt",
+  "locationDenied": "Nicht erlaubt – in den iOS-Einstellungen änderbar",
+  "settingsTitle": "Einstellungen",
+  "settingsLanguage": "Sprache",
+  "languageSystem": "Wie auf dem Gerät",
+  "languageGerman": "Deutsch",
+  "languageEnglish": "English (Englisch)",
+  "settingsPrivacy": "Datenschutz",
+  "settingsLocation": "Standort",
+  "settingsLocationInfo": "{status}\nZeigt deine Position auf der Marktkarte. Der Standort wird nicht gespeichert.",
+  "@settingsLocationInfo": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "privacyPolicy": "Datenschutzerklärung",
+  "imprint": "Impressum",
+  "settingsAccount": "Konto",
+  "editProfile": "Profil bearbeiten",
+  "appVersion": "Version {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "profileSaved": "Profil gespeichert.",
+  "deleteAccountTitle": "Konto löschen?",
+  "deleteAccountText": "Dein Profil, deine Favoriten und deine Teammitgliedschaften werden gelöscht. Das lässt sich nicht rückgängig machen.",
+  "cancel": "Abbrechen",
+  "deleteForever": "Endgültig löschen",
+  "accountDeleted": "Dein Konto wurde gelöscht.",
+  "reauthTitle": "Bitte erneut anmelden",
+  "reauthText": "Aus Sicherheitsgründen musst du dich kurz neu anmelden. Lösche das Konto danach bitte noch einmal.",
+  "ok": "OK",
+  "deleteFailed": "Löschen fehlgeschlagen: {error}",
+  "@deleteFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "profileTitle": "Profil",
+  "changeAvatar": "Avatar ändern",
+  "save": "Speichern",
+  "signOut": "Abmelden",
+  "deleteAccount": "Konto löschen",
+  "catGluehwein": "Glühwein & Heißgetränke",
+  "catFoodSavory": "Herzhaftes",
+  "catFoodSweet": "Süßes & Gebäck",
+  "catCrafts": "Handwerk & Geschenke",
+  "catDecoration": "Weihnachtsdeko",
+  "catKids": "Für Kinder",
+  "catStage": "Bühne & Programm",
+  "catService": "Service",
+  "catOther": "Sonstiges",
+  "postTypeNews": "Neuigkeit",
+  "postTypeOpening": "Eröffnung",
+  "postTypeTip": "Tipp",
+  "postTypeEvent": "Programm",
+  "favoriteRemove": "Aus Favoriten entfernen",
+  "favoriteAdd": "Merken",
+  "infoDates": "Zeitraum",
+  "infoOpeningHours": "Öffnungszeiten",
+  "infoEntry": "Eintritt",
+  "infoOrganizer": "Veranstalter",
+  "infoStands": "Stände",
+  "infoAbout": "Über den Markt",
+  "infoTip": "Unser Tipp",
+  "joinFailed": "Beitreten fehlgeschlagen: {error}",
+  "@joinFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "toMarketMap": "Zur Marktkarte",
+  "planLoadFailed": "Der Lageplan konnte nicht geladen werden.",
+  "standsLoadFailed": "Die Stände konnten nicht geladen werden.",
+  "standSearchHint": "Stand suchen, z. B. Crêpes",
+  "planHide": "Lageplan ausblenden",
+  "planShow": "Lageplan einblenden",
+  "showWholeMarket": "Ganzen Markt zeigen",
+  "standsPullUp": "{count} Stände – nach oben ziehen für die Liste",
+  "@standsPullUp": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "standsFiltered": "{visible} von {total} Ständen",
+  "@standsFiltered": {
+    "placeholders": {
+      "visible": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noStandMatches": "Kein Stand passt zur Suche.",
+  "retry": "Erneut versuchen",
+  "teamLoadFailed": "Team konnte nicht geladen werden.\n{error}",
+  "@teamLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teamCreateTitle": "Team gründen",
+  "teamNameLabel": "Teamname",
+  "teamNameHint": "z. B. Glühwein-Crew",
+  "teamCreateAction": "Gründen",
+  "teamCreateFailed": "Team konnte nicht gegründet werden: {error}",
+  "@teamCreateFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teamJoinTitle": "Team beitreten",
+  "teamCodeLabel": "Team-Code",
+  "teamCodeHint": "6 Zeichen, z. B. K7Q2XM",
+  "teamJoinAction": "Beitreten",
+  "teamWelcome": "Willkommen im Team „{name}“!",
+  "@teamWelcome": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "teamNotFound": "Kein Team mit diesem Code gefunden.",
+  "teamOtherMarket": "Dieses Team gehört zu einem anderen Markt.",
+  "teamIntroTitle": "Gemeinsam über den Markt",
+  "teamIntroText": "Gründe ein Team und teile den Code mit deinen Freunden – oder tritt mit einem Code bei.",
+  "teamJoinWithCode": "Mit Code beitreten",
+  "teamLeaveTitle": "Team verlassen?",
+  "teamLeaveLast": "Du bist das letzte Mitglied – das Team wird dann gelöscht.",
+  "teamLeaveRejoin": "Du kannst später mit dem Code wieder beitreten.",
+  "teamLeaveAction": "Verlassen",
+  "teamLeaveFailed": "Verlassen fehlgeschlagen: {error}",
+  "@teamLeaveFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teamCopyCode": "Code kopieren",
+  "teamCodeCopied": "Code kopiert – schick ihn deinen Freunden.",
+  "teamMembers": "Mitglieder ({count})",
+  "@teamMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teamMembersLoadFailed": "Mitglieder konnten nicht geladen werden: {error}",
+  "@teamMembersLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teamMemberYou": "{name} (du)",
+  "@teamMemberYou": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "teamFounder": "Gründer",
+  "teamShareLocation": "Standort mit dem Team teilen",
+  "comingSoon": "Kommt bald",
+  "teamLeave": "Team verlassen",
+  "bannerToday": "Heute: {label}",
+  "@bannerToday": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "bannerTomorrow": "Morgen: {label}",
+  "@bannerTomorrow": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "bannerMilestoneOn": "{label} am {date}",
+  "@bannerMilestoneOn": {
+    "placeholders": {
+      "label": {},
+      "date": {
+        "type": "DateTime",
+        "format": "MMMMd"
+      }
+    }
+  },
+  "countdownToday": "Heute ist {label}",
+  "@countdownToday": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "countdownTomorrow": "Morgen ist {label}",
+  "@countdownTomorrow": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "countdownDays": "Tage bis {label}",
+  "@countdownDays": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "statusOver": "Vorbei",
+  "statusOpensToday": "Öffnet heute",
+  "statusOpensTomorrow": "Öffnet morgen",
+  "statusOpensInDays": "Öffnet in {days} Tagen",
+  "@statusOpensInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "statusFrom": "Ab {date}",
+  "@statusFrom": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMMd"
+      }
+    }
+  },
+  "statusLastDay": "Letzter Tag",
+  "statusUntilTomorrow": "Läuft · noch bis morgen",
+  "statusDaysLeft": "Läuft · noch {days} Tage",
+  "@statusDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "newsOpensToday": "{name} öffnet heute",
+  "@newsOpensToday": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "newsOpensSoon": "{name} öffnet bald",
+  "@newsOpensSoon": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "newsLastDays": "Letzte Chance: {name}",
+  "@newsLastDays": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "newsIsNew": "Neu in Market Mate: {name}",
+  "@newsIsNew": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "relToday": "heute",
+  "relYesterday": "gestern",
+  "relDaysAgo": "vor {days} Tagen",
+  "@relDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "pillFavorite": "Favorit",
+  "standsCount": "{count} Stände",
+  "@standsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "toMarket": "Zum Markt",
+  "readMore": "Mehr erfahren",
+  "marketsLoadFailed": "Die Märkte konnten nicht geladen werden.",
+  "homeFavorites": "Deine Favoriten",
+  "homeNews": "Neuigkeiten",
+  "noMarkets": "Noch keine Märkte vorhanden.",
+  "homeRunning": "Läuft gerade",
+  "homeUpcoming": "Demnächst",
+  "homePast": "Vergangene Märkte",
+  "appleSignInFailed": "Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut."
+}

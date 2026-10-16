@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../providers/user_provider.dart';
 import '../services/authentication_service.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 // Provider for FirebaseAuth instance
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
@@ -69,7 +70,7 @@ class AuthRepository {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut.')),
+        SnackBar(content: Text(context.l10n.appleSignInFailed)),
       );
     }
   }

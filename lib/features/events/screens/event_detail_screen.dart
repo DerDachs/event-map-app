@@ -7,6 +7,7 @@ import '../../../providers/user_provider.dart';
 import '../../market_editor/widgets/edit_market_button.dart';
 import '../providers/event_provider.dart';
 import '../widgets/event_info.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 /// A market before the user has joined it. Joined users go straight to the
 /// event page with map and team.
@@ -42,7 +43,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
       if (!mounted) return;
       setState(() => _joining = false);
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Beitreten fehlgeschlagen: $e')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.joinFailed('$e'))));
     }
   }
 
@@ -68,7 +69,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                   icon: _joining
                       ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.map_outlined),
-                  label: const Text('Zur Marktkarte'),
+                  label: Text(context.l10n.toMarketMap),
                   onPressed: _joining ? null : _join,
                 ),
         ),

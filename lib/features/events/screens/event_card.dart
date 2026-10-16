@@ -5,6 +5,7 @@ import '../../../data/models/event.dart';
 import '../../../utils/formatters.dart';
 import '../../favorites/providers/favorite_provider.dart';
 import 'event_detail_screen.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 class EventCard extends ConsumerWidget {
   final Event event;
@@ -45,7 +46,7 @@ class EventCard extends ConsumerWidget {
                       top: 4,
                       right: 4,
                       child: IconButton.filledTonal(
-                        tooltip: isFavorite ? 'Aus Favoriten entfernen' : 'Merken',
+                        tooltip: isFavorite ? context.l10n.favoriteRemove : context.l10n.favoriteAdd,
                         icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: Colors.red),
                         onPressed: () =>
                             ref.read(favoritesProvider.notifier).toggleFavorite('events', event.id),

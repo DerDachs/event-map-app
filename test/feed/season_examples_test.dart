@@ -19,6 +19,9 @@ void main() {
       expect(post.publishAt.year, 2026, reason: id);
       if (post.expiresAt != null) expect(post.expiresAt!.isAfter(post.publishAt), isTrue, reason: id);
       if (post.linkUrl != null) expect(post.linkUrl, startsWith('https://'));
+      final en = post.localized('en');
+      expect(en.title, isNot(post.title), reason: '$id has no English title');
+      expect(post.localized('de').title, post.title);
     }
     expect(ids, hasLength(list.length));
   });
@@ -38,6 +41,10 @@ void main() {
       final s = seasons[i];
       expect(s.endsAt.isAfter(s.startsAt), isTrue, reason: s.id);
       expect(s.marketTypes, isNotEmpty, reason: s.id);
+      expect(s.localized('en').name, isNot(s.name), reason: '${s.id} has no English name');
+      for (final m in s.localized('en').milestones) {
+        expect(m.label, isNot(contains('. Advent')), reason: s.id);
+      }
       for (final t in s.marketTypes) {
         expect(marketTypes.map((m) => m.key), contains(t), reason: '${s.id}: $t');
       }

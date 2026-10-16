@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 class AvatarPicker extends StatefulWidget {
   final void Function(String) onAvatarSelected;
@@ -32,7 +33,7 @@ class _AvatarPickerState extends State<AvatarPicker> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Choose an Avatar',
+          context.l10n.chooseAvatar,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 16),

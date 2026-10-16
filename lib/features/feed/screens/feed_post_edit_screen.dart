@@ -27,6 +27,9 @@ class _FeedPostEditScreenState extends ConsumerState<FeedPostEditScreen> {
   late final _body = TextEditingController(text: widget.post?.body);
   late final _linkUrl = TextEditingController(text: widget.post?.linkUrl);
   late final _linkLabel = TextEditingController(text: widget.post?.linkLabel);
+  late final _titleEn = TextEditingController(text: widget.post?.titleEn);
+  late final _bodyEn = TextEditingController(text: widget.post?.bodyEn);
+  late final _linkLabelEn = TextEditingController(text: widget.post?.linkLabelEn);
   late FeedPostType _type = widget.post?.type ?? FeedPostType.news;
   late String? _imageUrl = widget.post?.imageUrl;
   late String? _eventId = widget.post?.eventId;
@@ -38,7 +41,7 @@ class _FeedPostEditScreenState extends ConsumerState<FeedPostEditScreen> {
 
   @override
   void dispose() {
-    for (final c in [_title, _body, _linkUrl, _linkLabel]) {
+    for (final c in [_title, _body, _linkUrl, _linkLabel, _titleEn, _bodyEn, _linkLabelEn]) {
       c.dispose();
     }
     super.dispose();
@@ -59,6 +62,9 @@ class _FeedPostEditScreenState extends ConsumerState<FeedPostEditScreen> {
       expiresAt: _expiresAt,
       pinned: _pinned,
       seasonId: _seasonId,
+      titleEn: _titleEn.text.trim(),
+      bodyEn: _bodyEn.text.trim(),
+      linkLabelEn: text(_linkLabelEn),
     );
   }
 
@@ -186,6 +192,25 @@ class _FeedPostEditScreenState extends ConsumerState<FeedPostEditScreen> {
             maxLines: 10,
             decoration: const InputDecoration(labelText: 'Text', alignLabelWithHint: true),
             onChanged: (_) => setState(() {}),
+          ),
+          ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            initiallyExpanded: _titleEn.text.isNotEmpty,
+            title: const Text('Englische Fassung (optional)'),
+            subtitle: const Text('Ohne englischen Titel sehen englische Nutzer den deutschen Text.'),
+            children: [
+              TextField(controller: _titleEn, decoration: const InputDecoration(labelText: 'Title')),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _bodyEn,
+                minLines: 3,
+                maxLines: 10,
+                decoration: const InputDecoration(labelText: 'Text', alignLabelWithHint: true),
+              ),
+              const SizedBox(height: 12),
+              TextField(controller: _linkLabelEn, decoration: const InputDecoration(labelText: 'Link text')),
+              const SizedBox(height: 12),
+            ],
           ),
           const SizedBox(height: 16),
           Row(

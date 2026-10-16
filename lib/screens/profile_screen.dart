@@ -8,6 +8,7 @@ import '../features/auth/services/session.dart';
 import '../providers/user_provider.dart';
 import '../utils/avatars.dart';
 import '../widgets/profile_menu.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -45,7 +46,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ));
     if (!mounted) return;
     setState(() => _saving = false);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profil gespeichert.')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.profileSaved)));
   }
 
   Future<void> _pickAvatar() async {
@@ -77,17 +78,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Konto löschen?'),
-        content: const Text(
-          'Dein Profil, deine Favoriten und deine Teammitgliedschaften werden gelöscht. '
-          'Das lässt sich nicht rückgängig machen.',
+        title: Text(context.l10n.deleteAccountTitle),
+        content: Text(
+          context.l10n.deleteAccountText,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Abbrechen')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.l10n.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Endgültig löschen'),
+            child: Text(context.l10n.deleteForever),
           ),
         ],
       ),
@@ -109,7 +109,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       await FirebaseAuth.instance.currentUser?.delete();
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Dein Konto wurde gelöscht.')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.accountDeleted)));
       await signOutAndReturnToStart(context, ref);
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
@@ -117,25 +117,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         await showDialog<void>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Bitte erneut anmelden'),
-            content: const Text(
-              'Aus Sicherheitsgründen musst du dich kurz neu anmelden. '
-              'Lösche das Konto danach bitte noch einmal.',
+            title: Text(context.l10n.reauthTitle),
+            content: Text(
+              context.l10n.reauthText,
             ),
             actions: [
-              FilledButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+              FilledButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.ok)),
             ],
           ),
         );
         if (mounted) await signOutAndReturnToStart(context, ref);
       } else {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Löschen fehlgeschlagen: ${e.message}')));
+            .showSnackBar(SnackBar(content: Text(context.l10n.deleteFailed('${e.message}'))));
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Löschen fehlgeschlagen: $e')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.deleteFailed('$e'))));
     }
   }
 
@@ -159,7 +158,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         (_avatar != null && _avatar != profile.profilePicture);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
+      appBar: AppBar(title: Text(context.l10n.profileTitle)),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -171,7 +170,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   right: 0,
                   bottom: 0,
                   child: IconButton.filled(
-                    tooltip: 'Avatar ändern',
+                    tooltip: context.l10n.changeAvatar,
                     icon: const Icon(Icons.edit, size: 18),
                     onPressed: _pickAvatar,
                   ),
@@ -183,7 +182,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           TextField(
             controller: _name,
             textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: context.l10n.nameLabel, border: const OutlineInputBorder()),
             onChanged: (_) => setState(() {}),
             onSubmitted: (_) => _save(profile),
           ),
@@ -191,15 +190,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           TextField(
             controller: TextEditingController(text: profile.email),
             enabled: false,
-            decoration: const InputDecoration(labelText: 'E-Mail', border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: context.l10n.emailLabel, border: const OutlineInputBorder()),
           ),
           if (profile.role == 'admin') ...[
             const SizedBox(height: 12),
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Chip(
-                avatar: Icon(Icons.admin_panel_settings, size: 18),
-                label: Text('Admin'),
+                avatar: const Icon(Icons.admin_panel_settings, size: 18),
+                label: Text(context.l10n.menuAdmin),
               ),
             ),
           ],
@@ -208,19 +207,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             onPressed: changed && !_saving ? () => _save(profile) : null,
             child: _saving
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Text('Speichern'),
+                : Text(context.l10n.save),
           ),
           const SizedBox(height: 40),
           OutlinedButton.icon(
             icon: const Icon(Icons.logout),
-            label: const Text('Abmelden'),
+            label: Text(context.l10n.signOut),
             onPressed: () => signOutAndReturnToStart(context, ref),
           ),
           const SizedBox(height: 12),
           TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             icon: const Icon(Icons.delete_forever_outlined),
-            label: const Text('Konto löschen'),
+            label: Text(context.l10n.deleteAccount),
             onPressed: () => _deleteAccount(profile),
           ),
         ],

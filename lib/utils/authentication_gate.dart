@@ -5,6 +5,7 @@ import '../features/auth/providers/authentication_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/profile_initialization_screen.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 class AuthenticationGate extends ConsumerStatefulWidget {
   @override
@@ -59,14 +60,14 @@ class _AuthenticationGateState extends ConsumerState<AuthenticationGate> {
             },
             loading: () => Scaffold(body: Center(child: CircularProgressIndicator())),
             error: (error, stackTrace) =>
-                Scaffold(body: Center(child: Text('Dein Profil konnte nicht geladen werden.\n$error', textAlign: TextAlign.center))),
+                Scaffold(body: Center(child: Text(context.l10n.profileLoadFailed('$error'), textAlign: TextAlign.center))),
           );
         } else {
           return LoginScreen();
         }
       },
       loading: () => Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, stackTrace) => Scaffold(body: Center(child: Text('Anmeldung fehlgeschlagen.\n$error', textAlign: TextAlign.center))),
+      error: (error, stackTrace) => Scaffold(body: Center(child: Text(context.l10n.signInFailedWithError('$error'), textAlign: TextAlign.center))),
     );
   }
 }
