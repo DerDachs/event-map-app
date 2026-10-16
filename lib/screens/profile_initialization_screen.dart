@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/user_provider.dart';
 import '../data/models/profile.dart';
 import '../utils/avatars.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 class ProfileInitializationScreen extends ConsumerStatefulWidget {
   final String uid; // Pass the user's UID to link the profile
@@ -27,7 +28,7 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profil einrichten'),
+        title: Text(context.l10n.profileSetupTitle),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -35,17 +36,17 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Willkommen! Wie sollen dich deine Freunde im Team sehen?',
+              context.l10n.profileSetupIntro,
               style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: 20),
             TextField(
               controller: nameController,
-              decoration: InputDecoration(labelText: 'Name'),
+              decoration: InputDecoration(labelText: context.l10n.nameLabel),
             ),
             SizedBox(height: 20),
             Text(
-              'Wähle einen Avatar',
+              context.l10n.chooseAvatar,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
@@ -86,7 +87,7 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
               onPressed: () async {
                 if (nameController.text.isEmpty || selectedAvatar == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Bitte gib einen Namen ein und wähle einen Avatar.')),
+                    SnackBar(content: Text(context.l10n.profileSetupMissing)),
                   );
                   return;
                 }
@@ -109,11 +110,11 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
                   Navigator.pushReplacementNamed(context, '/home');
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Speichern fehlgeschlagen: $e')),
+                    SnackBar(content: Text(context.l10n.saveFailed('$e'))),
                   );
                 }
               },
-              child: Text('Los geht’s'),
+              child: Text(context.l10n.profileSetupStart),
             ),
           ],
         ),

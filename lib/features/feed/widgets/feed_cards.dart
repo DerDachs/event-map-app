@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/models/event.dart';
+import '../../../l10n/l10n.dart';
 import '../../../theme/brand_tokens.dart';
 import '../../../utils/formatters.dart';
 import '../../events/screens/event_detail_screen.dart';
@@ -19,13 +20,13 @@ String? coverImage(Event event) =>
     (event.images.where((i) => i.isStandard).firstOrNull ?? event.images.firstOrNull)?.url;
 
 /// "heute", "gestern", "vor 3 Tagen", else the date.
-String relativeDay(DateTime time, DateTime now) {
+String relativeDay(DateTime time, DateTime now, AppLocalizations l) {
   final days = calendarDaysBetween(time, now);
   return switch (days) {
-    <= 0 => 'heute',
-    1 => 'gestern',
-    < 7 => 'vor $days Tagen',
-    _ => DateFormat('d. MMMM', 'de').format(time),
+    <= 0 => l.relToday,
+    1 => l.relYesterday,
+    < 7 => l.relDaysAgo(days),
+    _ => DateFormat.MMMMd().format(time),
   };
 }
 
@@ -131,13 +132,13 @@ class HighlightCard extends StatelessWidget {
                     children: [
                       Wrap(spacing: 6, children: [
                         _Pill(
-                          label: marketStatusLabel(event, now),
+                          label: marketStatusLabel(event, now, context.l10n),
                           color: accent == null || accent == SeasonAccent.christmas ? BrandColors.gold : accent!.color,
                           textColor:
                               accent == null || accent == SeasonAccent.christmas ? BrandColors.ink : BrandColors.white,
                         ),
                         if (isFavorite)
-                          const _Pill(label: 'Favorit', color: BrandColors.white, textColor: BrandColors.ink),
+                          _Pill(label: context.l10n.pillFavorite, color: BrandColors.white, textColor: BrandColors.ink),
                       ]),
                       const SizedBox(height: 8),
                       Text(event.name,
@@ -148,7 +149,7 @@ class HighlightCard extends StatelessWidget {
                       Text(
                         [
                           formatDateRange(event.startTime, event.endTime),
-                          if (event.stands.isNotEmpty) '${event.stands.length} Stände',
+                          if (event.stands.isNotEmpty) context.l10n.standsCount(event.stands.length),
                         ].join(' · '),
                         style: text.bodyMedium?.copyWith(color: BrandColors.darkText),
                       ),
@@ -209,7 +210,7 @@ class _FeedPostCardState extends State<FeedPostCard> {
     final ok = await launchUrl(Uri.parse(url), mode: LaunchMode.inAppBrowserView);
     if (!ok && mounted) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Seite konnte nicht geöffnet werden.')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.pageOpenFailed)));
     }
   }
 
@@ -244,7 +245,7 @@ class _FeedPostCardState extends State<FeedPostCard> {
                 children: [
                   Icon(style.icon, size: 18, color: style.color),
                   const SizedBox(width: 6),
-                  Text(post.type.label.toUpperCase(),
+                  Text(context.l10n.feedPostTypeLabel(post.type).toUpperCase(),
                       style: text.labelSmall?.copyWith(
                           color: style.color, fontWeight: FontWeight.w800, letterSpacing: 1.1)),
                   if (post.pinned) ...[
@@ -252,7 +253,7 @@ class _FeedPostCardState extends State<FeedPostCard> {
                     Icon(Icons.push_pin, size: 14, color: style.color),
                   ],
                   const Spacer(),
-                  Text(relativeDay(post.publishAt, widget.now), style: text.labelSmall),
+                  Text(relativeDay(post.publishAt, widget.now, context.l10n), style: text.labelSmall),
                 ],
               ),
             ),
@@ -278,13 +279,13 @@ class _FeedPostCardState extends State<FeedPostCard> {
                   if (widget.event != null)
                     TextButton.icon(
                       icon: const Icon(Icons.map_outlined, size: 18),
-                      label: const Text('Zum Markt'),
+                      label: Text(context.l10n.toMarket),
                       onPressed: () => openEvent(context, widget.event!),
                     ),
                   if (post.linkUrl != null)
                     TextButton.icon(
                       icon: const Icon(Icons.open_in_new, size: 18),
-                      label: Text(post.linkLabel ?? 'Mehr erfahren'),
+                      label: Text(post.linkLabel ?? context.l10n.readMore),
                       onPressed: () => _openLink(post.linkUrl!),
                     ),
                 ],
@@ -341,11 +342,11 @@ class MarketNewsCard extends StatelessWidget {
                     Row(children: [
                       Icon(icon, size: 16, color: color),
                       const SizedBox(width: 4),
-                      Text(marketStatusLabel(item.event, now),
+                      Text(marketStatusLabel(item.event, now, context.l10n),
                           style: text.labelMedium?.copyWith(color: color, fontWeight: FontWeight.w700)),
                     ]),
                     const SizedBox(height: 4),
-                    Text(item.title,
+                    Text(item.title(context.l10n),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: text.titleSmall?.copyWith(fontWeight: FontWeight.w700)),

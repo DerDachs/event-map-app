@@ -1,6 +1,5 @@
-import 'package:intl/intl.dart';
-
 import '../../../data/models/event.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../seasons/models/season.dart';
 import '../models/feed_post.dart';
 
@@ -31,7 +30,7 @@ class SeasonBanner {
 
   const SeasonBanner._(this.season, this.days, this.headline, this.subline);
 
-  factory SeasonBanner.of(Season season, DateTime now) {
+  factory SeasonBanner.of(Season season, DateTime now, AppLocalizations l) {
     final target = season.countdownTo;
     final days = target == null ? null : calendarDaysBetween(now, target);
     final counting = days != null && days >= 0 && season.countdownLabel.isNotEmpty;
@@ -41,9 +40,9 @@ class SeasonBanner {
     if (next != null) {
       final d = calendarDaysBetween(now, next.date);
       milestone = switch (d) {
-        0 => 'Heute: ${next.label}',
-        1 => 'Morgen: ${next.label}',
-        _ => '${next.label} am ${DateFormat('d. MMMM', 'de').format(next.date)}',
+        0 => l.bannerToday(next.label),
+        1 => l.bannerTomorrow(next.label),
+        _ => l.bannerMilestoneOn(next.label, next.date),
       };
     }
 
@@ -52,9 +51,9 @@ class SeasonBanner {
     }
     final label = season.countdownLabel;
     final headline = switch (days) {
-      0 => 'Heute ist $label',
-      1 => 'Morgen ist $label',
-      _ => 'Tage bis $label',
+      0 => l.countdownToday(label),
+      1 => l.countdownTomorrow(label),
+      _ => l.countdownDays(label),
     };
     return SeasonBanner._(season, days, headline, milestone ?? season.name);
   }
@@ -64,22 +63,22 @@ class SeasonBanner {
 }
 
 /// Short status of a market relative to [now], e.g. "Öffnet in 3 Tagen".
-String marketStatusLabel(Event event, DateTime now) {
-  if (event.endTime.isBefore(now)) return 'Vorbei';
+String marketStatusLabel(Event event, DateTime now, AppLocalizations l) {
+  if (event.endTime.isBefore(now)) return l.statusOver;
   if (event.startTime.isAfter(now)) {
     final days = calendarDaysBetween(now, event.startTime);
     return switch (days) {
-      0 => 'Öffnet heute',
-      1 => 'Öffnet morgen',
-      < 15 => 'Öffnet in $days Tagen',
-      _ => 'Ab ${DateFormat('d. MMMM', 'de').format(event.startTime)}',
+      0 => l.statusOpensToday,
+      1 => l.statusOpensTomorrow,
+      < 15 => l.statusOpensInDays(days),
+      _ => l.statusFrom(event.startTime),
     };
   }
   final left = calendarDaysBetween(now, event.endTime);
   return switch (left) {
-    0 => 'Letzter Tag',
-    1 => 'Läuft · noch bis morgen',
-    _ => 'Läuft · noch $left Tage',
+    0 => l.statusLastDay,
+    1 => l.statusUntilTomorrow,
+    _ => l.statusDaysLeft(left),
   };
 }
 
@@ -104,11 +103,11 @@ class MarketItem extends FeedItem {
   final MarketNews news;
   const MarketItem(this.event, this.news, DateTime time) : super(time);
 
-  String get title => switch (news) {
-        MarketNews.opensToday => '${event.name} öffnet heute',
-        MarketNews.opensSoon => '${event.name} öffnet bald',
-        MarketNews.lastDays => 'Letzte Chance: ${event.name}',
-        MarketNews.isNew => 'Neu in Market Mate: ${event.name}',
+  String title(AppLocalizations l) => switch (news) {
+        MarketNews.opensToday => l.newsOpensToday(event.name),
+        MarketNews.opensSoon => l.newsOpensSoon(event.name),
+        MarketNews.lastDays => l.newsLastDays(event.name),
+        MarketNews.isNew => l.newsIsNew(event.name),
       };
 }
 
@@ -142,6 +141,7 @@ HomeFeed buildHomeFeed({
   required List<FeedPost> posts,
   required Set<String> favoriteIds,
   required DateTime now,
+  required AppLocalizations l,
   Season? season,
   int maxItems = 30,
 }) {
@@ -191,7 +191,7 @@ HomeFeed buildHomeFeed({
 
   return HomeFeed(
     season: season,
-    banner: season == null ? null : SeasonBanner.of(season, now),
+    banner: season == null ? null : SeasonBanner.of(season, now, l),
     highlight: highlight,
     items: [...pinned, ...rest].take(maxItems).toList(),
     favorites: favorites,

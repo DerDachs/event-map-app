@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 class AppleSignInButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -10,7 +11,7 @@ class AppleSignInButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SignInWithAppleButton(
       onPressed: onPressed,
-      text: 'Mit Apple anmelden',
+      text: context.l10n.signInWithApple,
       style: SignInWithAppleButtonStyle.black,
     );
   }

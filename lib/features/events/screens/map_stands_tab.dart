@@ -15,6 +15,7 @@ import '../../favorites/providers/favorite_provider.dart';
 import '../../market_builder/models/stand_categories.dart';
 import '../../market_builder/widgets/category_marker.dart';
 import '../../stands/providers/stand_provider.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 /// How a stand category looks on the map and in the list.
 class _CategoryStyle {
@@ -63,14 +64,14 @@ class _MapStandsTabState extends ConsumerState<MapStandsTab> {
     final builtIn = standCategories.where((c) => c.key == key);
     if (builtIn.isNotEmpty) {
       final c = builtIn.first;
-      return _CategoryStyle(c.key, c.name, c.icon, c.color);
+      return _CategoryStyle(c.key, context.l10n.standCategoryName(c), c.icon, c.color);
     }
     final doc = fromFirestore[key];
     if (doc != null) {
       return _CategoryStyle(doc.id, doc.name, doc.icon ?? Icons.storefront, const Color(0xFF6D4C41));
     }
     final other = standCategories.last;
-    return _CategoryStyle(key ?? other.key, other.name, other.icon, other.color);
+    return _CategoryStyle(key ?? other.key, context.l10n.standCategoryName(other), other.icon, other.color);
   }
 
   bool _matches(Stand stand, _CategoryStyle style) {
@@ -175,7 +176,7 @@ class _MapStandsTabState extends ConsumerState<MapStandsTab> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Der Lageplan konnte nicht geladen werden.')),
+          SnackBar(content: Text(context.l10n.planLoadFailed)),
         );
       }
     } finally {
@@ -195,7 +196,7 @@ class _MapStandsTabState extends ConsumerState<MapStandsTab> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => _Message(
         icon: Icons.cloud_off,
-        text: 'Die Stände konnten nicht geladen werden.',
+        text: context.l10n.standsLoadFailed,
         onRetry: () => ref.invalidate(standsForEventProvider(widget.event.id)),
       ),
       data: (stands) {
@@ -248,7 +249,7 @@ class _MapStandsTabState extends ConsumerState<MapStandsTab> {
                           controller: _searchController,
                           textInputAction: TextInputAction.search,
                           decoration: InputDecoration(
-                            hintText: 'Stand suchen, z. B. Crêpes',
+                            hintText: context.l10n.standSearchHint,
                             prefixIcon: const Icon(Icons.search),
                             suffixIcon: _query.isEmpty
                                 ? null
@@ -301,7 +302,7 @@ class _MapStandsTabState extends ConsumerState<MapStandsTab> {
                 children: [
                   if (widget.event.plan != null)
                     _MapButton(
-                      tooltip: _showPlan ? 'Lageplan ausblenden' : 'Lageplan einblenden',
+                      tooltip: _showPlan ? context.l10n.planHide : context.l10n.planShow,
                       icon: _planLoading
                           ? const SizedBox(
                               width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
@@ -310,7 +311,7 @@ class _MapStandsTabState extends ConsumerState<MapStandsTab> {
                     ),
                   const SizedBox(height: 8),
                   _MapButton(
-                    tooltip: 'Ganzen Markt zeigen',
+                    tooltip: context.l10n.showWholeMarket,
                     icon: const Icon(Icons.zoom_out_map),
                     onPressed: () => _fitToStands(stands),
                   ),
@@ -402,7 +403,7 @@ class _StandSheet extends ConsumerWidget {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: IconButton(
-          tooltip: isFavorite ? 'Aus Favoriten entfernen' : 'Merken',
+          tooltip: isFavorite ? context.l10n.favoriteRemove : context.l10n.favoriteAdd,
           icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: Colors.red),
           onPressed: () => ref.read(favoritesProvider.notifier).toggleFavorite('stands', stand.id),
         ),
@@ -434,15 +435,15 @@ class _StandSheet extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               child: Text(
                 visible.length == stands.length
-                    ? '${stands.length} Stände – nach oben ziehen für die Liste'
-                    : '${visible.length} von ${stands.length} Ständen',
+                    ? context.l10n.standsPullUp(stands.length)
+                    : context.l10n.standsFiltered(visible.length, stands.length),
                 style: Theme.of(context).textTheme.titleSmall,
               ),
             ),
           if (visible.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('Kein Stand passt zur Suche.', textAlign: TextAlign.center),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(context.l10n.noStandMatches, textAlign: TextAlign.center),
             ),
           for (final stand in visible)
             if (stand.id != selected?.id) tile(stand),
@@ -468,7 +469,7 @@ class _Message extends StatelessWidget {
             Icon(icon, size: 48, color: Colors.grey),
             const SizedBox(height: 12),
             Text(text),
-            TextButton(onPressed: onRetry, child: const Text('Erneut versuchen')),
+            TextButton(onPressed: onRetry, child: Text(context.l10n.retry)),
           ],
         ),
       );

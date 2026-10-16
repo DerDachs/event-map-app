@@ -8,6 +8,7 @@ import '../../../providers/state_provider.dart';
 import '../../../utils/custom_widgets.dart'; // Utility for reusable components
 import '../../../utils/apple_sign_in_button.dart'; // Apple sign-in button
 import '../services/auth_errors.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   @override
@@ -39,8 +40,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
+                child: Image.asset(
+                  'assets/brand/market-mate-logo.png',
+                  height: 64,
+                  semanticLabel: 'Market Mate',
+                ),
+              ),
+              const SizedBox(height: 32),
+              Center(
                 child: Text(
-                  'Willkommen bei Market Mate',
+                  context.l10n.loginWelcome,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).primaryColor,
@@ -55,16 +64,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Email Input
                     CustomTextFormField(
                       controller: _emailController,
-                      label: 'E-Mail',
+                      label: context.l10n.emailLabel,
                       icon: Icons.email,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Bitte gib deine E-Mail ein';
+                          return context.l10n.loginEmailRequired;
                         }
                         final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                         if (!emailRegex.hasMatch(value)) {
-                          return 'Bitte gib eine gültige E-Mail ein';
+                          return context.l10n.loginEmailInvalid;
                         }
                         return null;
                       },
@@ -74,12 +83,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Password Input
                     CustomTextFormField(
                       controller: _passwordController,
-                      label: 'Passwort',
+                      label: context.l10n.passwordLabel,
                       icon: Icons.lock,
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Bitte gib dein Passwort ein';
+                          return context.l10n.loginPasswordRequired;
                         }
                         return null;
                       },
@@ -90,7 +99,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     isLoading
                         ? Center(child: CircularProgressIndicator())
                         : CustomElevatedButton(
-                      label: 'Anmelden',
+                      label: context.l10n.loginButton,
                       onPressed: () async {
                         if (_formKey.currentState?.validate() ?? false) {
                           try {
@@ -114,7 +123,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 context, '/home');
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(authErrorMessage(e))),
+                              SnackBar(content: Text(authErrorMessage(e, context.l10n))),
                             );
                           } finally {
                             ref
@@ -134,7 +143,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     // Register and Forgot Password Links
                     CustomTextButton(
-                      label: 'Noch kein Konto? Jetzt registrieren',
+                      label: context.l10n.loginNoAccount,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -144,7 +153,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       },
                     ),
                     CustomTextButton(
-                      label: 'Passwort vergessen?',
+                      label: context.l10n.loginForgotPassword,
                       onPressed: () {
                         Navigator.push(
                           context,

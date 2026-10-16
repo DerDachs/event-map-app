@@ -5,7 +5,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../features/auth/services/session.dart';
+import '../l10n/locale_provider.dart';
 import '../utils/app_links.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -58,15 +60,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
     final ok = await launchUrl(Uri.parse(url), mode: LaunchMode.inAppBrowserView);
     if (!ok && mounted) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Seite konnte nicht geöffnet werden.')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.pageOpenFailed)));
     }
   }
 
   String get _locationText => switch (_location) {
-        PermissionStatus.granted || PermissionStatus.limited => 'Erlaubt, während die App genutzt wird',
-        PermissionStatus.denied => 'Noch nicht erlaubt',
+        PermissionStatus.granted || PermissionStatus.limited => context.l10n.locationAllowed,
+        PermissionStatus.denied => context.l10n.locationNotYet,
         PermissionStatus.permanentlyDenied || PermissionStatus.restricted =>
-          'Nicht erlaubt – in den iOS-Einstellungen änderbar',
+          context.l10n.locationDenied,
         _ => '…',
       };
 
@@ -76,57 +78,70 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
           color: Theme.of(context).colorScheme.primary,
         );
     return Scaffold(
-      appBar: AppBar(title: const Text('Einstellungen')),
+      appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: ListView(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Text('Datenschutz', style: header),
+            child: Text(context.l10n.settingsLanguage, style: header),
+          ),
+          for (final language in AppLanguage.values)
+            RadioListTile<AppLanguage>(
+              value: language,
+              groupValue: ref.watch(appLanguageProvider),
+              title: Text(switch (language) {
+                AppLanguage.system => context.l10n.languageSystem,
+                AppLanguage.de => context.l10n.languageGerman,
+                AppLanguage.en => context.l10n.languageEnglish,
+              }),
+              onChanged: (v) => ref.read(appLanguageProvider.notifier).set(v!),
+            ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Text(context.l10n.settingsPrivacy, style: header),
           ),
           ListTile(
             leading: const Icon(Icons.location_on_outlined),
-            title: const Text('Standort'),
-            subtitle: Text(
-              '$_locationText\nZeigt deine Position auf der Marktkarte. '
-              'Der Standort wird nicht gespeichert.',
-            ),
+            title: Text(context.l10n.settingsLocation),
+            subtitle: Text(context.l10n.settingsLocationInfo(_locationText)),
             isThreeLine: true,
             trailing: const Icon(Icons.chevron_right),
             onTap: _changeLocation,
           ),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
-            title: const Text('Datenschutzerklärung'),
+            title: Text(context.l10n.privacyPolicy),
             trailing: const Icon(Icons.open_in_new, size: 18),
             onTap: () => _open(privacyPolicyUrl),
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
-            title: const Text('Impressum'),
+            title: Text(context.l10n.imprint),
             trailing: const Icon(Icons.open_in_new, size: 18),
             onTap: () => _open(imprintUrl),
           ),
           const Divider(),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-            child: Text('Konto', style: header),
+            child: Text(context.l10n.settingsAccount, style: header),
           ),
           ListTile(
             leading: const Icon(Icons.account_circle_outlined),
-            title: const Text('Profil bearbeiten'),
+            title: Text(context.l10n.editProfile),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.pushNamed(context, '/profile'),
           ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Abmelden', style: TextStyle(color: Colors.red)),
+            title: Text(context.l10n.signOut, style: const TextStyle(color: Colors.red)),
             onTap: () => signOutAndReturnToStart(context, ref),
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.storefront_outlined),
             title: const Text('Market Mate'),
-            subtitle: Text(_version.isEmpty ? '' : 'Version $_version'),
+            subtitle: Text(_version.isEmpty ? '' : context.l10n.appVersion(_version)),
           ),
         ],
       ),

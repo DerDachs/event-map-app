@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../data/models/event.dart';
 import '../../../utils/formatters.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 /// Dates, pictures and practical information about a market. Used on the
 /// detail page before joining and in the "Infos" tab afterwards.
@@ -17,12 +18,12 @@ class EventInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final rows = <(IconData, String, String)>[
-      (Icons.calendar_today_outlined, 'Zeitraum', formatDateRange(event.startTime, event.endTime)),
+      (Icons.calendar_today_outlined, context.l10n.infoDates, formatDateRange(event.startTime, event.endTime)),
       if ((event.openingHours ?? const []).isNotEmpty)
-        (Icons.schedule, 'Öffnungszeiten', formatOpeningHours(event.openingHours!)),
-      if ((event.ticketPrice ?? '').isNotEmpty) (Icons.confirmation_number_outlined, 'Eintritt', event.ticketPrice!),
-      if ((event.organizerName ?? '').isNotEmpty) (Icons.business_outlined, 'Veranstalter', event.organizerName!),
-      if (event.stands.isNotEmpty) (Icons.storefront_outlined, 'Stände', '${event.stands.length}'),
+        (Icons.schedule, context.l10n.infoOpeningHours, formatOpeningHours(event.openingHours!)),
+      if ((event.ticketPrice ?? '').isNotEmpty) (Icons.confirmation_number_outlined, context.l10n.infoEntry, event.ticketPrice!),
+      if ((event.organizerName ?? '').isNotEmpty) (Icons.business_outlined, context.l10n.infoOrganizer, event.organizerName!),
+      if (event.stands.isNotEmpty) (Icons.storefront_outlined, context.l10n.infoStands, '${event.stands.length}'),
     ];
 
     return Column(
@@ -64,9 +65,9 @@ class EventInfo extends StatelessWidget {
           ),
         if (action != null)
           Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), child: action),
-        if (event.description.isNotEmpty) _Section(title: 'Über den Markt', body: event.description),
-        if ((event.eventTip ?? '').isNotEmpty) _Section(title: 'Unser Tipp', body: event.eventTip!),
-        if ((event.organizerInfo ?? '').isNotEmpty) _Section(title: 'Veranstalter', body: event.organizerInfo!),
+        if (event.description.isNotEmpty) _Section(title: context.l10n.infoAbout, body: event.description),
+        if ((event.eventTip ?? '').isNotEmpty) _Section(title: context.l10n.infoTip, body: event.eventTip!),
+        if ((event.organizerInfo ?? '').isNotEmpty) _Section(title: context.l10n.infoOrganizer, body: event.organizerInfo!),
         if (showMap && (event.latitude != 0 || event.longitude != 0))
           Padding(
             padding: const EdgeInsets.all(16),

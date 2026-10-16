@@ -12,6 +12,7 @@ const root = path.resolve(__dirname, '../..');
 const logo = (f) => path.join(root, 'brand/logo', f);
 const png = (f) => path.join(root, 'brand/logo/png', f);
 const site = (f) => path.join(root, 'website/assets', f);
+const app = (f) => path.join(root, f);
 
 // [svg, output, height in px, background or null for transparent]
 const targets = [
@@ -26,10 +27,17 @@ const targets = [
   // Website
   ['favicon.svg', site('favicon.png'), 64, null],
   ['market-mate-app-icon.svg', site('apple-touch-icon.png'), 180, null],
+  // App: launcher icons (flutter_launcher_icons), launch screen and login logo
+  ['market-mate-app-icon-foreground.svg', png('market-mate-app-icon-foreground-1024.png'), 1024, null],
+  ['market-mate-mark.svg', app('ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png'), 120, null],
+  ['market-mate-mark.svg', app('ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png'), 240, null],
+  ['market-mate-mark.svg', app('ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png'), 360, null],
+  ['market-mate-logo.svg', app('assets/brand/market-mate-logo.png'), 192, null],
 ];
 
 (async () => {
   fs.mkdirSync(path.join(root, 'brand/logo/png'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'assets/brand'), { recursive: true });
   const browser = await chromium.launch();
   const page = await browser.newPage();
 

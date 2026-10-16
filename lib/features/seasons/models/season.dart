@@ -31,9 +31,12 @@ class SeasonMilestone {
   final String label;
   final DateTime date;
 
-  const SeasonMilestone(this.label, this.date);
+  /// English label; empty falls back to [label].
+  final String labelEn;
 
-  Map<String, dynamic> toMap() => {'label': label, 'date': Timestamp.fromDate(date)};
+  const SeasonMilestone(this.label, this.date, {this.labelEn = ''});
+
+  Map<String, dynamic> toMap() => {'label': label, 'labelEn': labelEn, 'date': Timestamp.fromDate(date)};
 }
 
 /// A time of year with its own markets and look, e.g. "Weihnachtsmärkte
@@ -63,6 +66,11 @@ class Season {
   /// Switched-off seasons never show.
   final bool active;
 
+  /// English texts (stored under `en`); empty fields fall back to German.
+  final String nameEn;
+  final String taglineEn;
+  final String countdownLabelEn;
+
   const Season({
     required this.id,
     required this.name,
@@ -75,7 +83,29 @@ class Season {
     this.countdownLabel = '',
     this.milestones = const [],
     this.active = true,
+    this.nameEn = '',
+    this.taglineEn = '',
+    this.countdownLabelEn = '',
   });
+
+  /// The season's texts in [languageCode]; German is the original.
+  Season localized(String languageCode) {
+    if (languageCode != 'en') return this;
+    String pick(String en, String de) => en.isEmpty ? de : en;
+    return Season(
+      id: id,
+      name: pick(nameEn, name),
+      tagline: pick(taglineEn, tagline),
+      startsAt: startsAt,
+      endsAt: endsAt,
+      marketTypes: marketTypes,
+      accent: accent,
+      countdownTo: countdownTo,
+      countdownLabel: pick(countdownLabelEn, countdownLabel),
+      milestones: [for (final m in milestones) SeasonMilestone(pick(m.labelEn, m.label), m.date)],
+      active: active,
+    );
+  }
 
   bool isRunningAt(DateTime now) => active && !startsAt.isAfter(now) && endsAt.isAfter(now);
 
@@ -83,6 +113,7 @@ class Season {
 
   factory Season.fromMap(String id, Map<String, dynamic> data) {
     DateTime? time(Object? v) => v is Timestamp ? v.toDate() : (v is String ? DateTime.tryParse(v) : null);
+    final en = data['en'] is Map ? Map<String, dynamic>.from(data['en'] as Map) : const <String, dynamic>{};
     return Season(
       id: id,
       name: data['name'] as String? ?? '',
@@ -95,9 +126,13 @@ class Season {
       countdownLabel: data['countdownLabel'] as String? ?? '',
       milestones: [
         for (final m in (data['milestones'] as List? ?? const []).whereType<Map>())
-          if (time(m['date']) != null && m['label'] is String) SeasonMilestone(m['label'] as String, time(m['date'])!),
+          if (time(m['date']) != null && m['label'] is String)
+            SeasonMilestone(m['label'] as String, time(m['date'])!, labelEn: m['labelEn'] as String? ?? ''),
       ]..sort((a, b) => a.date.compareTo(b.date)),
       active: data['active'] != false,
+      nameEn: en['name'] as String? ?? '',
+      taglineEn: en['tagline'] as String? ?? '',
+      countdownLabelEn: en['countdownLabel'] as String? ?? '',
     );
   }
 
@@ -115,6 +150,7 @@ class Season {
         'countdownLabel': countdownLabel,
         'milestones': milestones.map((m) => m.toMap()).toList(),
         'active': active,
+        'en': {'name': nameEn, 'tagline': taglineEn, 'countdownLabel': countdownLabelEn},
       };
 }
 

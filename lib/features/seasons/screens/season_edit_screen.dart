@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../l10n/l10n.dart';
 import '../../feed/logic/home_feed.dart';
 import '../../feed/widgets/feed_cards.dart';
 import '../models/market_types.dart';
@@ -23,6 +24,9 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
   late final _name = TextEditingController(text: widget.season?.name);
   late final _tagline = TextEditingController(text: widget.season?.tagline);
   late final _countdownLabel = TextEditingController(text: widget.season?.countdownLabel);
+  late final _nameEn = TextEditingController(text: widget.season?.nameEn);
+  late final _taglineEn = TextEditingController(text: widget.season?.taglineEn);
+  late final _countdownLabelEn = TextEditingController(text: widget.season?.countdownLabelEn);
   late DateTimeRange? _window = widget.season == null
       ? null
       : DateTimeRange(
@@ -43,6 +47,9 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
     _name.dispose();
     _tagline.dispose();
     _countdownLabel.dispose();
+    _nameEn.dispose();
+    _taglineEn.dispose();
+    _countdownLabelEn.dispose();
     super.dispose();
   }
 
@@ -62,6 +69,9 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
       countdownLabel: _countdownLabel.text.trim(),
       milestones: [..._milestones]..sort((a, b) => a.date.compareTo(b.date)),
       active: _active,
+      nameEn: _nameEn.text.trim(),
+      taglineEn: _taglineEn.text.trim(),
+      countdownLabelEn: _countdownLabelEn.text.trim(),
     );
   }
 
@@ -123,6 +133,7 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
 
   Future<void> _addMilestone() async {
     final label = TextEditingController();
+    final labelEn = TextEditingController();
     DateTime? date;
     final result = await showDialog<SeasonMilestone>(
       context: context,
@@ -136,6 +147,10 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
                 controller: label,
                 autofocus: true,
                 decoration: const InputDecoration(labelText: 'Bezeichnung', hintText: 'z. B. 1. Advent'),
+              ),
+              TextField(
+                controller: labelEn,
+                decoration: const InputDecoration(labelText: 'Englisch (optional)', hintText: '1st Sunday of Advent'),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -153,7 +168,7 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
             FilledButton(
               onPressed: () {
                 if (label.text.trim().isEmpty || date == null) return;
-                Navigator.pop(context, SeasonMilestone(label.text.trim(), date!));
+                Navigator.pop(context, SeasonMilestone(label.text.trim(), date!, labelEn: labelEn.text.trim()));
               },
               child: const Text('Hinzufügen'),
             ),
@@ -162,6 +177,7 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
       ),
     );
     label.dispose();
+    labelEn.dispose();
     if (result != null) setState(() => _milestones.add(result));
   }
 
@@ -187,7 +203,7 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: [
           if (preview != null && preview.name.isNotEmpty) ...[
-            SeasonBannerCard(banner: SeasonBanner.of(preview, DateTime.now())),
+            SeasonBannerCard(banner: SeasonBanner.of(preview, DateTime.now(), context.l10n)),
             const SizedBox(height: 16),
           ],
           TextField(
@@ -282,7 +298,7 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
               contentPadding: EdgeInsets.zero,
               dense: true,
               leading: const Icon(Icons.event_outlined),
-              title: Text(m.label),
+              title: Text(m.labelEn.isEmpty ? m.label : '${m.label} / ${m.labelEn}'),
               subtitle: Text(_dateFormat.format(m.date)),
               trailing: IconButton(
                 icon: const Icon(Icons.close),
@@ -296,6 +312,22 @@ class _SeasonEditScreenState extends ConsumerState<SeasonEditScreen> {
               label: const Text('Termin hinzufügen'),
               onPressed: _addMilestone,
             ),
+          ),
+          ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            initiallyExpanded: _nameEn.text.isNotEmpty,
+            title: const Text('Englische Fassung (optional)'),
+            children: [
+              TextField(controller: _nameEn, decoration: const InputDecoration(labelText: 'Name')),
+              const SizedBox(height: 12),
+              TextField(controller: _taglineEn, decoration: const InputDecoration(labelText: 'Tagline')),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _countdownLabelEn,
+                decoration: const InputDecoration(labelText: 'Countdown to …', hintText: 'Christmas Eve'),
+              ),
+              const SizedBox(height: 12),
+            ],
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/event.dart';
+import '../../../l10n/l10n.dart';
 import '../../../widgets/profile_menu.dart';
 import '../../events/providers/event_provider.dart';
 import '../../events/screens/event_card.dart';
@@ -16,7 +17,10 @@ import '../widgets/feed_cards.dart';
 /// Start page: season banner, the market of the moment, favourites, news
 /// and all markets.
 class HomeFeedScreen extends ConsumerWidget {
-  const HomeFeedScreen({super.key});
+  /// Current time; replaceable for store screenshots of other seasons.
+  final DateTime Function() clock;
+
+  const HomeFeedScreen({super.key, this.clock = DateTime.now});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +32,7 @@ class HomeFeedScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Market Mate'),
+        title: Text(context.l10n.appTitle),
         actions: const [ProfileMenuButton()],
       ),
       body: eventsAsync.when(
@@ -39,22 +43,24 @@ class HomeFeedScreen extends ConsumerWidget {
             children: [
               const Icon(Icons.cloud_off, size: 48, color: Colors.grey),
               const SizedBox(height: 12),
-              const Text('Die Märkte konnten nicht geladen werden.'),
+              Text(context.l10n.marketsLoadFailed),
               TextButton(
                 onPressed: () => ref.invalidate(eventsProvider),
-                child: const Text('Erneut versuchen'),
+                child: Text(context.l10n.retry),
               ),
             ],
           ),
         ),
         data: (events) {
-          final now = DateTime.now();
+          final now = clock();
+          final lang = Localizations.localeOf(context).languageCode;
           final feed = buildHomeFeed(
             events: events,
-            posts: posts,
+            posts: [for (final p in posts) p.localized(lang)],
             favoriteIds: favoriteIds,
             now: now,
-            season: currentSeason(seasons, now),
+            l: context.l10n,
+            season: currentSeason(seasons, now)?.localized(lang),
           );
           final eventsById = {for (final e in events) e.id: e};
 
@@ -76,9 +82,9 @@ class HomeFeedScreen extends ConsumerWidget {
                     accent: feed.season?.accent,
                   ),
                 if (feed.favorites.any((e) => e.id != feed.highlight?.id))
-                  _EventRow(title: 'Deine Favoriten', events: feed.favorites),
+                  _EventRow(title: context.l10n.homeFavorites, events: feed.favorites),
                 if (feed.items.isNotEmpty) ...[
-                  const _SectionTitle('Neuigkeiten'),
+                  _SectionTitle(context.l10n.homeNews),
                   for (final item in feed.items)
                     switch (item) {
                       PostItem(:final post) => FeedPostCard(
@@ -91,19 +97,19 @@ class HomeFeedScreen extends ConsumerWidget {
                     },
                 ],
                 if (events.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(32),
+                  Padding(
+                    padding: const EdgeInsets.all(32),
                     child: Column(
                       children: [
-                        Icon(Icons.storefront_outlined, size: 56, color: Colors.grey),
-                        SizedBox(height: 12),
-                        Text('Noch keine Märkte vorhanden.'),
+                        const Icon(Icons.storefront_outlined, size: 56, color: Colors.grey),
+                        const SizedBox(height: 12),
+                        Text(context.l10n.noMarkets),
                       ],
                     ),
                   ),
-                if (feed.running.isNotEmpty) _EventRow(title: 'Läuft gerade', events: feed.running),
-                if (feed.upcoming.isNotEmpty) _EventRow(title: 'Demnächst', events: feed.upcoming),
-                if (feed.past.isNotEmpty) _EventRow(title: 'Vergangene Märkte', events: feed.past),
+                if (feed.running.isNotEmpty) _EventRow(title: context.l10n.homeRunning, events: feed.running),
+                if (feed.upcoming.isNotEmpty) _EventRow(title: context.l10n.homeUpcoming, events: feed.upcoming),
+                if (feed.past.isNotEmpty) _EventRow(title: context.l10n.homePast, events: feed.past),
               ],
             ),
           );

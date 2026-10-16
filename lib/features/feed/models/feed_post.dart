@@ -41,6 +41,11 @@ class FeedPost {
   /// Only shown while this season runs; null = all year.
   final String? seasonId;
 
+  /// English version (stored under `en`); empty fields fall back to German.
+  final String titleEn;
+  final String bodyEn;
+  final String? linkLabelEn;
+
   const FeedPost({
     required this.id,
     required this.type,
@@ -54,7 +59,29 @@ class FeedPost {
     this.expiresAt,
     this.pinned = false,
     this.seasonId,
+    this.titleEn = '',
+    this.bodyEn = '',
+    this.linkLabelEn,
   });
+
+  /// The post in [languageCode]; German is the original.
+  FeedPost localized(String languageCode) {
+    if (languageCode != 'en' || titleEn.isEmpty) return this;
+    return FeedPost(
+      id: id,
+      type: type,
+      title: titleEn,
+      body: bodyEn.isEmpty ? body : bodyEn,
+      imageUrl: imageUrl,
+      eventId: eventId,
+      linkUrl: linkUrl,
+      linkLabel: linkLabelEn ?? linkLabel,
+      publishAt: publishAt,
+      expiresAt: expiresAt,
+      pinned: pinned,
+      seasonId: seasonId,
+    );
+  }
 
   bool isVisibleAt(DateTime now) =>
       !publishAt.isAfter(now) && (expiresAt == null || expiresAt!.isAfter(now));
@@ -62,6 +89,7 @@ class FeedPost {
   factory FeedPost.fromMap(String id, Map<String, dynamic> data) {
     DateTime? time(Object? v) => v is Timestamp ? v.toDate() : (v is String ? DateTime.tryParse(v) : null);
     String? text(Object? v) => v is String && v.trim().isNotEmpty ? v.trim() : null;
+    final en = data['en'] is Map ? Map<String, dynamic>.from(data['en'] as Map) : const <String, dynamic>{};
     return FeedPost(
       id: id,
       type: FeedPostType.fromKey(data['type'] as String?),
@@ -75,6 +103,9 @@ class FeedPost {
       expiresAt: time(data['expiresAt']),
       pinned: data['pinned'] == true,
       seasonId: text(data['seasonId']),
+      titleEn: en['title'] as String? ?? '',
+      bodyEn: en['body'] as String? ?? '',
+      linkLabelEn: text(en['linkLabel']),
     );
   }
 
@@ -93,5 +124,6 @@ class FeedPost {
         'expiresAt': expiresAt == null ? null : Timestamp.fromDate(expiresAt!),
         'pinned': pinned,
         'seasonId': seasonId,
+        'en': {'title': titleEn, 'body': bodyEn, 'linkLabel': linkLabelEn},
       };
 }

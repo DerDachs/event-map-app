@@ -191,8 +191,8 @@ kommt dort über Farbe und Icon. Bebas Neue optional für große Überschriften 
 | Kanal | Vorgaben |
 |---|---|
 | **Website** | `website/style.css` nutzt die Tokens. Header = Logo horizontal (unter 420 px nur Zeichen), Footer = „ein Projekt von cellarworks“. Social-Vorschau: `website/assets/og-image.png` (1200 × 630). |
-| **App** | Seed-Farbe `BrandColors.red` (`lib/theme/brand_tokens.dart`). App-Icon aus `brand/logo/png/market-mate-app-icon-1024.png`. |
-| **App Store** | Icon wie App. Screenshots auf Papier/Sand mit Bebas-Headline (max. 4 Wörter) über dem Gerät. Anbieter: cellarworks. |
+| **App** | Theme in `lib/theme/app_theme.dart` (Papier-Hintergrund, weiße Karten mit Linie, Pill-Buttons, Marktrot). App-Icon und Android-Vordergrund aus `brand/logo/png/`, erzeugt mit `dart run flutter_launcher_icons`; Startbildschirm und Login-Logo kommen aus `export_png.js`. Sprache Deutsch/Englisch (`lib/l10n/`). |
+| **App Store** | Icon wie App. Screenshots auf Papier/Sand mit Bebas-Headline über dem Gerät, erzeugt mit `tool/store_screenshots/` (siehe `docs/app-store/README.md`). Anbieter: cellarworks. |
 | **Social Media** | Profilbild: App-Icon. Posts: Papier oder `dark-bg`, eine Headline in Bebas, ein Rot-Akzent. Logo gestapelt unten. |
 | **E-Mail-Signatur** | Name · Market Mate · ein Projekt von cellarworks · info@cellarworks.dev · marketmate.cellarworks.dev – reiner Text, kein Bild. |
 | **Druck** | Rot ≈ Pantone 1795 C, Gold ≈ Pantone 130 C – Näherungen, vor dem ersten Druck mit Proof abstimmen. |
@@ -213,7 +213,4 @@ cp brand/logo/market-mate-mark.svg website/assets/mark.svg
 
 ## 11. Offene Punkte
 
-- App-Icon in der App austauschen: `flutter_launcher_icons.yaml` auf
-  `brand/logo/png/market-mate-app-icon-1024.png` zeigen lassen und
-  `dart run flutter_launcher_icons` ausführen.
 - Studio-Seite für cellarworks.dev (nutzt dieselben Tokens, Logo `cellarworks-logo.svg`).

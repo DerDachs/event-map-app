@@ -8,6 +8,7 @@ import '../../../providers/user_provider.dart';
 import '../../../widgets/profile_menu.dart';
 import '../../teams/providers/team_provider.dart';
 import '../../teams/services/team_service.dart';
+import 'package:market_mates/l10n/l10n.dart';
 
 class TeamTab extends ConsumerWidget {
   final Event event;
@@ -19,7 +20,7 @@ class TeamTab extends ConsumerWidget {
     final teamAsync = ref.watch(myTeamProvider(event.id));
     return teamAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Team konnte nicht geladen werden.\n$e', textAlign: TextAlign.center)),
+      error: (e, _) => Center(child: Text(context.l10n.teamLoadFailed('$e'), textAlign: TextAlign.center)),
       data: (team) => team == null ? _NoTeam(event: event) : _TeamView(team: team),
     );
   }
@@ -33,38 +34,38 @@ class _NoTeam extends ConsumerWidget {
   Future<void> _create(BuildContext context, WidgetRef ref) async {
     final name = await _askText(
       context,
-      title: 'Team gründen',
-      label: 'Teamname',
-      hint: 'z. B. Glühwein-Crew',
-      action: 'Gründen',
+      title: context.l10n.teamCreateTitle,
+      label: context.l10n.teamNameLabel,
+      hint: context.l10n.teamNameHint,
+      action: context.l10n.teamCreateAction,
     );
     final uid = ref.read(userProfileProvider).valueOrNull?.uid;
     if (name == null || uid == null) return;
     try {
       await ref.read(teamServiceProvider).createTeam(event.id, uid, name);
     } catch (e) {
-      if (context.mounted) _snack(context, 'Team konnte nicht gegründet werden: $e');
+      if (context.mounted) _snack(context, context.l10n.teamCreateFailed('$e'));
     }
   }
 
   Future<void> _join(BuildContext context, WidgetRef ref) async {
     final code = await _askText(
       context,
-      title: 'Team beitreten',
-      label: 'Team-Code',
-      hint: '6 Zeichen, z. B. K7Q2XM',
-      action: 'Beitreten',
+      title: context.l10n.teamJoinTitle,
+      label: context.l10n.teamCodeLabel,
+      hint: context.l10n.teamCodeHint,
+      action: context.l10n.teamJoinAction,
       capitalize: true,
     );
     final uid = ref.read(userProfileProvider).valueOrNull?.uid;
     if (code == null || uid == null) return;
     try {
       final team = await ref.read(teamServiceProvider).joinByCode(code, event.id, uid);
-      if (context.mounted) _snack(context, 'Willkommen im Team „${team.name}“!');
+      if (context.mounted) _snack(context, context.l10n.teamWelcome(team.name));
     } on TeamException catch (e) {
-      if (context.mounted) _snack(context, e.message);
+      if (context.mounted) _snack(context, e.code == 'other-market' ? context.l10n.teamOtherMarket : context.l10n.teamNotFound);
     } catch (e) {
-      if (context.mounted) _snack(context, 'Beitreten fehlgeschlagen: $e');
+      if (context.mounted) _snack(context, context.l10n.joinFailed('$e'));
     }
   }
 
@@ -75,23 +76,23 @@ class _NoTeam extends ConsumerWidget {
       children: [
         const Icon(Icons.groups_outlined, size: 72, color: Colors.grey),
         const SizedBox(height: 16),
-        Text('Gemeinsam über den Markt',
+        Text(context.l10n.teamIntroTitle,
             textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
-        const Text(
-          'Gründe ein Team und teile den Code mit deinen Freunden – oder tritt mit einem Code bei.',
+        Text(
+          context.l10n.teamIntroText,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 24),
         FilledButton.icon(
           icon: const Icon(Icons.add),
-          label: const Text('Team gründen'),
+          label: Text(context.l10n.teamCreateTitle),
           onPressed: () => _create(context, ref),
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           icon: const Icon(Icons.login),
-          label: const Text('Mit Code beitreten'),
+          label: Text(context.l10n.teamJoinWithCode),
           onPressed: () => _join(context, ref),
         ),
       ],
@@ -108,13 +109,13 @@ class _TeamView extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Team verlassen?'),
+        title: Text(context.l10n.teamLeaveTitle),
         content: Text(team.members.length == 1
-            ? 'Du bist das letzte Mitglied – das Team wird dann gelöscht.'
-            : 'Du kannst später mit dem Code wieder beitreten.'),
+            ? context.l10n.teamLeaveLast
+            : context.l10n.teamLeaveRejoin),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Abbrechen')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Verlassen')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.l10n.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(context.l10n.teamLeaveAction)),
         ],
       ),
     );
@@ -123,7 +124,7 @@ class _TeamView extends ConsumerWidget {
     try {
       await ref.read(teamServiceProvider).leave(team, uid);
     } catch (e) {
-      if (context.mounted) _snack(context, 'Verlassen fehlgeschlagen: $e');
+      if (context.mounted) _snack(context, context.l10n.teamLeaveFailed('$e'));
     }
   }
 
@@ -140,57 +141,57 @@ class _TeamView extends ConsumerWidget {
         Card(
           child: ListTile(
             leading: const Icon(Icons.vpn_key_outlined),
-            title: const Text('Team-Code'),
+            title: Text(context.l10n.teamCodeLabel),
             subtitle: Text(
               team.teamCode,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(letterSpacing: 4),
             ),
             trailing: IconButton(
-              tooltip: 'Code kopieren',
+              tooltip: context.l10n.teamCopyCode,
               icon: const Icon(Icons.copy),
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: team.teamCode));
-                _snack(context, 'Code kopiert – schick ihn deinen Freunden.');
+                _snack(context, context.l10n.teamCodeCopied);
               },
             ),
           ),
         ),
         const SizedBox(height: 16),
-        Text('Mitglieder (${team.members.length})', style: Theme.of(context).textTheme.titleMedium),
+        Text(context.l10n.teamMembers(team.members.length), style: Theme.of(context).textTheme.titleMedium),
         membersAsync.when(
           loading: () => const Padding(
             padding: EdgeInsets.all(16),
             child: Center(child: CircularProgressIndicator()),
           ),
-          error: (e, _) => Text('Mitglieder konnten nicht geladen werden: $e'),
+          error: (e, _) => Text(context.l10n.teamMembersLoadFailed('$e')),
           data: (members) => Column(
             children: [
               for (final m in members)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: UserAvatar(profile: m, radius: 20),
-                  title: Text(m.uid == myUid ? '${m.name ?? 'Unbekannt'} (du)' : m.name ?? 'Unbekannt'),
+                  title: Text(m.uid == myUid ? context.l10n.teamMemberYou(m.name ?? context.l10n.unknownUser) : m.name ?? context.l10n.unknownUser),
                   trailing: m.uid == team.leaderId
-                      ? const Chip(label: Text('Gründer'), visualDensity: VisualDensity.compact)
+                      ? Chip(label: Text(context.l10n.teamFounder), visualDensity: VisualDensity.compact)
                       : null,
                 ),
             ],
           ),
         ),
         const SizedBox(height: 8),
-        const Card(
+        Card(
           child: ListTile(
             enabled: false,
-            leading: Icon(Icons.share_location_outlined),
-            title: Text('Standort mit dem Team teilen'),
-            subtitle: Text('Kommt bald'),
+            leading: const Icon(Icons.share_location_outlined),
+            title: Text(context.l10n.teamShareLocation),
+            subtitle: Text(context.l10n.comingSoon),
           ),
         ),
         const SizedBox(height: 24),
         OutlinedButton.icon(
           style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
           icon: const Icon(Icons.logout),
-          label: const Text('Team verlassen'),
+          label: Text(context.l10n.teamLeave),
           onPressed: () => _leave(context, ref),
         ),
       ],
@@ -228,7 +229,7 @@ Future<String?> _askText(
           onSubmitted: (_) => submit(),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.cancel)),
           FilledButton(onPressed: submit, child: Text(action)),
         ],
       );

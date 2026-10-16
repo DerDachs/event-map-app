@@ -14,19 +14,6 @@
       "filename" : "LaunchImage@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
-    },
-    {
-      "filename" : "splash_screen.png",
-      "idiom" : "iphone",
-      "scale" : "1x"
-    },
-    {
-      "idiom" : "iphone",
-      "scale" : "2x"
-    },
-    {
-      "idiom" : "iphone",
-      "scale" : "3x"
     }
   ],
   "info" : {

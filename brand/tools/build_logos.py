@@ -143,6 +143,13 @@ def app_icon(rounded):
 write("market-mate-app-icon.svg", app_icon(False))      # stores apply their own mask
 write("market-mate-app-icon-rounded.svg", app_icon(True))
 
+# Android adaptive icon foreground: the white pin on transparent. The
+# launcher icon generator adds the safe-zone inset, the red background is
+# set in flutter_launcher_icons.yaml.
+write("market-mate-app-icon-foreground.svg",
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">'
+      + mark(pin=WHITE, cut=RED, stripes=GOLD, dx=32 - 32 * 0.78, dy=32 - 32.5 * 0.78, s=0.78) + '</svg>\n')
+
 # ---- Favicon: mark tuned for tiny sizes (no stripes, slightly bolder cut-outs) ----
 write("favicon.svg", svg(64, 64, mark(stripes=None), "Market Mate"))
 

@@ -5,7 +5,10 @@ import '../../../utils/custom_generators.dart';
 
 class TeamException implements Exception {
   final String message;
-  TeamException(this.message);
+
+  /// 'not-found' or 'other-market', for translated messages in the UI.
+  final String code;
+  TeamException(this.message, this.code);
   @override
   String toString() => message;
 }
@@ -55,10 +58,10 @@ class TeamService {
 
   Future<Team> joinByCode(String code, String eventId, String userId) async {
     final query = await _teams.where('teamCode', isEqualTo: code.trim().toUpperCase()).limit(1).get();
-    if (query.docs.isEmpty) throw TeamException('Kein Team mit diesem Code gefunden.');
+    if (query.docs.isEmpty) throw TeamException('Kein Team mit diesem Code gefunden.', 'not-found');
     final team = Team.fromFirestore(query.docs.first);
     if (team.eventId != eventId) {
-      throw TeamException('Dieses Team gehört zu einem anderen Markt.');
+      throw TeamException('Dieses Team gehört zu einem anderen Markt.', 'other-market');
     }
     await _teams.doc(team.id).update({
       'memberIds': FieldValue.arrayUnion([userId]),
