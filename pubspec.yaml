@@ -60,7 +60,6 @@ dependencies:
 # shared_preferences_foundation 2.6+ ships native code assets (objective_c);
 # packaging them crashes `flutter build ios` (null check in
 # parseOtoolArchitectureSections). Remove once Flutter handles it.
-# Same pin as PR #14; identical lines merge cleanly.
 dependency_overrides:
   shared_preferences_foundation: 2.5.7
 
