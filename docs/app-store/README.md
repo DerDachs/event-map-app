@@ -30,8 +30,9 @@ flutter test tool/store_screenshots --update-goldens
 - [ ] EU-Händlerstatus angegeben (siehe unten)
 - [ ] App in App Store Connect angelegt (Bundle-ID siehe Texte), nur iPhone
 - [ ] Impressum und Datenschutzerklärung auf der Website fertig (aktuell noch Entwurf mit Platzhaltern)
-- [ ] Firestore-Regeln deployed, mindestens ein Markt mit Ständen sichtbar
-- [ ] Demo-Konto angelegt und in den Review-Notizen eingetragen
+- [ ] Firestore-Regeln deployed (enthalten jetzt die Einwilligungs-Prüfung für Lagepläne)
+- [ ] Beispielmarkt angelegt: Admin → „Beispielmarkt anlegen“ (Lichterdorf Musterstadt, erfundene Stände, keine fremden Daten)
+- [ ] Demo-Konto angelegt und in den Review-Notizen eingetragen, mit Hinweis: „Der Markt ‚Lichterdorf Musterstadt‘ ist ein Beispiel mit erfundenen Daten“
 - [ ] Build per TestFlight-Workflow hochgeladen und auf einem iPhone getestet
 - [ ] Karten-Screenshot ergänzt, Screenshots DE und EN hochgeladen
 - [ ] Texte, Datenschutz- und Altersfragebogen ausgefüllt (siehe `app-store-texte.md`)

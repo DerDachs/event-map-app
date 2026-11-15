@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/event.dart';
 import '../../../l10n/l10n.dart';
+import '../../../theme/app_theme.dart';
+import '../../../widgets/empty_state.dart';
 import '../../../widgets/profile_menu.dart';
 import '../../events/providers/event_provider.dart';
 import '../../events/screens/event_card.dart';
@@ -37,19 +39,11 @@ class HomeFeedScreen extends ConsumerWidget {
       ),
       body: eventsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.cloud_off, size: 48, color: Colors.grey),
-              const SizedBox(height: 12),
-              Text(context.l10n.marketsLoadFailed),
-              TextButton(
-                onPressed: () => ref.invalidate(eventsProvider),
-                child: Text(context.l10n.retry),
-              ),
-            ],
-          ),
+        error: (error, _) => EmptyState(
+          icon: Icons.cloud_off,
+          title: context.l10n.marketsLoadFailed,
+          actionLabel: context.l10n.retry,
+          onAction: () => ref.invalidate(eventsProvider),
         ),
         data: (events) {
           final now = clock();
@@ -97,15 +91,10 @@ class HomeFeedScreen extends ConsumerWidget {
                     },
                 ],
                 if (events.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.storefront_outlined, size: 56, color: Colors.grey),
-                        const SizedBox(height: 12),
-                        Text(context.l10n.noMarkets),
-                      ],
-                    ),
+                  EmptyState(
+                    icon: Icons.storefront_outlined,
+                    title: context.l10n.noMarkets,
+                    hint: context.l10n.noMarketsHint,
                   ),
                 if (feed.running.isNotEmpty) _EventRow(title: context.l10n.homeRunning, events: feed.running),
                 if (feed.upcoming.isNotEmpty) _EventRow(title: context.l10n.homeUpcoming, events: feed.upcoming),
@@ -127,7 +116,7 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
-        child: Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+        child: Text(title, style: brandDisplay(28)),
       );
 }
 

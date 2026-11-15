@@ -214,3 +214,11 @@ cp brand/logo/market-mate-mark.svg website/assets/mark.svg
 ## 11. Offene Punkte
 
 - Studio-Seite für cellarworks.dev (nutzt dieselben Tokens, Logo `cellarworks-logo.svg`).
+
+
+## Markise (Bildelement der App)
+
+Die rot-weiße Markise mit Girlandenkante (`lib/widgets/awning_edge.dart`) ist das eine wiederkehrende
+Bildelement in der App: oben auf Marktkarten, auf der Startseite und in leeren Zuständen. Sparsam einsetzen,
+höchstens einmal pro Karte, immer in Marktrot und Weiß. Überschriften in der App setzen wir in Bebas Neue
+(`brandDisplay` in `lib/theme/app_theme.dart`), Fließtext in Figtree. Die Schriften sind jetzt in der App gebündelt.

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/event.dart';
 import '../../../utils/formatters.dart';
+import '../../../theme/brand_tokens.dart';
+import '../../../widgets/awning_edge.dart';
+import '../../../widgets/favorite_heart.dart';
 import '../../favorites/providers/favorite_provider.dart';
 import 'event_detail_screen.dart';
 import 'package:market_mates/l10n/l10n.dart';
@@ -42,16 +45,32 @@ class EventCard extends ConsumerWidget {
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => const _ImagePlaceholder(),
                           ),
+                    // Awning over the picture: the stall look of the brand.
+                    const Positioned(top: 0, left: 0, right: 0, child: AwningEdge(stripeWidth: 20, bandHeight: 5)),
                     Positioned(
-                      top: 4,
-                      right: 4,
-                      child: IconButton.filledTonal(
+                      top: 14,
+                      right: 6,
+                      child: FavoriteHeart(
+                        isFavorite: isFavorite,
                         tooltip: isFavorite ? context.l10n.favoriteRemove : context.l10n.favoriteAdd,
-                        icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: Colors.red),
-                        onPressed: () =>
-                            ref.read(favoritesProvider.notifier).toggleFavorite('events', event.id),
+                        onPressed: () => ref.read(favoritesProvider.notifier).toggleFavorite('events', event.id),
                       ),
                     ),
+                    if (event.isDemo)
+                      Positioned(
+                        left: 10,
+                        bottom: 10,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: BrandColors.goldSoft, borderRadius: BorderRadius.circular(99)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            child: Text(
+                              context.l10n.demoBadge,
+                              style: const TextStyle(color: BrandColors.goldInk, fontSize: 12, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -64,14 +83,14 @@ class EventCard extends ConsumerWidget {
                       event.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       formatDateRange(event.startTime, event.endTime),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: BrandColors.inkSoft),
                     ),
                   ],
                 ),

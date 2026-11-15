@@ -5,6 +5,7 @@ import { defineSecret } from "firebase-functions/params";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import { requireAdmin } from "./auth.js";
+import { requirePlanConsent } from "./consent.js";
 import { geocodeLandmarks } from "./geocode.js";
 import { analyzePlanImage, PlanAnalysisError, SUPPORTED_TYPES, type SupportedType } from "./analyze.js";
 
@@ -21,6 +22,8 @@ interface AnalyzeRequest {
   /** Original PDF the plan image was rendered from, and which page. */
   pdfStoragePath?: string | null;
   pdfPage?: number | null;
+  /** Confirmation that the uploader may use the plan; see consent.ts. */
+  planConsent?: { granted: boolean; version: number };
 }
 
 const MAX_PDF_BYTES = 20 * 1024 * 1024;
@@ -39,6 +42,7 @@ export const analyzeMarketPlan = onCall(
   },
   async (request) => {
     const uid = await requireAdmin(request);
+    requirePlanConsent(request.data);
 
     const { storagePath, locationHint = null, pdfStoragePath = null, pdfPage = 1 } =
       (request.data ?? {}) as AnalyzeRequest;

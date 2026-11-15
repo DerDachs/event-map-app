@@ -1118,6 +1118,18 @@ abstract class AppLocalizations {
   /// **'Noch keine Märkte vorhanden.'**
   String get noMarkets;
 
+  /// No description provided for @demoBadge.
+  ///
+  /// In de, this message translates to:
+  /// **'Beispiel'**
+  String get demoBadge;
+
+  /// No description provided for @noMarketsHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Sobald ein Markt angelegt ist, findest du ihn hier.'**
+  String get noMarketsHint;
+
   /// No description provided for @homeRunning.
   ///
   /// In de, this message translates to:

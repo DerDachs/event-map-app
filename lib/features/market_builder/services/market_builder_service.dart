@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../../../data/models/event.dart';
 import '../models/plan_draft.dart';
 import '../models/event_import.dart';
+import '../models/plan_consent.dart';
 import '../models/stand_categories.dart';
 import 'georeference.dart';
 
@@ -38,7 +39,9 @@ class MarketBuilderService {
   }
 
   /// Lets the Cloud Function read the plan with Claude and geocode its
-  /// landmarks. Takes up to a few minutes for large plans.
+  /// landmarks. Takes up to a few minutes for large plans. The caller must
+  /// have the uploader's consent (see plan_consent.dart); the function
+  /// refuses plans without it.
   Future<PlanDraft> analyzePlan({
     required String storagePath,
     required String imageUrl,
@@ -56,6 +59,7 @@ class MarketBuilderService {
       'locationHint': locationHint,
       if (pdfStoragePath != null) 'pdfStoragePath': pdfStoragePath,
       if (pdfPage != null) 'pdfPage': pdfPage,
+      'planConsent': planConsentRequest(),
     });
     final data = Map<String, dynamic>.from(result.data);
     final analysis = Map<String, dynamic>.from(data['analysis'] as Map);
@@ -95,8 +99,11 @@ class MarketBuilderService {
   }
 
   /// Writes the market as an event with its stands, in the format the
-  /// visitor screens read (see StandService.fetchStandsForEvent).
+  /// visitor screens read (see StandService.fetchStandsForEvent). The market
+  /// is stored with the uploader's consent record; [consentGranted] must be
+  /// true because the security rules reject markets with a plan otherwise.
   Future<String> saveMarket({
+    required bool consentGranted,
     required PlanDraft draft,
     required Georeference georeference,
     required String name,
@@ -112,6 +119,9 @@ class MarketBuilderService {
     String? eventTip,
     String? websiteUrl,
   }) async {
+    if (!consentGranted) {
+      throw StateError('Der Markt kann nur mit Einwilligung zur Nutzung des Lageplans gespeichert werden.');
+    }
     final batch = _firestore.batch();
     final eventRef = _firestore.collection('events').doc();
     final usedCategories = <String>{};
@@ -185,6 +195,7 @@ class MarketBuilderService {
           'bearing': overlay.bearing,
         },
       },
+      'planConsent': planConsentRecord(uid: _auth.currentUser!.uid, at: FieldValue.serverTimestamp()),
       'createdBy': _auth.currentUser?.uid,
       'createdAt': FieldValue.serverTimestamp(),
     });

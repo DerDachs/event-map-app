@@ -13,6 +13,7 @@ import '../../events/services/event_service.dart';
 import '../../seasons/models/market_types.dart';
 import '../../../utils/formatters.dart';
 import '../models/event_import.dart';
+import '../models/plan_consent.dart';
 import '../models/plan_draft.dart';
 import '../models/stand_categories.dart';
 import '../services/georeference.dart';
@@ -47,6 +48,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   EventImport? _import;
   final Set<String> _selectedImages = {};
   bool _importing = false;
+  bool _planConsent = false;
   Uint8List? _imageBytes;
   String? _contentType;
   Uint8List? _pdfBytes;
@@ -254,7 +256,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   }
 
   bool get _canAnalyze =>
-      _imageBytes != null && _nameController.text.trim().isNotEmpty && _dates != null;
+      _imageBytes != null && _nameController.text.trim().isNotEmpty && _dates != null && _planConsent;
 
   Future<void> _analyze() async {
     if (_imageBytes!.lengthInBytes > 5 * 1024 * 1024) {
@@ -448,6 +450,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     setState(() => _step = _Step.saving);
     try {
       final id = await ref.read(marketBuilderServiceProvider).saveMarket(
+            consentGranted: _planConsent,
             draft: _draft!,
             georeference: georeference,
             name: _nameController.text.trim(),
@@ -611,7 +614,17 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
           label: Text(_imageBytes == null ? 'Lageplan auswählen * (Bild oder PDF)' : 'Anderen Plan wählen'),
           onPressed: _renderingPdf ? null : _pickImage,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
+        Card(
+          child: CheckboxListTile(
+            value: _planConsent,
+            onChanged: (v) => setState(() => _planConsent = v ?? false),
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text(planConsentTitle),
+            subtitle: const Text(planConsentText),
+          ),
+        ),
+        const SizedBox(height: 16),
         FilledButton.icon(
           icon: const Icon(Icons.auto_awesome),
           label: const Text('Mit KI analysieren'),

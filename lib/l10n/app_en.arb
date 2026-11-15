@@ -170,6 +170,8 @@
   "homeFavorites": "Your favourites",
   "homeNews": "News",
   "noMarkets": "No markets yet.",
+  "demoBadge": "Example",
+  "noMarketsHint": "As soon as a market is added, you will find it here.",
   "homeRunning": "Open now",
   "homeUpcoming": "Coming up",
   "homePast": "Past markets",
