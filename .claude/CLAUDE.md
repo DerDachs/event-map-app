@@ -47,7 +47,7 @@ Veranstalter-Selbstbedienung.
 | KI | Claude API in der Cloud Function (Lageplan-Analyse, Webseiten-Import); Keys nur in Secret Manager |
 | Karte | `google_maps_flutter` + Clustering |
 | Website | statisch in `website/`, Cloudflare Workers (`wrangler.jsonc`), Push auf `main` = live, PRs bekommen Preview-URLs |
-| CI | GitHub Actions: `ios-build` (PRs auf `main`), `testflight` (manuell / Tag `testflight-*`), `firebase-deploy` (manuell) |
+| CI | GitHub Actions (Flutter auf 3.47.7 festgelegt): `ios-build` (PRs auf `main`), `testflight` (manuell / Tag `testflight-*`), `firebase-deploy` (manuell) |
 
 Ordner in `lib/`:
 - `features/<feature>/{models,providers,services,screens,widgets,logic}` – neuer Code gehört hierher
