@@ -47,7 +47,7 @@ Veranstalter-Selbstbedienung.
 | KI | Claude API in der Cloud Function (Lageplan-Analyse, Webseiten-Import); Keys nur in Secret Manager |
 | Karte | `google_maps_flutter` + Clustering |
 | Website | statisch in `website/`, Cloudflare Workers (`wrangler.jsonc`), Push auf `main` = live, PRs bekommen Preview-URLs |
-| CI | GitHub Actions (Flutter auf 3.47.7 festgelegt): `ios-build` (PRs auf `main`), `testflight` (manuell / Tag `testflight-*`), `firebase-deploy` (manuell) |
+| CI | GitHub Actions: `ios-build` (PRs auf `main`), `testflight` (manuell / Tag `testflight-*`), `firebase-deploy` (manuell) |
 
 Ordner in `lib/`:
 - `features/<feature>/{models,providers,services,screens,widgets,logic}` – neuer Code gehört hierher
@@ -97,6 +97,9 @@ flutter test tool/store_screenshots --update-goldens   # App-Store-Screenshots n
 flutter run --flavor Production
 cd functions && npm ci && npm test                 # baut und testet die Cloud Functions
 ```
+
+`shared_preferences_foundation` ist in `pubspec.yaml` per `dependency_overrides` auf 2.5.7
+festgehalten: Ab 2.6 bringt es native Code-Assets mit, an denen `flutter build ios` abstürzt.
 
 Hinweis: `flutter pub get` verändert eventuell `analysis_options.yaml` und erzeugt `pubspec.lock` –
 beides nicht committen (`git checkout analysis_options.yaml`, `pubspec.lock` ist nicht getrackt).

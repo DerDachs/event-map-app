@@ -57,6 +57,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   shared_preferences: ^2.5.6
 
+# shared_preferences_foundation 2.6+ ships native code assets (objective_c);
+# packaging them crashes `flutter build ios` (null check in
+# parseOtoolArchitectureSections). Remove once Flutter handles it.
+dependency_overrides:
+  shared_preferences_foundation: 2.5.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

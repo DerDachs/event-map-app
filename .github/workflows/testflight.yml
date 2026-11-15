@@ -29,9 +29,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          # Pinned: Flutter 3.50.0 crashes while packaging native assets for iOS
-          # (null check in parseOtoolArchitectureSections). Raise once fixed.
-          flutter-version: 3.47.7
           cache: true
 
       - name: Import distribution certificate
