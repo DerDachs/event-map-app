@@ -105,6 +105,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           'memberIds': FieldValue.arrayRemove([profile.uid]),
         });
       }
+      // Leave the markets the user joined, so no user ID stays behind.
+      final joined = await firestore
+          .collection('events')
+          .where('participants', arrayContains: profile.uid)
+          .get();
+      for (final event in joined.docs) {
+        await event.reference.update({
+          'participants': FieldValue.arrayRemove([profile.uid]),
+        });
+      }
       await firestore.collection('profiles').doc(profile.uid).delete();
       await FirebaseAuth.instance.currentUser?.delete();
       if (!mounted) return;

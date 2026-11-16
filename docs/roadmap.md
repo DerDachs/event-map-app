@@ -22,7 +22,9 @@ Screenshots entstehen aus dem vorhandenen Test (`tool/store_screenshots`), nicht
 - [ ] EU-Händlerstatus (DSA) entscheiden und in App Store Connect eintragen
 - [ ] Apple Developer Program aktiv, App in App Store Connect angelegt
 - [ ] Demo-Konto für die Prüfung anlegen (Review-Notizen in `docs/app-store/app-store-texte.md`)
-- [ ] Datenschutz-Text um den Punkt „Lagepläne von Veranstaltern“ ergänzen (siehe Phase 1)
+- [x] Datenschutz-Text um „Lagepläne von Veranstaltern“, Beispielmarkt und Löschung ergänzt (Entwurf, rechtlich prüfen)
+- [x] Konto löschen entfernt jetzt auch die Teilnahme an Märkten (`events.participants`)
+- [ ] **Von Timo nötig:** Name, Anschrift und Telefon für Impressum und Datenschutz (siehe DSA-Abschnitt in `docs/app-store/README.md`). Diese Angaben erfinde ich nicht.
 
 ## Phase 1 – Daten-Einwilligung & Beispielmarkt
 
@@ -67,7 +69,7 @@ wiedererkennbare Element; alles andere bleibt ruhig. Marke bleibt: Marktrot, Koh
 - [ ] Firebase App Check (App Attest) für Firestore, Storage und Functions
 - [ ] Crashlytics einbinden, Release-Build ohne Debug-Ausgaben
 - [ ] Cloud Function: Aufrufbegrenzung pro Admin und Tag (schützt das Claude-Budget)
-- [ ] Konto löschen löscht auch Teams-Mitgliedschaften, Favoriten und hochgeladene Pläne
+- [x] Konto löschen räumt Teams, Favoriten und Marktteilnahme auf (hochgeladene Pläne gehören dem Markt, nicht dem Konto)
 - [ ] CI: `flutter analyze` und `flutter test` als Pflicht-Check im PR, `functions` Tests ebenso
 - [ ] iOS: Privacy Manifest, Versionsnummer, Build-Nummer aus der CI
 - [ ] Backups: tägliche Firestore-Exports (günstig, Bucket mit Ablauf nach 30 Tagen)
