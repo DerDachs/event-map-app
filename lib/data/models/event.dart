@@ -43,9 +43,13 @@ class Event {
     this.plan,
     this.websiteUrl,
     this.createdAt,
+    this.isDemo = false,
   });
 
   final String? websiteUrl;
+
+  /// True for the invented example market (see demo_market.dart).
+  final bool isDemo;
 
   /// When the market was added to the app; null for older markets.
   final DateTime? createdAt;
@@ -92,6 +96,7 @@ class Event {
       categories: strings(data['categories']),
       plan: data['plan'] is Map ? EventPlan.fromMap(Map<String, dynamic>.from(data['plan'])) : null,
       websiteUrl: data['websiteUrl'] as String?,
+      isDemo: data['isDemo'] == true,
       createdAt: data['createdAt'] is Timestamp ? (data['createdAt'] as Timestamp).toDate() : null,
     );
   }

@@ -24,15 +24,27 @@ class BaseLayout extends ConsumerWidget {
         actions: [...actions, const ProfileMenuButton()],
       ),
       body: body,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: ref.watch(bottomNavIndexProvider), // From Riverpod
-        onTap: (index) {
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: ref.watch(bottomNavIndexProvider), // From Riverpod
+        onDestinationSelected: (index) {
           ref.read(bottomNavIndexProvider.notifier).state = index;
         },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.info_outline), label: context.l10n.navInfo),
-          BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: context.l10n.navMap),
-          BottomNavigationBarItem(icon: Icon(Icons.groups_outlined), label: context.l10n.navTeam),
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.info_outline),
+            selectedIcon: const Icon(Icons.info),
+            label: context.l10n.navInfo,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.map_outlined),
+            selectedIcon: const Icon(Icons.map),
+            label: context.l10n.navMap,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.groups_outlined),
+            selectedIcon: const Icon(Icons.groups),
+            label: context.l10n.navTeam,
+          ),
         ],
       ),
     );

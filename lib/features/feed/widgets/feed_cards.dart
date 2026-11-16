@@ -4,7 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/models/event.dart';
 import '../../../l10n/l10n.dart';
+import '../../../theme/app_theme.dart';
 import '../../../theme/brand_tokens.dart';
+import '../../../widgets/awning_edge.dart';
 import '../../../utils/formatters.dart';
 import '../../events/screens/event_detail_screen.dart';
 import '../../seasons/models/season.dart';
@@ -48,9 +50,7 @@ class SeasonBannerCard extends StatelessWidget {
       child: Row(
         children: [
           if (number != null) ...[
-            Text('$number',
-                style: text.displayMedium?.copyWith(
-                    color: BrandColors.white, fontWeight: FontWeight.w800, height: 1, letterSpacing: -1)),
+            Text('$number', style: brandDisplay(64, color: BrandColors.white, letterSpacing: 0)),
             const SizedBox(width: 14),
           ],
           Expanded(
@@ -123,6 +123,7 @@ class HighlightCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                const Positioned(top: 0, left: 0, right: 0, child: AwningEdge(stripeWidth: 26, bandHeight: 6)),
                 Positioned(
                   left: 16,
                   right: 16,
@@ -144,7 +145,7 @@ class HighlightCard extends StatelessWidget {
                       Text(event.name,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: text.headlineSmall?.copyWith(color: BrandColors.white, fontWeight: FontWeight.w800)),
+                          style: brandDisplay(40, color: BrandColors.white)),
                       const SizedBox(height: 2),
                       Text(
                         [

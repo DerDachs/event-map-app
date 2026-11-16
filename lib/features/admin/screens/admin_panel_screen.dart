@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/user_provider.dart';
+import '../../market_builder/demo/demo_market_service.dart';
 
 class AdminPanelScreen extends ConsumerWidget {
   @override
@@ -58,8 +59,38 @@ class AdminPanelScreen extends ConsumerWidget {
               Navigator.pushNamed(context, '/create-event');
             },
           ),
+          ListTile(
+            leading: Icon(Icons.celebration_outlined),
+            title: Text('Beispielmarkt anlegen'),
+            subtitle: Text('Lichterdorf Musterstadt: erfundene Stände, keine fremden Daten'),
+            onTap: () => _runDemo(context, () async {
+              await DemoMarketService().createOrRefresh();
+              return 'Beispielmarkt ist aktuell.';
+            }),
+          ),
+          ListTile(
+            leading: Icon(Icons.delete_outline),
+            title: Text('Beispielmarkt entfernen'),
+            onTap: () => _runDemo(context, () async {
+              await DemoMarketService().remove();
+              return 'Beispielmarkt entfernt.';
+            }),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _runDemo(BuildContext context, Future<String> Function() action) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      messenger.showSnackBar(SnackBar(content: Text('Einen Moment …')));
+      final message = await action();
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(SnackBar(content: Text('Das hat nicht geklappt: $e')));
+    }
   }
 }

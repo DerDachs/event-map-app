@@ -26,12 +26,29 @@ service cloud.firestore {
       allow read, write: if signedIn() && request.auth.uid == uid;
     }
 
+    // A market with an uploaded site plan needs the uploader's confirmation
+    // that the plan may be used (see plan_consent.dart). Markets from before
+    // the confirmation existed stay editable as long as the plan is untouched.
+    function planConsented(data) {
+      return data.get('planConsent', {}).get('granted', false) == true;
+    }
+
+    function createsValidPlan(data) {
+      return !('plan' in data) || planConsented(data);
+    }
+
+    function keepsValidPlan(data, old) {
+      return !('plan' in data) || planConsented(data) ||
+        data.get('plan', null) == old.get('plan', null);
+    }
+
     // Events are created by admins. Visitors may only join (participants)
     // and link teams (teamIds).
     match /events/{eventId} {
       allow read: if signedIn();
-      allow create, delete: if isAdmin();
-      allow update: if isAdmin() || (signedIn() &&
+      allow create: if isAdmin() && createsValidPlan(request.resource.data);
+      allow delete: if isAdmin();
+      allow update: if (isAdmin() && keepsValidPlan(request.resource.data, resource.data)) || (signedIn() &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants', 'teamIds']));
     }
 

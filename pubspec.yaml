@@ -57,6 +57,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   shared_preferences: ^2.5.6
 
+# shared_preferences_foundation 2.6+ ships native code assets (objective_c);
+# packaging them crashes `flutter build ios` (null check in
+# parseOtoolArchitectureSections). Remove once Flutter handles it.
+dependency_overrides:
+  shared_preferences_foundation: 2.5.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -113,6 +119,20 @@ flutter:
   assets:
     - assets/avatars/
     - assets/brand/
+    - assets/demo/
     - assets/feed/
     - assets/seasons/
+
+  # Brand fonts (SIL Open Font License, texts in assets/fonts/).
+  fonts:
+    - family: Figtree
+      fonts:
+        - asset: assets/fonts/Figtree-Regular.ttf
+        - asset: assets/fonts/Figtree-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Figtree-ExtraBold.ttf
+          weight: 800
+    - family: Bebas Neue
+      fonts:
+        - asset: assets/fonts/BebasNeue-Regular.ttf
 

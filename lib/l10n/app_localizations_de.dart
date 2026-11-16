@@ -600,6 +600,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noMarkets => 'Noch keine Märkte vorhanden.';
 
   @override
+  String get demoBadge => 'Beispiel';
+
+  @override
+  String get noMarketsHint => 'Sobald ein Markt angelegt ist, findest du ihn hier.';
+
+  @override
   String get homeRunning => 'Läuft gerade';
 
   @override

@@ -349,6 +349,8 @@
   "homeFavorites": "Deine Favoriten",
   "homeNews": "Neuigkeiten",
   "noMarkets": "Noch keine Märkte vorhanden.",
+  "demoBadge": "Beispiel",
+  "noMarketsHint": "Sobald ein Markt angelegt ist, findest du ihn hier.",
   "homeRunning": "Läuft gerade",
   "homeUpcoming": "Demnächst",
   "homePast": "Vergangene Märkte",
