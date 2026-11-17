@@ -1,13 +1,14 @@
 # Screenshots vom echten iPhone
 
-Die Pipeline rahmt Geräte-Screenshots mit der Headline, genau wie die gerenderten. Du brauchst nur die
-Rohbilder. Sobald eine Datei in `tool/store_screenshots/raw/<de|en>/` liegt, nimmt der Test sie anstelle des
-nachgebauten Bildschirms.
+Die gerenderten Bilder (Workflow „App-Store-Screenshots“) zeigen die App bereits im iOS-Look, ohne Werbetext.
+Wer die echte iOS-Schrift und die echte Karte will, nimmt Geräte-Screenshots. Sie werden unverändert verwendet:
+keine Headline, kein Rahmen. Sobald eine Datei in `tool/store_screenshots/raw/<de|en>/` liegt, nimmt der Test sie
+anstelle des gerenderten Bildschirms.
 
 ## Vorbereitung (einmal)
 
-1. Build mit dem aktuellen `main` (enthält Beispielmarkt und neues Design) per TestFlight oder Xcode installieren.
-2. Als Admin einloggen: **Admin → Beispielmarkt anlegen**. Danach mit dem Demo-Konto (kein Admin) einloggen.
+1. Neuen Build installieren: Der Beispielmarkt steckt erst in Builds ab PR #15. Eine ältere TestFlight-Version hat die Option nicht. Workflow „testflight“ starten, Build abwarten und aktualisieren.
+2. Als Admin einloggen: Profilmenü → **Admin** → **Beispielmarkt anlegen** (die Option sieht nur ein Konto mit Rolle `admin`). Danach mit dem Demo-Konto (kein Admin) einloggen.
 3. Gerät: ein Pro-Max-iPhone liefert 1320 × 2868 (iPhone 16 und 17 Pro Max) bzw. 1290 × 2796 (15 Pro Max). Beides ist erlaubt.
    Im Simulator: iPhone 17 Pro Max.
 
@@ -34,7 +35,7 @@ Am iPhone: Seitentaste und Lauter gleichzeitig drücken, Bilder per AirDrop an d
 Je einmal auf Deutsch und einmal auf Englisch. Die Sprache stellst du in der App unter **Einstellungen** um.
 Die Bilder in `tool/store_screenshots/raw/de/` und `…/en/` ablegen.
 
-## Einrahmen und prüfen
+## Prüfen
 
 ```bash
 flutter test tool/store_screenshots --update-goldens
@@ -44,5 +45,4 @@ python3 tool/store_screenshots/flatten.py docs/app-store/screenshots
 Der zweite Schritt entfernt den Alphakanal. Apple lehnt Screenshots damit ab (Quelle in
 `app-store-texte.md`). Das Skript meldet die Größe jeder Datei; erwartet sind 1320 × 2868.
 
-Hinweis: Die Bilder unter `docs/app-store/screenshots/` zeigen noch das alte Design. Sie werden erst beim nächsten
-Lauf des Befehls oben neu gerendert.
+Hinweis: Die alten Bilder mit Headline wurden entfernt. Neue entstehen über den Workflow oder den Befehl oben.

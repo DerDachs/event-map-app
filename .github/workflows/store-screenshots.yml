@@ -1,0 +1,54 @@
+# Renders the App Store screenshots from the real app widgets (iOS look, no
+# advertising text, see docs/app-store/README.md) and offers them as an
+# artifact. Start by hand: Actions -> "App-Store-Screenshots" -> Run workflow.
+# Also runs when a pull request changes the tool, and then commits the new
+# pictures to that pull request's branch.
+name: App-Store-Screenshots
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - tool/store_screenshots/**
+      - .github/workflows/store-screenshots.yml
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq python3-pil
+
+      - run: flutter pub get
+
+      - name: Render
+        run: flutter test tool/store_screenshots --update-goldens
+
+      # Apple rejects screenshots with an alpha channel
+      - run: python3 tool/store_screenshots/flatten.py docs/app-store/screenshots
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-screenshots
+          path: docs/app-store/screenshots
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Commit to the pull request
+        if: github.event_name == 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/app-store
+          git diff --cached --quiet || (git commit -m "App-Store-Screenshots neu erzeugt" && git push)

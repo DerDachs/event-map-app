@@ -1,5 +1,8 @@
 // Renders the App Store screenshots (1320 × 2868, iPhone 6.9") in German and
-// English from the real app widgets with sample data.
+// English from the real app widgets, the way the app looks on an iPhone:
+// full screen with status bar, Dynamic Island and home indicator, without
+// headlines, frames or any other advertising. The sample market is the
+// invented example market "Lichterdorf Musterstadt".
 //
 //   flutter test tool/store_screenshots --update-goldens
 //
@@ -9,7 +12,7 @@
 //
 // The map can't be rendered in a test (Google Maps is a native view). Put a
 // screenshot taken on an iPhone into tool/store_screenshots/raw/<de|en>/02_map.png
-// and it is framed like the others; without it that screenshot is skipped.
+// and it is used as it is; without it that screenshot is skipped.
 //
 // Any other shot can be replaced by a real device screenshot the same way:
 // raw/<de|en>/01_home.png, 03_info.png, 04_team.png, 05_seasons.png.
@@ -36,6 +39,7 @@ import 'package:market_mates/features/favorites/providers/favorite_provider.dart
 import 'package:market_mates/features/feed/models/feed_post.dart';
 import 'package:market_mates/features/feed/providers/feed_provider.dart';
 import 'package:market_mates/features/feed/screens/home_feed_screen.dart';
+import 'package:market_mates/features/market_builder/demo/demo_market.dart';
 import 'package:market_mates/features/seasons/models/season.dart';
 import 'package:market_mates/features/seasons/providers/season_provider.dart';
 import 'package:market_mates/features/teams/providers/team_provider.dart';
@@ -48,26 +52,6 @@ import 'package:market_mates/theme/app_theme.dart';
 import 'package:market_mates/theme/brand_tokens.dart';
 
 const _dir = 'tool/store_screenshots';
-
-// ---------------------------------------------------------------- Texts
-
-/// Headline (Bebas Neue, uppercase) and one supporting line per screenshot.
-const _copy = {
-  'de': {
-    'home': ('Dein Markt in der Hosentasche', 'Termine, Neuigkeiten und Countdown'),
-    'map': ('Jede Hütte auf einen Blick', 'Alle Stände auf der Karte – mit Suche'),
-    'info': ('Alles Wichtige zum Markt', 'Öffnungszeiten, Eintritt und Tipps'),
-    'team': ('Mit Freunden unterwegs', 'Team gründen, Code teilen, zusammen bummeln'),
-    'seasons': ('Märkte das ganze Jahr', 'Weihnachten, Pfingsten, Herbst – immer passend'),
-  },
-  'en': {
-    'home': ('Your market in your pocket', 'Dates, news and a countdown'),
-    'map': ('Every stall at a glance', 'All stalls on the map – with search'),
-    'info': ('Everything about the market', 'Opening hours, entry and tips'),
-    'team': ('Out with friends', 'Start a team, share the code, stroll together'),
-    'seasons': ('Markets all year round', 'Christmas, Whitsun, autumn – always in season'),
-  },
-};
 
 // ---------------------------------------------------------------- Sample data
 
@@ -105,25 +89,25 @@ Event _market(
       eventTip: tip,
     );
 
-final _altstadt = _market(
-  'altstadt',
-  'Altstadt-Weihnachtsmarkt',
-  DateTime(2026, 11, 16, 11),
-  DateTime(2026, 12, 23, 21),
-  stands: 124,
-  image: 'market_1.jpg',
-  description: 'Rund um das Rathaus stehen über 120 Hütten mit Kunsthandwerk, '
-      'Glühwein und regionalen Spezialitäten. Abends taucht die Lichterkette über '
-      'den Gassen den ganzen Platz in warmes Licht.',
-  tip: 'Unter der Woche am frühen Abend ist es am entspanntesten.',
-  ticket: 'frei',
-  organizer: 'Stadtmarketing Musterstadt',
-  hours: [
-    OpeningHour(days: const ['Mo', 'Di', 'Mi', 'Do'], open: '11:00', close: '21:00'),
-    OpeningHour(days: const ['Fr', 'Sa'], open: '11:00', close: '22:00'),
-    OpeningHour(days: const ['So'], open: '12:00', close: '20:00'),
-  ],
-);
+/// The example market, built exactly like the one the admin creates in the app.
+final _altstadt = () {
+  final demo = buildDemoMarket(DateTime(2026, 11, 20, 17, 30));
+  return _market(
+    demo.id,
+    demo.name,
+    demo.start,
+    demo.end,
+    stands: demo.stands.length,
+    image: 'market_1.jpg',
+    description: demo.description,
+    tip: demo.eventTip,
+    ticket: demo.ticketPrice,
+    organizer: demo.organizerName,
+    hours: [
+      for (final h in demo.openingHours) OpeningHour(days: h.days, open: h.open, close: h.close),
+    ],
+  );
+}();
 final _schloss = _market('schloss', 'Weihnachtsmarkt am Schlossplatz', DateTime(2026, 11, 25, 11),
     DateTime(2026, 12, 24, 14), stands: 86, image: 'market_2.jpg');
 final _hafen = _market('hafen', 'Lichtermarkt am Hafen', DateTime(2026, 11, 13, 12), DateTime(2027, 1, 3, 20),
@@ -172,7 +156,7 @@ List<Season> _seasons() => [
 final _team = Team(
   id: 't1',
   name: 'Glühwein-Crew',
-  eventId: 'altstadt',
+  eventId: demoMarketId,
   members: const ['u1', 'u2', 'u3', 'u4'],
   leaderId: 'u1',
   createdAt: DateTime(2026, 11, 20),
@@ -297,69 +281,66 @@ Future<void> _loadFonts() async {
   await figtree.load();
 }
 
-// ---------------------------------------------------------------- Frame
+// ---------------------------------------------------------------- iOS look
 
-const _shotSize = Size(440, 956); // × 3 = 1320 × 2868
-const _phoneSize = Size(390, 844);
+const _screenSize = Size(440, 956); // iPhone 17 Pro Max, × 3 = 1320 × 2868
+const _safeTop = 62.0;
+const _safeBottom = 34.0;
 
-/// Headline above a phone showing the app; the phone runs off the bottom.
-class _StoreShot extends StatelessWidget {
-  final String headline;
-  final String subline;
-  final Widget screen;
-  final Color background;
-
-  const _StoreShot({required this.headline, required this.subline, required this.screen, required this.background});
+/// iOS status bar (time, Dynamic Island, signal, Wi-Fi, battery) and home
+/// indicator, drawn over the app. [ink] is black on light pages.
+class _IosChrome extends StatelessWidget {
+  final Color ink;
+  const _IosChrome({this.ink = Colors.black});
 
   @override
   Widget build(BuildContext context) {
-    const scale = 0.9;
-    return Material(
-      color: background,
+    return IgnorePointer(
       child: Stack(
         children: [
           Positioned(
-            left: 28,
-            right: 28,
-            top: 64,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            top: 11,
+            left: (_screenSize.width - 125) / 2,
+            child: Container(
+              width: 125,
+              height: 37,
+              decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(18.5)),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            width: (_screenSize.width - 125) / 2 + 10,
+            height: 59,
+            child: Center(
+              child: Text('9:41',
+                  style: TextStyle(
+                      fontFamily: 'Roboto', fontWeight: FontWeight.w600, fontSize: 17, letterSpacing: -0.3, color: ink)),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            width: (_screenSize.width - 125) / 2 + 10,
+            height: 59,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  headline.toUpperCase(),
-                  style: const TextStyle(
-                    fontFamily: 'Bebas Neue',
-                    fontSize: 52,
-                    height: 0.95,
-                    color: BrandColors.ink,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  subline,
-                  style: const TextStyle(fontFamily: 'Figtree', fontSize: 19, height: 1.3, color: BrandColors.inkSoft),
-                ),
+                _Bars(ink),
+                const SizedBox(width: 6),
+                Icon(Icons.wifi, size: 18, color: ink),
+                const SizedBox(width: 6),
+                _Battery(ink),
               ],
             ),
           ),
           Positioned(
-            top: 250,
-            left: (_shotSize.width - _phoneSize.width * scale) / 2 - 9,
-            child: Transform.scale(
-              scale: scale,
-              alignment: Alignment.topLeft,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: BrandColors.ink,
-                  borderRadius: BorderRadius.circular(58),
-                  boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 40, offset: Offset(0, 20))],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(48),
-                  child: SizedBox.fromSize(size: _phoneSize, child: screen),
-                ),
-              ),
+            bottom: 8,
+            left: (_screenSize.width - 139) / 2,
+            child: Container(
+              width: 139,
+              height: 5,
+              decoration: BoxDecoration(color: ink, borderRadius: BorderRadius.circular(3)),
             ),
           ),
         ],
@@ -368,42 +349,77 @@ class _StoreShot extends StatelessWidget {
   }
 }
 
-/// The app screen with an iPhone status bar.
-Widget _phone(Widget app) => MediaQuery(
-      data: const MediaQueryData(
-        size: _phoneSize,
-        devicePixelRatio: 3,
-        padding: EdgeInsets.only(top: 54, bottom: 34),
-        viewPadding: EdgeInsets.only(top: 54, bottom: 34),
-      ),
-      child: Stack(
+class _Bars extends StatelessWidget {
+  final Color ink;
+  const _Bars(this.ink);
+
+  @override
+  Widget build(BuildContext context) => Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Positioned.fill(child: app),
-          const Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            height: 54,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(44, 18, 36, 0),
-              child: Row(
-                children: [
-                  Text('9:41',
-                      style: TextStyle(
-                          fontFamily: 'Roboto', fontWeight: FontWeight.w600, fontSize: 16, color: BrandColors.ink)),
-                  Spacer(),
-                  Icon(Icons.signal_cellular_alt, size: 18, color: BrandColors.ink),
-                  SizedBox(width: 4),
-                  Icon(Icons.wifi, size: 18, color: BrandColors.ink),
-                  SizedBox(width: 4),
-                  Icon(Icons.battery_full, size: 20, color: BrandColors.ink),
-                ],
-              ),
+          for (var i = 0; i < 4; i++)
+            Container(
+              width: 3.5,
+              height: 4.0 + i * 2.6,
+              margin: const EdgeInsets.only(right: 1.5),
+              decoration: BoxDecoration(color: ink, borderRadius: BorderRadius.circular(1)),
+            ),
+        ],
+      );
+}
+
+class _Battery extends StatelessWidget {
+  final Color ink;
+  const _Battery(this.ink);
+
+  @override
+  Widget build(BuildContext context) => Row(
+        children: [
+          Container(
+            width: 25,
+            height: 12,
+            padding: const EdgeInsets.all(1.5),
+            decoration: BoxDecoration(
+              border: Border.all(color: ink.withValues(alpha: 0.4)),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: ink, borderRadius: BorderRadius.circular(2.5)),
+              child: const SizedBox.expand(),
             ),
           ),
+          Container(
+            width: 1.5,
+            height: 4,
+            margin: const EdgeInsets.only(left: 1),
+            color: ink.withValues(alpha: 0.4),
+          ),
         ],
+      );
+}
+
+/// The app screen as the iPhone shows it: safe areas for status bar and home
+/// indicator, with the iOS chrome drawn on top.
+Widget _phone(Widget app) => MediaQuery(
+      data: const MediaQueryData(
+        size: _screenSize,
+        devicePixelRatio: 3,
+        padding: EdgeInsets.only(top: _safeTop, bottom: _safeBottom),
+        viewPadding: EdgeInsets.only(top: _safeTop, bottom: _safeBottom),
+      ),
+      child: Material(
+        color: BrandColors.paper,
+        child: Stack(
+          children: [
+            Positioned.fill(child: app),
+            const Positioned.fill(child: _IosChrome()),
+          ],
+        ),
       ),
     );
+
+/// A device screenshot already contains the iOS chrome.
+Widget _device(File file) => SizedBox.fromSize(size: _screenSize, child: Image.file(file, fit: BoxFit.cover));
 
 // ---------------------------------------------------------------- Rendering
 
@@ -411,14 +427,11 @@ Future<void> _shoot(
   WidgetTester tester, {
   required String lang,
   required String file,
-  required String key,
   required Widget Function() screen,
-  Color background = BrandColors.paper,
   int tab = 0,
   List<String> favorites = const [],
   String? phoneOnlyPath,
 }) async {
-  final (headline, subline) = _copy[lang]![key]!;
   // The app sets this in MaterialApp.builder; dates outside widgets use it.
   Intl.defaultLocale = lang;
   await tester.pumpWidget(ProviderScope(
@@ -439,9 +452,7 @@ Future<void> _shoot(
       locale: Locale(lang),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      home: phoneOnlyPath != null
-          ? _phone(screen())
-          : _StoreShot(headline: headline, subline: subline, background: background, screen: _phone(screen())),
+      home: screen(),
     ),
   ));
   await tester.pump();
@@ -459,7 +470,7 @@ Future<void> _shoot(
 /// The device screenshot raw/<lang>/<name>.png if it exists, else [fallback].
 Widget Function() _nativeOr(String lang, String name, Widget Function() fallback) {
   final file = File('$_dir/raw/$lang/$name.png');
-  return file.existsSync() ? () => Image.file(file, fit: BoxFit.cover) : fallback;
+  return file.existsSync() ? () => _device(file) : () => _phone(fallback());
 }
 
 void main() {
@@ -471,15 +482,14 @@ void main() {
   for (final lang in ['de', 'en']) {
     testWidgets('screenshots $lang', (tester) async {
       await tester.runAsync(_loadFonts);
-      tester.view.physicalSize = _shotSize * 3;
+      tester.view.physicalSize = _screenSize * 3;
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
 
       await _shoot(tester,
           lang: lang,
           file: '01_home',
-          key: 'home',
-          favorites: ['altstadt'],
+          favorites: [demoMarketId],
           screen: _nativeOr(lang, '01_home', () => HomeFeedScreen(clock: () => DateTime(2026, 11, 20, 17, 30))));
 
       final raw = File('$_dir/raw/$lang/02_map.png');
@@ -487,9 +497,7 @@ void main() {
         await _shoot(tester,
             lang: lang,
             file: '02_map',
-            key: 'map',
-            background: BrandColors.sand,
-            screen: () => Image.file(raw, fit: BoxFit.cover));
+            screen: () => _device(raw));
       } else {
         debugPrint('Skipping 02_map ($lang): put an iPhone screenshot of the map into ${raw.path}');
       }
@@ -497,7 +505,6 @@ void main() {
       await _shoot(tester,
           lang: lang,
           file: '03_info',
-          key: 'info',
           screen: _nativeOr(
               lang,
               '03_info',
@@ -512,28 +519,24 @@ void main() {
       await _shoot(tester,
           lang: lang,
           file: '04_team',
-          key: 'team',
           tab: 2,
-          background: BrandColors.sand,
           screen: _nativeOr(
               lang, '04_team', () => BaseLayout(title: _altstadt.name, body: TeamTab(event: _altstadt))));
 
       await _shoot(tester,
           lang: lang,
           file: '05_seasons',
-          key: 'seasons',
           screen: _nativeOr(lang, '05_seasons', () => HomeFeedScreen(clock: () => DateTime(2027, 5, 6, 12))));
 
       if (lang == 'de') {
-        tester.view.physicalSize = _phoneSize * 2;
+        tester.view.physicalSize = _screenSize * 2;
         tester.view.devicePixelRatio = 2;
         await _shoot(tester,
             lang: lang,
             file: 'website',
-            key: 'home',
-            favorites: ['altstadt'],
+            favorites: [demoMarketId],
             phoneOnlyPath: '../../docs/app-store/website-home.png',
-            screen: () => HomeFeedScreen(clock: () => DateTime(2026, 11, 20, 17, 30)));
+            screen: () => _phone(HomeFeedScreen(clock: () => DateTime(2026, 11, 20, 17, 30))));
       }
     });
   }
