@@ -60,14 +60,14 @@ ThemeData buildAppTheme() {
       style: FilledButton.styleFrom(
         shape: pill,
         minimumSize: const Size(64, 48),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+        textStyle: const TextStyle(fontFamily: 'Figtree', fontWeight: FontWeight.w600, fontSize: 16),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: pill,
         minimumSize: const Size(64, 48),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+        textStyle: const TextStyle(fontFamily: 'Figtree', fontWeight: FontWeight.w600, fontSize: 16),
         foregroundColor: BrandColors.ink,
         side: const BorderSide(color: BrandColors.ink, width: 1.5),
       ),
