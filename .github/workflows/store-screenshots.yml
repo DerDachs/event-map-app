@@ -1,7 +1,7 @@
 # Renders the App Store screenshots from the real app widgets (iOS look, no
 # advertising text, see docs/app-store/README.md) and offers them as an
 # artifact. Start by hand: Actions -> "App-Store-Screenshots" -> Run workflow.
-# Also runs when a pull request changes the tool, and then commits the new
+# Also runs when a pull request changes the tool or the app, and then commits the new
 # pictures to that pull request's branch.
 name: App-Store-Screenshots
 
@@ -10,6 +10,8 @@ on:
   pull_request:
     paths:
       - tool/store_screenshots/**
+      - lib/**
+      - assets/**
       - .github/workflows/store-screenshots.yml
 
 jobs:

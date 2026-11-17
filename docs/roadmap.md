@@ -57,7 +57,7 @@ wiedererkennbare Element; alles andere bleibt ruhig. Marke bleibt: Marktrot, Koh
 - [ ] Stand-Detailseite (Name, Speisen/Angebote, Bilder, „Zum Team teilen“) – Datenmodell hat `menu` und `promotions` schon
 - [ ] Suche über alle Stände eines Marktes, mit Kategorie-Chips
 - [ ] Teams: Mitglieder sichtbar, Team verlassen, Code erneuern; Regeln einschränken (siehe Phase 4)
-- [ ] `isMarketOpen` vergleicht Wochentage mit der Gerätesprache („Mo“ oder „Mo.“); Öffnungszeiten brauchen sprachunabhängige Tage
+- [x] `isMarketOpen` vergleicht Wochentage jetzt sprachunabhängig (`weekdayOf`, `isOpenAt`, getestet)
 - [ ] Fehler-, Lade- und Offline-Zustände für Karte und Listen vereinheitlichen (Startseite ist mit `EmptyState` erledigt)
 - [ ] Standort mit dem Team teilen (nur wenn gewollt; dann App-Privacy „Genauer Standort“ ergänzen)
 - [ ] Automatische Übersetzung der Marktbeschreibung (einmalig beim Speichern, nicht pro Aufruf)

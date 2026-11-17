@@ -21,13 +21,34 @@ final userParticipationProvider = FutureProvider.family<bool, String>((ref, even
   return await eventService.isUserParticipant(eventId, userId);
 });
 
-bool isMarketOpen(List<dynamic> openingHours) {
-  final now = DateTime.now();
-  final today = DateFormat('E').format(now); // e.g., "Mo"
+/// Weekday (Monday = 1) for a day abbreviation in German or English, in any
+/// spelling the app has stored: "Mo", "Mo.", "Mon", "Tue", "Di" ...
+int? weekdayOf(String day) {
+  const byPrefix = {
+    'mo': DateTime.monday,
+    'di': DateTime.tuesday,
+    'tu': DateTime.tuesday,
+    'mi': DateTime.wednesday,
+    'we': DateTime.wednesday,
+    'do': DateTime.thursday,
+    'th': DateTime.thursday,
+    'fr': DateTime.friday,
+    'sa': DateTime.saturday,
+    'so': DateTime.sunday,
+    'su': DateTime.sunday,
+  };
+  final text = day.trim().toLowerCase();
+  return text.length < 2 ? null : byPrefix[text.substring(0, 2)];
+}
+
+/// Whether one of [openingHours] ({days, open, close}) covers [now]. Days are
+/// compared as weekdays, so the device language does not matter.
+bool isOpenAt(List<dynamic> openingHours, DateTime now) {
   final currentTime = DateFormat('HH:mm').format(now);
 
   for (var entry in openingHours) {
-    if (entry['days'].contains(today)) {
+    final days = (entry['days'] as List).map((d) => weekdayOf(d.toString()));
+    if (days.contains(now.weekday)) {
       final open = entry['open'];
       final close = entry['close'];
 
@@ -39,3 +60,4 @@ bool isMarketOpen(List<dynamic> openingHours) {
   return false; // Market is closed
 }
 
+bool isMarketOpen(List<dynamic> openingHours) => isOpenAt(openingHours, DateTime.now());
