@@ -13,7 +13,10 @@ Die Screenshots werden aus den echten App-Widgets mit Beispieldaten gerendert
 
 ```bash
 flutter test tool/store_screenshots --update-goldens
+python3 tool/store_screenshots/flatten.py docs/app-store/screenshots   # Apple lehnt Alphakanäle ab
 ```
+
+Echte Geräte-Screenshots statt nachgebauter Bildschirme: siehe [`screenshots-nativ.md`](screenshots-nativ.md).
 
 - **Karte (02_map)**: Google Maps lässt sich im Test nicht rendern. Mach auf dem iPhone einen
   Screenshot der Marktkarte (am besten mit der Suche „Crêpes“ und einem markierten Stand), lege ihn
