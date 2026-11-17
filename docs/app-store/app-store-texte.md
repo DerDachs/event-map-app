@@ -5,7 +5,10 @@ Alle Felder für App Store Connect, auf Deutsch und Englisch. Die Zeichenzahlen 
 Ton nach `brand/README.md`: Besucher werden geduzt, Veranstalter gesiezt.
 
 Screenshots: `docs/app-store/screenshots/de/` und `…/en/` (1320 × 2868, iPhone 6,9″).
-So entstehen sie: siehe `docs/app-store/README.md`.
+Echte Geräte-Screenshots aufnehmen und einrahmen: siehe `docs/app-store/screenshots-nativ.md`.
+
+Limits (Quellen am Ende): Das Keyword-Feld zählt laut einem Leitfaden Bytes, „ä“ und „ü“ zählen dann doppelt;
+die Keywords unten liegen bei 99 und 93 von 100.
 
 ---
 
@@ -157,25 +160,26 @@ Market Mate shows the stalls of local markets (e.g. Christmas markets) on a map.
 
 How to review:
 1. Sign in with the demo account above.
-2. The start page shows the current season, a highlighted market and news.
+2. The start page shows the current season, a highlighted market and news. "Lichterdorf Musterstadt" is an example market with invented stalls and texts. It contains no third-party data.
 3. Open a market and tap "Open market map" to see all stalls on the map, search for a stall (e.g. "Crêpes") and filter by category.
 4. The "Team" tab lets visitors create a team and share a code with friends.
 
 Location is only used while the app is open, to show the user on the market map. It is not stored or shared.
-Features for adding and editing markets are only available to our team (admin role) and are not visible to regular users.
+Features for adding and editing markets are only available to our team (admin role) and are not visible to regular users. Before a site plan can be uploaded, the uploader has to confirm that they may use it.
 Accounts can be deleted in the app under Profile > Delete account.
 ```
 
 **Kontakt**: Name, Telefon, `info@cellarworks.dev`
 
-Vor dem Einreichen prüfen: In der Datenbank muss mindestens ein Markt mit Ständen sichtbar sein,
-sonst sieht das Prüfteam eine leere Startseite.
+Vor dem Einreichen prüfen: Der Beispielmarkt „Lichterdorf Musterstadt“ muss angelegt sein
+(Admin → „Beispielmarkt anlegen“) und laufen. Er ist so gebaut, dass er beim Anlegen drei Tage zurückliegt und
+25 Tage weiterläuft; vor dem Einreichen nochmal antippen, dann stimmen die Daten sicher.
 
 ---
 
 ## App-Datenschutz (Fragebogen „App Privacy“)
 
-Stand des Codes (Oktober 2026). Kein Tracking, keine Werbung, keine Analyse-Tools.
+Stand des Codes (November 2026). Kein Tracking, keine Werbung, keine Analyse-Tools.
 
 | Datentyp | Erhoben? | Zweck | Mit Identität verknüpft | Tracking |
 |---|---|---|---|---|
@@ -183,7 +187,7 @@ Stand des Codes (Oktober 2026). Kein Tracking, keine Werbung, keine Analyse-Tool
 | Kontaktdaten → Name | ja | App-Funktionalität (Profil, Team) | ja | nein |
 | Kennungen → Nutzer-ID | ja | App-Funktionalität | ja | nein |
 | Nutzerinhalte → Andere Inhalte | ja (Teamnamen, Favoriten) | App-Funktionalität | ja | nein |
-| Nutzerinhalte → Fotos | ja (nur Uploads durch Admins) | App-Funktionalität | ja | nein |
+| Nutzerinhalte → Fotos | ja (nur Uploads durch Admins: Marktbilder und Lagepläne, mit Einwilligung des Hochladenden) | App-Funktionalität | ja | nein |
 | Standort | **nein** – wird nur auf dem Gerät für die Karte genutzt | – | – | – |
 | Diagnose, Nutzungsdaten, Kaufdaten | nein | – | – | – |
 
@@ -204,3 +208,21 @@ Sobald „Standort mit dem Team teilen“ kommt, muss „Genauer Standort“ erg
 
 Muss in App Store Connect unter *Geschäftliches* angegeben werden, sonst keine Veröffentlichung in der EU.
 Siehe Erklärung in `docs/app-store/README.md`.
+
+---
+
+## Quellen für Limits und Größen
+
+- **Screenshots** (direkt auf Apples Seite geprüft, 17.11.2026): iPhone mit großem Display (6,9″) akzeptiert
+  1320 × 2868, 1290 × 2796 oder 1260 × 2736 Pixel hochkant, ein bis zehn Bilder pro Größe, `.png`, `.jpg` oder `.jpeg`,
+  **ohne Alphakanal oder Transparenz**.
+  [Apple: Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications)
+- **Textlimits** (Name 30, Untertitel 30, Werbetext 170, Keywords 100, Beschreibung und Neuerungen 4.000): Apples Seite
+  dazu ließ sich nicht abrufen, die Werte stammen aus Drittanbieter-Leitfäden, die untereinander übereinstimmen:
+  [AppLaunchFlow, Juli 2026](https://www.applaunchflow.com/blog/app-store-metadata-character-limits-2026),
+  [AppsOps](https://appsops.store/blog/app-store-metadata-localization-character-limits),
+  [Inspiring Apps](https://www.inspiringapps.com/blog/app-store-listing). Beim Eintragen zeigt App Store Connect
+  die Restzeichen an; das ist die letzte Kontrolle.
+- **„Keywords zählen Bytes“:** nur bei AppLaunchFlow belegt, nicht bei Apple bestätigt. Mit 99 und 93 von 100 Bytes
+  liegen wir so oder so darunter.
+- **Bundle-ID und Anzeigename:** `ios/Runner.xcodeproj/project.pbxproj` (Zeilen 551 und 557).

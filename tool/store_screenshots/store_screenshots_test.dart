@@ -10,6 +10,10 @@
 // The map can't be rendered in a test (Google Maps is a native view). Put a
 // screenshot taken on an iPhone into tool/store_screenshots/raw/<de|en>/02_map.png
 // and it is framed like the others; without it that screenshot is skipped.
+//
+// Any other shot can be replaced by a real device screenshot the same way:
+// raw/<de|en>/01_home.png, 03_info.png, 04_team.png, 05_seasons.png.
+// See docs/app-store/screenshots-nativ.md.
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -452,6 +456,12 @@ Future<void> _shoot(
   );
 }
 
+/// The device screenshot raw/<lang>/<name>.png if it exists, else [fallback].
+Widget Function() _nativeOr(String lang, String name, Widget Function() fallback) {
+  final file = File('$_dir/raw/$lang/$name.png');
+  return file.existsSync() ? () => Image.file(file, fit: BoxFit.cover) : fallback;
+}
+
 void main() {
   setUpAll(() async {
     HttpOverrides.global = _ImageHttp();
@@ -470,7 +480,7 @@ void main() {
           file: '01_home',
           key: 'home',
           favorites: ['altstadt'],
-          screen: () => HomeFeedScreen(clock: () => DateTime(2026, 11, 20, 17, 30)));
+          screen: _nativeOr(lang, '01_home', () => HomeFeedScreen(clock: () => DateTime(2026, 11, 20, 17, 30))));
 
       final raw = File('$_dir/raw/$lang/02_map.png');
       if (raw.existsSync()) {
@@ -488,13 +498,16 @@ void main() {
           lang: lang,
           file: '03_info',
           key: 'info',
-          screen: () => BaseLayout(
-                title: _altstadt.name,
-                body: SingleChildScrollView(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: EventInfo(event: _altstadt, showMap: false),
-                ),
-              ));
+          screen: _nativeOr(
+              lang,
+              '03_info',
+              () => BaseLayout(
+                    title: _altstadt.name,
+                    body: SingleChildScrollView(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: EventInfo(event: _altstadt, showMap: false),
+                    ),
+                  )));
 
       await _shoot(tester,
           lang: lang,
@@ -502,13 +515,14 @@ void main() {
           key: 'team',
           tab: 2,
           background: BrandColors.sand,
-          screen: () => BaseLayout(title: _altstadt.name, body: TeamTab(event: _altstadt)));
+          screen: _nativeOr(
+              lang, '04_team', () => BaseLayout(title: _altstadt.name, body: TeamTab(event: _altstadt))));
 
       await _shoot(tester,
           lang: lang,
           file: '05_seasons',
           key: 'seasons',
-          screen: () => HomeFeedScreen(clock: () => DateTime(2027, 5, 6, 12)));
+          screen: _nativeOr(lang, '05_seasons', () => HomeFeedScreen(clock: () => DateTime(2027, 5, 6, 12))));
 
       if (lang == 'de') {
         tester.view.physicalSize = _phoneSize * 2;
