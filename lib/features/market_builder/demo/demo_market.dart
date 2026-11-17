@@ -77,9 +77,9 @@ class DemoMarket {
   Set<String> get categories => {for (final s in stands) s.category};
 }
 
-/// Day abbreviations as `isMarketOpen` compares them: the device language
-/// decides between "Mo" and "Mo.", so the example lists both.
-const _weekdays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.', 'So.'];
+/// Day abbreviations as the app shows them; `isOpenAt` reads German and
+/// English spellings alike.
+const _weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
 /// Builds the example market so that it is running around [now]: it began
 /// three days ago and lasts 25 more days, long enough for a store review.

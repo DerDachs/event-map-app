@@ -9,7 +9,13 @@
 ## Screenshots erzeugen
 
 Die Screenshots werden aus den echten App-Widgets mit Beispieldaten gerendert
-(`tool/store_screenshots/store_screenshots_test.dart`): Headline in Bebas Neue, darunter das Handy.
+(`tool/store_screenshots/store_screenshots_test.dart`) und zeigen die App so, wie sie auf dem iPhone aussieht:
+Vollbild mit Statusleiste, Dynamic Island und Home-Indikator, ohne Headline, Rahmen oder Werbetext. Beispielmarkt ist
+das „Lichterdorf Musterstadt“ (erfunden).
+
+Ohne Flutter auf dem Rechner: GitHub → Actions → **App-Store-Screenshots** → Run workflow, danach das Artefakt
+`store-screenshots` laden. Bei einem Pull Request, der `tool/store_screenshots/` ändert, committet der Workflow
+die neuen Bilder selbst auf den Branch.
 
 ```bash
 flutter test tool/store_screenshots --update-goldens
@@ -21,7 +27,7 @@ Echte Geräte-Screenshots statt nachgebauter Bildschirme: siehe [`screenshots-na
 - **Karte (02_map)**: Google Maps lässt sich im Test nicht rendern. Mach auf dem iPhone einen
   Screenshot der Marktkarte (am besten mit der Suche „Crêpes“ und einem markierten Stand), lege ihn
   als `tool/store_screenshots/raw/de/02_map.png` bzw. `…/en/02_map.png` ab und starte den Befehl erneut.
-- Headlines und Unterzeilen stehen oben in der Testdatei (`_copy`).
+- Die Statusleiste wird mit Roboto statt San Francisco gezeichnet. Wer exakt die iOS-Schrift will, nimmt echte Geräte-Screenshots.
 - Die Beispielmärkte sind erfunden (keine echten Märkte, keine fremden Fotos); die Bilder sind eigene
   Illustrationen in `tool/store_screenshots/images/`.
 - Dabei entsteht auch `website-home.png`, die Startseite für die Website:
