@@ -22,6 +22,14 @@ flutter test tool/store_screenshots --update-goldens
 python3 tool/store_screenshots/flatten.py docs/app-store/screenshots   # Apple lehnt Alphakanäle ab
 ```
 
+Weitere iPhone-Größen (1290 × 2796, 1284 × 2778, 1206 × 2622, 1179 × 2556) liegen in `screenshots/<Breite>x<Höhe>/`;
+`tool/store_screenshots/sizes.py` skaliert sie aus den 1320 × 2868 (der Workflow macht das mit).
+
+Kopfzeile und Suchergebnisse (Universal-Asset 5244 × 2950, PNG ohne Alphakanal): [`header/`](header/),
+erzeugt mit `python3 tool/store_screenshots/header_assets.py docs/app-store/header` (braucht Pillow und `rsvg-convert`).
+Beide Bilder halten die Sicherheitsbereiche aus Apples Creative-Assets-Spezifikation ein
+([Apple](https://developer.apple.com/help/app-store-connect/reference/app-information/creative-assets-specifications/)).
+
 Echte Geräte-Screenshots statt nachgebauter Bildschirme: siehe [`screenshots-nativ.md`](screenshots-nativ.md).
 
 - **Karte (02_map)**: Google Maps lässt sich im Test nicht rendern. Mach auf dem iPhone einen

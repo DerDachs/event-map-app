@@ -40,6 +40,9 @@ jobs:
       # Apple rejects screenshots with an alpha channel
       - run: python3 tool/store_screenshots/flatten.py docs/app-store/screenshots
 
+      # the other iPhone sizes App Store Connect accepts
+      - run: python3 tool/store_screenshots/sizes.py docs/app-store/screenshots
+
       - uses: actions/upload-artifact@v4
         with:
           name: store-screenshots
