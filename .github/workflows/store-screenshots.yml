@@ -56,4 +56,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/app-store
-          git diff --cached --quiet || (git commit -m "App-Store-Screenshots neu erzeugt" && git push)
+          git diff --cached --quiet || (git commit -m "App-Store-Screenshots neu erzeugt" && (git push || (git pull --rebase && git push)))

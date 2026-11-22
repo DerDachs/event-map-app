@@ -11,10 +11,10 @@ Screenshots entstehen aus dem vorhandenen Test (`tool/store_screenshots`), nicht
 |---|---|---|---|
 | 0 | Rechtliches & Blocker | 1–2 Tage | offen |
 | 1 | Daten-Einwilligung & Beispielmarkt | 1 Tag | im PR |
-| 2 | Design-Refresh | 2–3 Tage | im PR (Grundlage) |
-| 3 | Funktionen ausreifen | 3–4 Tage | offen |
+| 2 | Design-Refresh | 2–3 Tage | 1.1.0 (offen: dunkler Modus) |
+| 3 | Funktionen ausreifen | 3–4 Tage | 1.1.0 größtenteils |
 | 4 | Prod-Readiness | 2 Tage | offen |
-| 5 | Store-Paket & Einreichung | 1–2 Tage | offen |
+| 5 | Store-Paket & Einreichung | 1–2 Tage | erledigt (App im Store) |
 
 ## Phase 0 – Rechtliches & Blocker (ohne Code-Risiko, zuerst)
 
@@ -46,17 +46,17 @@ wiedererkennbare Element; alles andere bleibt ruhig. Marke bleibt: Marktrot, Koh
 - [x] Theme: Typo-Skala, größere Tippflächen, Navigation als echte Material-3-Leiste mit Gold-Indikator
 - [x] Markisen-Kante als Widget (`AwningEdge`), Marktkarten mit Datums-Schild und Herz mit Feder-Effekt
 - [x] Leere Zustände mit klarer Handlung („Noch keine Favoriten. Tippe das Herz an einem Markt.“)
-- [ ] Startseite: Hero mit Countdown als Schild, Kategorie-Schnellzugriff („Glühwein“, „Süßes“ …)
-- [ ] Karte: Marker-Cluster beruhigen, Stand-Karte als Bottom Sheet mit Öffnungsstatus
-- [ ] Onboarding in drei Karten (Karte, Stände finden, Freunde einladen), nur beim ersten Start
+- [x] Startseite: großer Kopf mit Begrüßung und Marktsuche (1.1.0); Kategorie-Schnellzugriff entfällt – Kategorien gibt es je Markt auf der Karte
+- [x] Karte ist der Markt: Vollbild, Sheet mit Status, Infos/Team, Standliste; Stand-Details als Bottom Sheet (1.1.0)
+- [x] Onboarding in drei Karten (Karte, Stände finden, Freunde einladen), nur beim ersten Start (1.1.0)
 - [ ] Dunkler Modus „Abendmarkt“ (Tokens existieren schon)
 - [ ] Alle Texte in `app_de.arb` / `app_en.arb`, Prüfung auf 390 px und große Schrift
 
 ## Phase 3 – Funktionen ausreifen
 
-- [ ] Stand-Detailseite (Name, Speisen/Angebote, Bilder, „Zum Team teilen“) – Datenmodell hat `menu` und `promotions` schon
-- [ ] Suche über alle Stände eines Marktes, mit Kategorie-Chips
-- [ ] Teams: Mitglieder sichtbar, Team verlassen, Code erneuern; Regeln einschränken (siehe Phase 4)
+- [x] Stand-Details (Name, Angebot, Aktion, Bild, „Als Treffpunkt kopieren“) als Sheet (1.1.0)
+- [x] Suche über alle Stände eines Marktes (auch im Angebot), mit Kategorie-Chips (1.1.0)
+- [x] Teams: Mitglieder, verlassen, Einladung kopieren, Code erneuern (1.1.0); Regeln einschränken bleibt Phase 4
 - [x] `isMarketOpen` vergleicht Wochentage jetzt sprachunabhängig (`weekdayOf`, `isOpenAt`, getestet)
 - [ ] Fehler-, Lade- und Offline-Zustände für Karte und Listen vereinheitlichen (Startseite ist mit `EmptyState` erledigt)
 - [ ] Standort mit dem Team teilen (nur wenn gewollt; dann App-Privacy „Genauer Standort“ ergänzen)
@@ -70,7 +70,7 @@ wiedererkennbare Element; alles andere bleibt ruhig. Marke bleibt: Marktrot, Koh
 - [ ] Crashlytics einbinden, Release-Build ohne Debug-Ausgaben
 - [ ] Cloud Function: Aufrufbegrenzung pro Admin und Tag (schützt das Claude-Budget)
 - [x] Konto löschen räumt Teams, Favoriten und Marktteilnahme auf (hochgeladene Pläne gehören dem Markt, nicht dem Konto)
-- [ ] CI: `flutter analyze` und `flutter test` als Pflicht-Check im PR, `functions` Tests ebenso
+- [x] CI: `flutter analyze` und `flutter test` laufen in jedem PR (`flutter-check.yml`, 1.1.0); `functions`-Tests noch offen
 - [ ] iOS: Privacy Manifest, Versionsnummer, Build-Nummer aus der CI
 - [ ] Backups: tägliche Firestore-Exports (günstig, Bucket mit Ablauf nach 30 Tagen)
 
@@ -94,4 +94,4 @@ müssen neu gerendert werden). Geprüft wurde nur die Einwilligungs-Logik der Fu
 1. Einwilligungstext: Der Entwurf steht in `plan_consent.dart`. Rechtlich prüfen lassen.
 2. Gilt die Einwilligung des Admins stellvertretend für den Veranstalter, oder holen wir sie schriftlich?
    Der Entwurf geht vom zweiten Fall aus („Ich bin berechtigt …“).
-3. Android: vorbereitet, aber nicht Teil des ersten Releases.
+3. Android: Konzept in `docs/android.md` (Web-App jetzt, Play-Test parallel) – Kontoart entscheiden.
