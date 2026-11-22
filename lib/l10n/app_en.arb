@@ -211,5 +211,5 @@
   "teamRenewCodeText": "The old code will stop working. Everyone already in the team stays.",
   "teamCodeRenewed": "New code is active.",
   "teamRenewFailed": "Could not renew the code: {error}",
-  "teamCodeHow": "Friends enter this code under “Team” → “Join with code”."
+  "teamCodeHow": "Friends enter this code under “Team”, then “Join with code”."
 }

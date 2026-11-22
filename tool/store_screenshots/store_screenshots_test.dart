@@ -33,7 +33,7 @@ import 'package:market_mates/data/models/eventImage.dart';
 import 'package:market_mates/data/models/profile.dart';
 import 'package:market_mates/data/models/team.dart';
 import 'package:market_mates/features/events/providers/event_provider.dart';
-import 'package:market_mates/features/events/screens/team_tab.dart';
+import 'package:market_mates/features/events/screens/market_section_screens.dart';
 import 'package:market_mates/features/events/widgets/event_info.dart';
 import 'package:market_mates/features/favorites/providers/favorite_provider.dart';
 import 'package:market_mates/features/feed/models/feed_post.dart';
@@ -46,7 +46,6 @@ import 'package:market_mates/features/teams/providers/team_provider.dart';
 import 'package:market_mates/l10n/l10n.dart';
 import 'package:market_mates/providers/state_provider.dart';
 import 'package:market_mates/providers/user_provider.dart';
-import 'package:market_mates/screens/layout/base_layout.dart';
 import 'package:market_mates/services/user_service.dart';
 import 'package:market_mates/theme/app_theme.dart';
 import 'package:market_mates/theme/brand_tokens.dart';
@@ -508,11 +507,13 @@ void main() {
           screen: _nativeOr(
               lang,
               '03_info',
-              () => BaseLayout(
-                    title: _altstadt.name,
-                    body: SingleChildScrollView(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: EventInfo(event: _altstadt, showMap: false),
+              () => Builder(
+                    builder: (context) => Scaffold(
+                      appBar: AppBar(title: Text(context.l10n.marketInfoAction)),
+                      body: SingleChildScrollView(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: EventInfo(event: _altstadt, showMap: false),
+                      ),
                     ),
                   )));
 
@@ -521,7 +522,7 @@ void main() {
           file: '04_team',
           tab: 2,
           screen: _nativeOr(
-              lang, '04_team', () => BaseLayout(title: _altstadt.name, body: TeamTab(event: _altstadt))));
+              lang, '04_team', () => MarketTeamScreen(event: _altstadt)));
 
       await _shoot(tester,
           lang: lang,
