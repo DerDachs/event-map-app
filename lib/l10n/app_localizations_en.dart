@@ -600,7 +600,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demoBadge => 'Example';
 
   @override
-  String get noMarketsHint => 'As soon as a market is added, you will find it here.';
+  String get noMarketsHint =>
+      'As soon as a market is added, you will find it here.';
 
   @override
   String get homeRunning => 'Open now';
