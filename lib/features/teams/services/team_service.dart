@@ -30,12 +30,24 @@ class TeamService {
         .map((s) => s.docs.isEmpty ? null : Team.fromFirestore(s.docs.first));
   }
 
-  Future<Team> createTeam(String eventId, String leaderId, String teamName) async {
-    // Codes are short, so make sure the new one isn't taken yet.
+  /// A team code nobody uses yet; codes are short, so check.
+  Future<String> _freeCode() async {
     var code = generateTeamCode();
     while ((await _teams.where('teamCode', isEqualTo: code).limit(1).get()).docs.isNotEmpty) {
       code = generateTeamCode();
     }
+    return code;
+  }
+
+  /// Gives [team] a new code; the old one stops working, members stay.
+  Future<String> renewCode(Team team) async {
+    final code = await _freeCode();
+    await _teams.doc(team.id).update({'teamCode': code});
+    return code;
+  }
+
+  Future<Team> createTeam(String eventId, String leaderId, String teamName) async {
+    final code = await _freeCode();
     final ref = _teams.doc();
     final team = Team(
       id: ref.id,

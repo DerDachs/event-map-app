@@ -354,5 +354,92 @@
   "homeRunning": "Läuft gerade",
   "homeUpcoming": "Demnächst",
   "homePast": "Vergangene Märkte",
-  "appleSignInFailed": "Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut."
+  "appleSignInFailed": "Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut.",
+  "marketOpenUntil": "Geöffnet · bis {time} Uhr",
+  "@marketOpenUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "marketOpensAt": "Öffnet heute um {time} Uhr",
+  "@marketOpensAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClosedToday": "Heute geschlossen",
+  "marketBack": "Zurück zur Übersicht",
+  "marketInfoAction": "Infos",
+  "marketTeamAction": "Team",
+  "marketMapAction": "Karte",
+  "standOffer": "Angebot",
+  "standPromotion": "Aktion",
+  "standCopyMeet": "Als Treffpunkt kopieren",
+  "standMeetText": "Treffpunkt: Stand „{stand}“ – {market}. Wer ist dabei?",
+  "@standMeetText": {
+    "placeholders": {
+      "stand": {
+        "type": "String"
+      },
+      "market": {
+        "type": "String"
+      }
+    }
+  },
+  "standMeetCopied": "Kopiert – füge es in euren Gruppenchat ein.",
+  "standShowOnMap": "Auf der Karte zeigen",
+  "standNoDetails": "Für diesen Stand gibt es noch keine weiteren Angaben.",
+  "homeHeadline": "Wohin heute?",
+  "homeGreeting": "Hallo {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketSearchHint": "Markt suchen",
+  "marketSearchNone": "Kein Markt gefunden. Versuch’s mit einem anderen Namen.",
+  "homeSearchResults": "Treffer",
+  "onbSkip": "Überspringen",
+  "onbNext": "Weiter",
+  "onbStart": "Los geht’s",
+  "onb1Title": "Alle Stände auf einer Karte",
+  "onb1Text": "Vom Weihnachtsmarkt bis zum Weinfest: Du siehst sofort, was wo steht.",
+  "onb2Title": "Finden statt suchen",
+  "onb2Text": "Wo gibt’s hier Crêpes? Such nach Ständen, filtere nach Kategorie und merk dir Favoriten.",
+  "onb3Title": "Gemeinsam über den Markt",
+  "onb3Text": "Gründe ein Team, teile den Code mit Freunden und verabredet euch am Lieblingsstand.",
+  "teamInviteCopy": "Einladung kopieren",
+  "teamInviteText": "Komm in mein Team „{team}“ ({market})! Gib in Market Mate diesen Code ein: {code}",
+  "@teamInviteText": {
+    "placeholders": {
+      "team": {
+        "type": "String"
+      },
+      "market": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "teamInviteCopied": "Einladung kopiert – schick sie deinen Freunden.",
+  "teamRenewCode": "Neuen Code erzeugen",
+  "teamRenewCodeText": "Der alte Code funktioniert danach nicht mehr. Wer schon im Team ist, bleibt drin.",
+  "teamCodeRenewed": "Neuer Code ist aktiv.",
+  "teamRenewFailed": "Code konnte nicht erneuert werden: {error}",
+  "@teamRenewFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "teamCodeHow": "Freunde geben diesen Code unter „Team“ → „Mit Code beitreten“ ein."
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/user_provider.dart';
 import '../features/auth/providers/authentication_provider.dart';
 import '../features/auth/screens/login_screen.dart';
+import '../features/onboarding/onboarding.dart';
 import '../screens/home_screen.dart';
 import '../screens/profile_initialization_screen.dart';
 import 'package:market_mates/l10n/l10n.dart';
@@ -44,6 +45,11 @@ class _AuthenticationGateState extends ConsumerState<AuthenticationGate> {
 
   @override
   Widget build(BuildContext context) {
+    // First start (and first start after the 1.1 update): three intro cards.
+    final seen = ref.watch(onboardingSeenProvider);
+    if (seen.isLoading) return const Scaffold(body: SizedBox());
+    if (seen.valueOrNull == false) return const OnboardingScreen();
+
     final authState = ref.watch(authStateProvider);
     final userProfileState = ref.watch(userProfileProvider);
 
