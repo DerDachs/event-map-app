@@ -615,4 +615,130 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appleSignInFailed =>
       'Sign in with Apple failed. Please try again.';
+
+  @override
+  String marketOpenUntil(String time) {
+    return 'Open · until $time';
+  }
+
+  @override
+  String marketOpensAt(String time) {
+    return 'Opens today at $time';
+  }
+
+  @override
+  String get marketClosedToday => 'Closed today';
+
+  @override
+  String get marketBack => 'Back to all markets';
+
+  @override
+  String get marketInfoAction => 'Info';
+
+  @override
+  String get marketTeamAction => 'Team';
+
+  @override
+  String get marketMapAction => 'Map';
+
+  @override
+  String get standOffer => 'On offer';
+
+  @override
+  String get standPromotion => 'Special';
+
+  @override
+  String get standCopyMeet => 'Copy as meeting point';
+
+  @override
+  String standMeetText(String stand, String market) {
+    return 'Meeting point: “$stand” – $market. Who’s in?';
+  }
+
+  @override
+  String get standMeetCopied => 'Copied – paste it into your group chat.';
+
+  @override
+  String get standShowOnMap => 'Show on map';
+
+  @override
+  String get standNoDetails =>
+      'There are no further details for this stall yet.';
+
+  @override
+  String get homeHeadline => 'Where to today?';
+
+  @override
+  String homeGreeting(String name) {
+    return 'Hi $name';
+  }
+
+  @override
+  String get marketSearchHint => 'Search markets';
+
+  @override
+  String get marketSearchNone => 'No market found. Try another name.';
+
+  @override
+  String get homeSearchResults => 'Results';
+
+  @override
+  String get onbSkip => 'Skip';
+
+  @override
+  String get onbNext => 'Next';
+
+  @override
+  String get onbStart => 'Let’s go';
+
+  @override
+  String get onb1Title => 'Every stall on one map';
+
+  @override
+  String get onb1Text =>
+      'From Christmas markets to wine festivals: see at a glance what is where.';
+
+  @override
+  String get onb2Title => 'Find, don’t search';
+
+  @override
+  String get onb2Text =>
+      'Where are the crêpes? Search stalls, filter by category and keep favourites.';
+
+  @override
+  String get onb3Title => 'Explore together';
+
+  @override
+  String get onb3Text =>
+      'Start a team, share the code with friends and meet at your favourite stall.';
+
+  @override
+  String get teamInviteCopy => 'Copy invitation';
+
+  @override
+  String teamInviteText(String team, String market, String code) {
+    return 'Join my team “$team” ($market)! Enter this code in Market Mate: $code';
+  }
+
+  @override
+  String get teamInviteCopied => 'Invitation copied – send it to your friends.';
+
+  @override
+  String get teamRenewCode => 'New code';
+
+  @override
+  String get teamRenewCodeText =>
+      'The old code will stop working. Everyone already in the team stays.';
+
+  @override
+  String get teamCodeRenewed => 'New code is active.';
+
+  @override
+  String teamRenewFailed(String error) {
+    return 'Could not renew the code: $error';
+  }
+
+  @override
+  String get teamCodeHow =>
+      'Friends enter this code under “Team” → “Join with code”.';
 }

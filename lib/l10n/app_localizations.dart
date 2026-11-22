@@ -1153,6 +1153,222 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut.'**
   String get appleSignInFailed;
+
+  /// No description provided for @marketOpenUntil.
+  ///
+  /// In de, this message translates to:
+  /// **'Geöffnet · bis {time} Uhr'**
+  String marketOpenUntil(String time);
+
+  /// No description provided for @marketOpensAt.
+  ///
+  /// In de, this message translates to:
+  /// **'Öffnet heute um {time} Uhr'**
+  String marketOpensAt(String time);
+
+  /// No description provided for @marketClosedToday.
+  ///
+  /// In de, this message translates to:
+  /// **'Heute geschlossen'**
+  String get marketClosedToday;
+
+  /// No description provided for @marketBack.
+  ///
+  /// In de, this message translates to:
+  /// **'Zurück zur Übersicht'**
+  String get marketBack;
+
+  /// No description provided for @marketInfoAction.
+  ///
+  /// In de, this message translates to:
+  /// **'Infos'**
+  String get marketInfoAction;
+
+  /// No description provided for @marketTeamAction.
+  ///
+  /// In de, this message translates to:
+  /// **'Team'**
+  String get marketTeamAction;
+
+  /// No description provided for @marketMapAction.
+  ///
+  /// In de, this message translates to:
+  /// **'Karte'**
+  String get marketMapAction;
+
+  /// No description provided for @standOffer.
+  ///
+  /// In de, this message translates to:
+  /// **'Angebot'**
+  String get standOffer;
+
+  /// No description provided for @standPromotion.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktion'**
+  String get standPromotion;
+
+  /// No description provided for @standCopyMeet.
+  ///
+  /// In de, this message translates to:
+  /// **'Als Treffpunkt kopieren'**
+  String get standCopyMeet;
+
+  /// No description provided for @standMeetText.
+  ///
+  /// In de, this message translates to:
+  /// **'Treffpunkt: Stand „{stand}“ – {market}. Wer ist dabei?'**
+  String standMeetText(String stand, String market);
+
+  /// No description provided for @standMeetCopied.
+  ///
+  /// In de, this message translates to:
+  /// **'Kopiert – füge es in euren Gruppenchat ein.'**
+  String get standMeetCopied;
+
+  /// No description provided for @standShowOnMap.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf der Karte zeigen'**
+  String get standShowOnMap;
+
+  /// No description provided for @standNoDetails.
+  ///
+  /// In de, this message translates to:
+  /// **'Für diesen Stand gibt es noch keine weiteren Angaben.'**
+  String get standNoDetails;
+
+  /// No description provided for @homeHeadline.
+  ///
+  /// In de, this message translates to:
+  /// **'Wohin heute?'**
+  String get homeHeadline;
+
+  /// No description provided for @homeGreeting.
+  ///
+  /// In de, this message translates to:
+  /// **'Hallo {name}'**
+  String homeGreeting(String name);
+
+  /// No description provided for @marketSearchHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Markt suchen'**
+  String get marketSearchHint;
+
+  /// No description provided for @marketSearchNone.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Markt gefunden. Versuch’s mit einem anderen Namen.'**
+  String get marketSearchNone;
+
+  /// No description provided for @homeSearchResults.
+  ///
+  /// In de, this message translates to:
+  /// **'Treffer'**
+  String get homeSearchResults;
+
+  /// No description provided for @onbSkip.
+  ///
+  /// In de, this message translates to:
+  /// **'Überspringen'**
+  String get onbSkip;
+
+  /// No description provided for @onbNext.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get onbNext;
+
+  /// No description provided for @onbStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Los geht’s'**
+  String get onbStart;
+
+  /// No description provided for @onb1Title.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Stände auf einer Karte'**
+  String get onb1Title;
+
+  /// No description provided for @onb1Text.
+  ///
+  /// In de, this message translates to:
+  /// **'Vom Weihnachtsmarkt bis zum Weinfest: Du siehst sofort, was wo steht.'**
+  String get onb1Text;
+
+  /// No description provided for @onb2Title.
+  ///
+  /// In de, this message translates to:
+  /// **'Finden statt suchen'**
+  String get onb2Title;
+
+  /// No description provided for @onb2Text.
+  ///
+  /// In de, this message translates to:
+  /// **'Wo gibt’s hier Crêpes? Such nach Ständen, filtere nach Kategorie und merk dir Favoriten.'**
+  String get onb2Text;
+
+  /// No description provided for @onb3Title.
+  ///
+  /// In de, this message translates to:
+  /// **'Gemeinsam über den Markt'**
+  String get onb3Title;
+
+  /// No description provided for @onb3Text.
+  ///
+  /// In de, this message translates to:
+  /// **'Gründe ein Team, teile den Code mit Freunden und verabredet euch am Lieblingsstand.'**
+  String get onb3Text;
+
+  /// No description provided for @teamInviteCopy.
+  ///
+  /// In de, this message translates to:
+  /// **'Einladung kopieren'**
+  String get teamInviteCopy;
+
+  /// No description provided for @teamInviteText.
+  ///
+  /// In de, this message translates to:
+  /// **'Komm in mein Team „{team}“ ({market})! Gib in Market Mate diesen Code ein: {code}'**
+  String teamInviteText(String team, String market, String code);
+
+  /// No description provided for @teamInviteCopied.
+  ///
+  /// In de, this message translates to:
+  /// **'Einladung kopiert – schick sie deinen Freunden.'**
+  String get teamInviteCopied;
+
+  /// No description provided for @teamRenewCode.
+  ///
+  /// In de, this message translates to:
+  /// **'Neuen Code erzeugen'**
+  String get teamRenewCode;
+
+  /// No description provided for @teamRenewCodeText.
+  ///
+  /// In de, this message translates to:
+  /// **'Der alte Code funktioniert danach nicht mehr. Wer schon im Team ist, bleibt drin.'**
+  String get teamRenewCodeText;
+
+  /// No description provided for @teamCodeRenewed.
+  ///
+  /// In de, this message translates to:
+  /// **'Neuer Code ist aktiv.'**
+  String get teamCodeRenewed;
+
+  /// No description provided for @teamRenewFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Code konnte nicht erneuert werden: {error}'**
+  String teamRenewFailed(String error);
+
+  /// No description provided for @teamCodeHow.
+  ///
+  /// In de, this message translates to:
+  /// **'Freunde geben diesen Code unter „Team“ → „Mit Code beitreten“ ein.'**
+  String get teamCodeHow;
 }
 
 class _AppLocalizationsDelegate
