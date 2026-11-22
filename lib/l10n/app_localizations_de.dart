@@ -745,5 +745,5 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get teamCodeHow =>
-      'Freunde geben diesen Code unter „Team“ → „Mit Code beitreten“ ein.';
+      'Freunde geben diesen Code unter „Team“ bei „Mit Code beitreten“ ein.';
 }

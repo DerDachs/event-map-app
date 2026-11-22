@@ -1367,7 +1367,7 @@ abstract class AppLocalizations {
   /// No description provided for @teamCodeHow.
   ///
   /// In de, this message translates to:
-  /// **'Freunde geben diesen Code unter „Team“ → „Mit Code beitreten“ ein.'**
+  /// **'Freunde geben diesen Code unter „Team“ bei „Mit Code beitreten“ ein.'**
   String get teamCodeHow;
 }
 
