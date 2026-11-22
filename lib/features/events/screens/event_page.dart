@@ -1,54 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/models/event.dart';
-import '../../../providers/state_provider.dart';
-import '../../../screens/layout/base_layout.dart';
-import '../../market_editor/widgets/edit_market_button.dart';
-import 'event_details_tab.dart';
-import 'map_stands_tab.dart';
-import 'team_tab.dart';
 
-class EventPage extends ConsumerStatefulWidget {
+import '../../../data/models/event.dart';
+import 'map_stands_tab.dart';
+
+/// A joined market: the map is the page. Infos and team open from the sheet
+/// at the bottom (see [MapStandsTab]).
+class EventPage extends StatelessWidget {
   final Event event;
 
-  EventPage({required this.event});
+  const EventPage({super.key, required this.event});
 
   @override
-  _EventPageState createState() => _EventPageState();
-}
-
-class _EventPageState extends ConsumerState<EventPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Watch the current tab index from Riverpod
-    final currentIndex = ref.watch(bottomNavIndexProvider);
-
-    // List of screens for the BottomNavigationBar
-    final screens = [
-      EventDetailsTab(event: widget.event),
-      MapStandsTab(event: widget.event,),
-      TeamTab(event: widget.event),
-    ];
-
-    return BaseLayout(
-      title: widget.event.name,
-      actions: [EditMarketButton(eventId: widget.event.id)],
-      body: screens[currentIndex],
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: MapStandsTab(event: event),
+      );
 }

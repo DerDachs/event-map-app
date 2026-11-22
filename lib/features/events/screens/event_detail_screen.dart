@@ -60,19 +60,22 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
         actions: [EditMarketButton(eventId: widget.event.id)],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(top: 16),
-        child: EventInfo(
-          event: widget.event,
-          action: participation.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : FilledButton.icon(
-                  icon: _joining
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.map_outlined),
-                  label: Text(context.l10n.toMarketMap),
-                  onPressed: _joining ? null : _join,
-                ),
-        ),
+        padding: const EdgeInsets.only(top: 8, bottom: 24),
+        child: EventInfo(event: widget.event),
+      ),
+      // The one thing to do here sits fixed at the bottom, in thumb reach.
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: participation.isLoading
+            ? const SizedBox(height: 52, child: Center(child: CircularProgressIndicator()))
+            : FilledButton.icon(
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                icon: _joining
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.map_outlined),
+                label: Text(context.l10n.toMarketMap),
+                onPressed: _joining ? null : _join,
+              ),
       ),
     );
   }

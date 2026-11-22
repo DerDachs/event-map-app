@@ -82,6 +82,24 @@ String marketStatusLabel(Event event, DateTime now, AppLocalizations l) {
   };
 }
 
+/// Markets whose name, description or organiser contains [query]
+/// (lower case). Running and upcoming markets first, by start; past ones last.
+List<Event> matchingMarkets(List<Event> events, String query, DateTime now) {
+  final q = query.trim().toLowerCase();
+  if (q.isEmpty) return const [];
+  final hits = events
+      .where((e) =>
+          e.name.toLowerCase().contains(q) ||
+          e.description.toLowerCase().contains(q) ||
+          (e.organizerName ?? '').toLowerCase().contains(q))
+      .toList()
+    ..sort((a, b) {
+      final pa = a.endTime.isBefore(now) ? 1 : 0, pb = b.endTime.isBefore(now) ? 1 : 0;
+      return pa != pb ? pa - pb : a.startTime.compareTo(b.startTime);
+    });
+  return hits;
+}
+
 enum MarketNews { opensToday, opensSoon, lastDays, isNew }
 
 /// One card in the start page feed.

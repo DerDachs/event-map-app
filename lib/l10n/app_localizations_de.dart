@@ -603,7 +603,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get demoBadge => 'Beispiel';
 
   @override
-  String get noMarketsHint => 'Sobald ein Markt angelegt ist, findest du ihn hier.';
+  String get noMarketsHint =>
+      'Sobald ein Markt angelegt ist, findest du ihn hier.';
 
   @override
   String get homeRunning => 'Läuft gerade';
@@ -617,4 +618,132 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get appleSignInFailed =>
       'Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut.';
+
+  @override
+  String marketOpenUntil(String time) {
+    return 'Geöffnet · bis $time Uhr';
+  }
+
+  @override
+  String marketOpensAt(String time) {
+    return 'Öffnet heute um $time Uhr';
+  }
+
+  @override
+  String get marketClosedToday => 'Heute geschlossen';
+
+  @override
+  String get marketBack => 'Zurück zur Übersicht';
+
+  @override
+  String get marketInfoAction => 'Infos';
+
+  @override
+  String get marketTeamAction => 'Team';
+
+  @override
+  String get marketMapAction => 'Karte';
+
+  @override
+  String get standOffer => 'Angebot';
+
+  @override
+  String get standPromotion => 'Aktion';
+
+  @override
+  String get standCopyMeet => 'Als Treffpunkt kopieren';
+
+  @override
+  String standMeetText(String stand, String market) {
+    return 'Treffpunkt: Stand „$stand“ – $market. Wer ist dabei?';
+  }
+
+  @override
+  String get standMeetCopied => 'Kopiert – füge es in euren Gruppenchat ein.';
+
+  @override
+  String get standShowOnMap => 'Auf der Karte zeigen';
+
+  @override
+  String get standNoDetails =>
+      'Für diesen Stand gibt es noch keine weiteren Angaben.';
+
+  @override
+  String get homeHeadline => 'Wohin heute?';
+
+  @override
+  String homeGreeting(String name) {
+    return 'Hallo $name';
+  }
+
+  @override
+  String get marketSearchHint => 'Markt suchen';
+
+  @override
+  String get marketSearchNone =>
+      'Kein Markt gefunden. Versuch’s mit einem anderen Namen.';
+
+  @override
+  String get homeSearchResults => 'Treffer';
+
+  @override
+  String get onbSkip => 'Überspringen';
+
+  @override
+  String get onbNext => 'Weiter';
+
+  @override
+  String get onbStart => 'Los geht’s';
+
+  @override
+  String get onb1Title => 'Alle Stände auf einer Karte';
+
+  @override
+  String get onb1Text =>
+      'Vom Weihnachtsmarkt bis zum Weinfest: Du siehst sofort, was wo steht.';
+
+  @override
+  String get onb2Title => 'Finden statt suchen';
+
+  @override
+  String get onb2Text =>
+      'Wo gibt’s hier Crêpes? Such nach Ständen, filtere nach Kategorie und merk dir Favoriten.';
+
+  @override
+  String get onb3Title => 'Gemeinsam über den Markt';
+
+  @override
+  String get onb3Text =>
+      'Gründe ein Team, teile den Code mit Freunden und verabredet euch am Lieblingsstand.';
+
+  @override
+  String get teamInviteCopy => 'Einladung kopieren';
+
+  @override
+  String teamInviteText(String team, String market, String code) {
+    return 'Komm in mein Team „$team“ ($market)! Gib in Market Mate diesen Code ein: $code';
+  }
+
+  @override
+  String get teamInviteCopied =>
+      'Einladung kopiert – schick sie deinen Freunden.';
+
+  @override
+  String get teamRenewCode => 'Neuen Code erzeugen';
+
+  @override
+  String get teamRenewCodeText =>
+      'Der alte Code funktioniert danach nicht mehr. Wer schon im Team ist, bleibt drin.';
+
+  @override
+  String get teamCodeRenewed => 'Neuer Code ist aktiv.';
+
+  @override
+  String teamRenewFailed(String error) {
+    return 'Code konnte nicht erneuert werden: $error';
+  }
+
+  @override
+  String get teamCodeHow =>
+      'Freunde geben diesen Code unter „Team“ bei „Mit Code beitreten“ ein.';
 }
