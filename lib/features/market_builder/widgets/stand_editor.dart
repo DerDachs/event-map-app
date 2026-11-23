@@ -9,21 +9,34 @@ class StandEdit {
 
   /// Null when the sheet was opened without a description field.
   final String? description;
+
+  /// What the stand sells; null when the sheet was opened without it.
+  final List<String>? offer;
+
+  /// Current special, empty for none; null when opened without it.
+  final String? promotion;
   final bool delete;
 
-  const StandEdit(this.label, this.category, {this.description, this.delete = false});
+  const StandEdit(this.label, this.category, {this.description, this.offer, this.promotion, this.delete = false});
 
   static const deleted = StandEdit('', '', delete: true);
 }
 
-/// Bottom sheet to name a stand and pick its category. Used by the market
-/// builder and the market editor.
+/// Bottom sheet with everything visitors see of a stand: name, category,
+/// description, offer and special. Used by the market builder and the market
+/// editor, so stands are described in one place.
 class StandEditorSheet extends StatefulWidget {
   final String label;
   final String category;
 
   /// Shows a description field when not null.
   final String? description;
+
+  /// Shows an offer field (comma separated) when not null.
+  final List<String>? offer;
+
+  /// Shows a field for the current special when not null.
+  final String? promotion;
   final bool isNew;
 
   const StandEditorSheet({
@@ -31,6 +44,8 @@ class StandEditorSheet extends StatefulWidget {
     required this.label,
     required this.category,
     this.description,
+    this.offer,
+    this.promotion,
     this.isNew = false,
   });
 
@@ -41,12 +56,16 @@ class StandEditorSheet extends StatefulWidget {
 class _StandEditorSheetState extends State<StandEditorSheet> {
   late final _label = TextEditingController(text: widget.label);
   late final _description = TextEditingController(text: widget.description);
+  late final _offer = TextEditingController(text: widget.offer?.join(', '));
+  late final _promotion = TextEditingController(text: widget.promotion);
   late String _category = widget.category;
 
   @override
   void dispose() {
     _label.dispose();
     _description.dispose();
+    _offer.dispose();
+    _promotion.dispose();
     super.dispose();
   }
 
@@ -78,6 +97,30 @@ class _StandEditorSheetState extends State<StandEditorSheet> {
                 decoration: const InputDecoration(
                   labelText: 'Beschreibung',
                   hintText: 'z. B. Stand 14 · Crêpes, Waffeln, Kinderpunsch',
+                ),
+              ),
+            ],
+            if (widget.offer != null) ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _offer,
+                textCapitalization: TextCapitalization.sentences,
+                minLines: 1,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Angebot',
+                  hintText: 'Mit Komma trennen: Crêpes, Waffeln, Kinderpunsch',
+                ),
+              ),
+            ],
+            if (widget.promotion != null) ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _promotion,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  labelText: 'Aktion (optional)',
+                  hintText: 'z. B. Happy Hour 17–18 Uhr: 2 für 1',
                 ),
               ),
             ],
@@ -115,6 +158,13 @@ class _StandEditorSheetState extends State<StandEditorSheet> {
                         label,
                         _category,
                         description: widget.description == null ? null : _description.text.trim(),
+                        offer: widget.offer == null
+                            ? null
+                            : [
+                                for (final item in _offer.text.split(','))
+                                  if (item.trim().isNotEmpty) item.trim(),
+                              ],
+                        promotion: widget.promotion == null ? null : _promotion.text.trim(),
                       ),
                     );
                   },

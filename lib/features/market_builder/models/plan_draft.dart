@@ -11,6 +11,11 @@ class DraftStand {
   /// 'low', 'medium' or 'high'. Stands the organiser touched count as high.
   String confidence;
 
+  /// Shown to visitors; empty means "Stand <number> · <category>".
+  String description;
+  List<String> offer;
+  String promotion;
+
   DraftStand({
     required this.id,
     required this.label,
@@ -18,7 +23,10 @@ class DraftStand {
     required this.position,
     this.number,
     this.confidence = 'high',
-  });
+    this.description = '',
+    List<String>? offer,
+    this.promotion = '',
+  }) : offer = offer ?? [];
 
   factory DraftStand.fromAnalysis(Map<String, dynamic> map, int index) => DraftStand(
         id: 'stand_$index',

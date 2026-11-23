@@ -121,4 +121,71 @@ void main() {
       expect(back.y, closeTo(p.y, 0.01));
     }
   });
+
+  test('three points with one misplaced never squash the plan', () {
+    // The third point is put 25 m off – before, the affine fit squashed the plan.
+    final off = _cp(500, 950);
+    final misplaced = ControlPoint(
+      label: 'daneben',
+      plan: off.plan,
+      geo: GeoPoint(off.geo.latitude + 25 / 6378137.0 * 180 / math.pi, off.geo.longitude),
+      source: 'manual',
+    );
+    final g = Georeference.fit([_cp(50, 50), _cp(950, 100), misplaced], aspectRatio: _aspect)!;
+    expect(g.isAffine, isFalse);
+    final o = g.overlay();
+    // Same proportions as the plan image.
+    expect(o.widthMeters / o.heightMeters, closeTo(_aspect, 0.001));
+  });
+
+  test('four points on nearly one line stay undistorted', () {
+    final g = Georeference.fit(
+      [_cp(100, 500, stretchX: 1.4), _cp(400, 510, stretchX: 1.4), _cp(700, 495, stretchX: 1.4), _cp(900, 505, stretchX: 1.4)],
+      aspectRatio: _aspect,
+    )!;
+    expect(g.isAffine, isFalse);
+    final o = g.overlay();
+    expect(o.widthMeters / o.heightMeters, closeTo(_aspect, 0.001));
+  });
+
+  test('an implausible affine fit falls back to the similarity fit', () {
+    // Four spread points, but stretched 2.5x – more than a plan drawn by hand.
+    final g = Georeference.fit(
+      [_cp(50, 50, stretchX: 2.5), _cp(950, 100, stretchX: 2.5), _cp(500, 950, stretchX: 2.5), _cp(100, 900, stretchX: 2.5)],
+      aspectRatio: _aspect,
+    )!;
+    expect(g.isAffine, isFalse);
+  });
+
+  test('fine tuning moves, turns and scales the whole plan without distortion', () {
+    final g = Georeference.fit([_cp(100, 100), _cp(900, 800)], aspectRatio: _aspect)!;
+    const p = PlanPoint(500, 500);
+
+    final moved = g.adjusted(eastMeters: 10, northMeters: -5);
+    final m = moved.toGeo(p), o = g.toGeo(p);
+    final de = (m.longitude - o.longitude) * math.pi / 180 * 6378137.0 * math.cos(o.latitude * math.pi / 180);
+    final dn = (m.latitude - o.latitude) * math.pi / 180 * 6378137.0;
+    expect(de, closeTo(10, 0.01));
+    expect(dn, closeTo(-5, 0.01));
+
+    final turned = g.adjusted(rotationDeg: 20);
+    expect(turned.overlay().bearing, closeTo(20, 0.01));
+    expect(_distance(turned.overlay().center, g.overlay().center), lessThan(0.01));
+
+    final back = turned.adjusted(rotationDeg: -20).adjusted(scale: 1.1).adjusted(scale: 1 / 1.1);
+    for (final q in const [PlanPoint(0, 0), PlanPoint(1000, 700)]) {
+      expect(_distance(back.toGeo(q), g.toGeo(q)), lessThan(0.01));
+    }
+    expect(g.adjusted(scale: 2).overlay().widthMeters, closeTo(240, 0.1));
+  });
+
+  test('stored transform restores exactly', () {
+    final g = Georeference.fit([_cp(100, 100, rotationDeg: 12), _cp(900, 800, rotationDeg: 12)], aspectRatio: _aspect)!
+        .adjusted(eastMeters: 3, rotationDeg: 2);
+    final r = Georeference.fromTransformMap(g.toTransformMap())!;
+    for (final q in const [PlanPoint(0, 0), PlanPoint(640, 310)]) {
+      expect(_distance(r.toGeo(q), g.toGeo(q)), lessThan(0.001));
+    }
+    expect(Georeference.fromTransformMap({'a': 1}), isNull);
+  });
 }

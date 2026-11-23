@@ -73,6 +73,8 @@ class _StandMapEditorState extends State<StandMapEditor> {
         label: stand.label,
         category: stand.category,
         description: stand.description,
+        offer: stand.menu,
+        promotion: stand.promotion,
       ),
     );
     if (result == null) return;
@@ -82,7 +84,9 @@ class _StandMapEditorState extends State<StandMapEditor> {
       stand
         ..label = result.label
         ..category = result.category
-        ..description = result.description ?? stand.description;
+        ..description = result.description ?? stand.description
+        ..menu = result.offer ?? stand.menu
+        ..promotion = result.promotion ?? stand.promotion;
     }
     _changed();
   }
@@ -91,7 +95,14 @@ class _StandMapEditorState extends State<StandMapEditor> {
     final result = await showModalBottomSheet<StandEdit>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => const StandEditorSheet(label: '', category: 'other', description: '', isNew: true),
+      builder: (_) => const StandEditorSheet(
+        label: '',
+        category: 'other',
+        description: '',
+        offer: [],
+        promotion: '',
+        isNew: true,
+      ),
     );
     if (result == null || result.delete) return;
     _draft.stands.add(EditableStand(
@@ -103,6 +114,8 @@ class _StandMapEditorState extends State<StandMapEditor> {
           : result.description!,
       category: result.category,
       position: GeoPoint(position.latitude, position.longitude),
+      menu: result.offer,
+      promotion: result.promotion ?? '',
     ));
     _changed();
   }

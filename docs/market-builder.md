@@ -11,8 +11,13 @@ Besucherkarte jeden Stand als Icon.
 Admin-Menü → **Markt aus Lageplan erstellen**
 
 1. **Lageplan** – optional zuerst die **Webadresse des Marktes** eintragen und *Infos laden*: Beschreibung, Zeitraum, Öffnungszeiten, Eintritt, Veranstalter und passende Bilder werden übernommen (Bilder werden in den eigenen Storage kopiert). Dann Name, Ort (z. B. „Marienplatz, München“), Zeitraum, Bild wählen → *Mit KI analysieren* (1–3 Minuten).
-2. **Stände prüfen**: Punkte auf dem Plan antippen = bearbeiten, gedrückt halten und ziehen = verschieben, freie Stelle antippen = Stand hinzufügen. Gelber Rand = unsicher erkannt.
-3. **Auf Karte ausrichten**: Der Plan liegt halbtransparent über dem Satellitenbild. Passt es nicht, *Punkt zuordnen*: Stelle auf dem Plan antippen, dann dieselbe Stelle auf der Karte. Zwei eigene Punkte ersetzen die automatischen, ab drei Punkten werden auch verzerrte, nicht maßstabsgetreue Pläne korrekt umgerechnet. Falsch erkannte Orientierungspunkte lassen sich per ✕ abwählen.
+2. **Stände prüfen**: Punkte auf dem Plan antippen = bearbeiten (Name, Kategorie, Beschreibung, Angebot, Aktion – alles, was Besucher sehen), gedrückt halten und ziehen = verschieben, freie Stelle antippen = Stand hinzufügen. Gelber Rand = unsicher erkannt.
+3. **Auf Karte ausrichten**: Der Plan liegt halbtransparent über dem Satellitenbild.
+   - *Punkt zuordnen*: Stelle auf dem Plan antippen, dann dieselbe Stelle auf der Karte. Zwei eigene Punkte ersetzen die automatischen. Der Plan wird dabei nur verschoben, gedreht und gleichmäßig skaliert – nie gestaucht oder geschert. Erst ab **vier gut verteilten** Punkten darf er leicht entzerrt werden (höchstens 1,6-fach gestreckt, höchstens 15° schief), sonst bleibt es bei der unverzerrten Lösung.
+   - *Feinjustieren*: Plan als Ganzes in 1-m-, 1°- und 2-%-Schritten verschieben, drehen, vergrößern.
+   - *Rückgängig* nimmt jeden Schritt zurück, *Zurücksetzen* kehrt zur automatischen Platzierung zurück.
+   - Stände lassen sich auch hier antippen (bearbeiten) und auf der Karte ziehen; ihre Position auf dem Plan wandert mit.
+   - Falsch erkannte Orientierungspunkte lassen sich per ✕ abwählen.
 4. **Speichern**: legt Event, Stände und Kategorien in Firestore an.
 
 ## Einmalige Einrichtung
@@ -73,7 +78,7 @@ Geocoding-Anfragen. Fällt nur beim Anlegen eines Marktes an.
 | Claude-Aufruf, Prompt, Ausgabe-Schema | `functions/src/analyze.ts`, `prompt.ts`, `schema.ts` |
 | Geocoding der Orientierungspunkte | `functions/src/geocode.ts` |
 | Import von der Webseite (`importEventFromUrl`) | `functions/src/importEventFunction.ts`, `eventImport.ts`, `webpage.ts` |
-| Umrechnung Plan → GPS (Ähnlichkeits-/Affintransformation, Ausreißer-Filter) | `lib/features/market_builder/services/georeference.dart` |
+| Umrechnung Plan → GPS (Ähnlichkeitstransformation, Affin nur bei ≥ 4 plausiblen Punkten, Ausreißer-Filter, Feinjustierung; gespeichert als `plan.transform`) | `lib/features/market_builder/services/georeference.dart` |
 | Assistent (3 Schritte) | `lib/features/market_builder/screens/market_builder_screen.dart` |
 | Speichern in Firestore | `lib/features/market_builder/services/market_builder_service.dart` |
 

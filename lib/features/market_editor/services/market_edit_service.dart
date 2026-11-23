@@ -48,6 +48,11 @@ class MarketEditService {
         key: id,
         label: standData['name'] as String? ?? '',
         description: standData['description'] as String? ?? '',
+        menu: [
+          for (final m in (standData['menu'] as List? ?? const []))
+            if (m is String && m.trim().isNotEmpty) m,
+        ],
+        promotion: standData['promotions'] as String? ?? '',
         category: standCategoryFor(entry['category'] as String? ?? standData['category'] as String?).key,
         position: GeoPoint(
           (location['latitude'] as num).toDouble(),
@@ -69,7 +74,14 @@ class MarketEditService {
           .map((p) => ControlPoint.fromMap(Map<String, dynamic>.from(p)))
           .toList();
       final aspect = plan['aspectRatio'];
-      if (aspect is num) georeference = Georeference.fit(points, aspectRatio: aspect.toDouble());
+      // Markets saved since 1.1 store the exact transform (incl. fine tuning).
+      final transform = plan['transform'];
+      georeference = transform is Map
+          ? Georeference.fromTransformMap(Map<String, dynamic>.from(transform), usedPoints: points)
+          : null;
+      if (georeference == null && aspect is num) {
+        georeference = Georeference.fit(points, aspectRatio: aspect.toDouble());
+      }
       final o = event.plan;
       if (o != null) {
         overlay = PlanOverlay(
@@ -129,14 +141,16 @@ class MarketEditService {
               'description': stand.description,
               'category': category.key,
               'images': <Map<String, dynamic>>[],
-              'menu': <String>[],
-              'promotions': null,
+              'menu': stand.menu,
+              'promotions': stand.promotion.isEmpty ? null : stand.promotion,
             }));
       } else if (stand.documentChanged) {
         writes.add((b) => b.update(ref, {
               'name': stand.label,
               'description': stand.description,
               'category': category.key,
+              'menu': stand.menu,
+              'promotions': stand.promotion.isEmpty ? null : stand.promotion,
             }));
       }
       final planPoint = draft.georeference?.toPlan(stand.position);
