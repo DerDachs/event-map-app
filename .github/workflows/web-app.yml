@@ -44,6 +44,17 @@ jobs:
           if [ -z "$MAPS_KEY" ]; then echo "::warning::GOOGLE_MAPS_WEB_KEY missing – the map will not load"; fi
           sed -i "s|__MAPS_WEB_KEY__|${MAPS_KEY}|" build/web/index.html
 
+      # Smoke test: open the app in headless Chrome and show what the console says.
+      - name: Smoke test in Chrome
+        run: |
+          (cd build/web && python3 -m http.server 8080 >/dev/null 2>&1 &)
+          sleep 2
+          timeout 60 google-chrome --headless=new --no-sandbox --disable-gpu \
+            --enable-logging=stderr --v=0 --virtual-time-budget=20000 \
+            --screenshot=build/smoke.png --window-size=390,844 http://localhost:8080/ 2> chrome.log || true
+          grep -E "CONSOLE|Uncaught|Error" chrome.log | head -40 || true
+          if grep -q "Uncaught" chrome.log; then echo "::error::Uncaught error while starting the web app"; exit 1; fi
+
       - uses: actions/upload-artifact@v4
         with:
           name: web-app
