@@ -46,6 +46,10 @@ vor der Veröffentlichung einen geschlossenen Test mit mindestens 12 Testern dur
 14 Tage am Stück dabei sind. Konten als Organisation sind davon ausgenommen, brauchen aber eine
 D-U-N-S-Nummer (kann bis zu 30 Tage dauern).
 
+## Umsetzung
+
+Option A ist umgesetzt (PR #21), Einrichtung und Secrets: `docs/web-app.md`.
+
 ## Empfehlung
 
 1. **Jetzt: Web-App (Option A)** als schneller Android-Weg. Gleicher Code, kein Store, und der
