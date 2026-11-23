@@ -65,6 +65,13 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   final List<ControlPoint> _rejectedGeocoded = [];
   PlanPoint? _pendingPlanPoint;
   double _overlayOpacity = 0.6;
+
+  /// Fine tuning by hand on top of the fitted alignment.
+  _Adjustment _adjust = const _Adjustment();
+  bool _showFineTuning = false;
+
+  /// Earlier states of the alignment step, for "Rückgängig".
+  final List<_AlignSnapshot> _history = [];
   GoogleMapController? _map;
   Map<String, BitmapDescriptor> _markerIcons = {};
 
@@ -307,7 +314,13 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     final result = await showModalBottomSheet<StandEdit>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => StandEditorSheet(label: stand.label, category: stand.category),
+      builder: (_) => StandEditorSheet(
+        label: stand.label,
+        category: stand.category,
+        description: stand.description,
+        offer: stand.offer,
+        promotion: stand.promotion,
+      ),
     );
     if (result == null) return;
     setState(() {
@@ -317,6 +330,9 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
         stand
           ..label = result.label
           ..category = result.category
+          ..description = result.description ?? stand.description
+          ..offer = result.offer ?? stand.offer
+          ..promotion = result.promotion ?? stand.promotion
           ..confidence = 'high';
       }
     });
@@ -332,13 +348,23 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     final result = await showModalBottomSheet<StandEdit>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => StandEditorSheet(label: stand.label, category: stand.category, isNew: true),
+      builder: (_) => StandEditorSheet(
+        label: stand.label,
+        category: stand.category,
+        description: '',
+        offer: const [],
+        promotion: '',
+        isNew: true,
+      ),
     );
     if (result == null || result.delete) return;
     setState(() {
       stand
         ..label = result.label
-        ..category = result.category;
+        ..category = result.category
+        ..description = result.description ?? ''
+        ..offer = result.offer ?? []
+        ..promotion = result.promotion ?? '';
       _draft!.stands.add(stand);
     });
   }
@@ -406,16 +432,83 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   // ----------------------------------------------------------------- Place
 
   /// Two points placed by the organiser beat any number of geocoded ones.
+  /// Fine tuning is applied on top; it never distorts the plan.
   Georeference? get _georeference {
     final draft = _draft!;
+    final Georeference? base;
     if (_manualPoints.length >= 2) {
-      return Georeference.fit(_manualPoints, aspectRatio: draft.aspectRatio);
+      base = Georeference.fit(_manualPoints, aspectRatio: draft.aspectRatio);
+    } else {
+      final points = [
+        ...draft.controlPoints.where((p) => !_rejectedGeocoded.contains(p)),
+        ..._manualPoints,
+      ];
+      base = Georeference.fitRobust(points, aspectRatio: draft.aspectRatio);
     }
-    final points = [
-      ...draft.controlPoints.where((p) => !_rejectedGeocoded.contains(p)),
-      ..._manualPoints,
-    ];
-    return Georeference.fitRobust(points, aspectRatio: draft.aspectRatio);
+    if (base == null || _adjust.isIdentity) return base;
+    return base.adjusted(
+      eastMeters: _adjust.east,
+      northMeters: _adjust.north,
+      rotationDeg: _adjust.rotation,
+      scale: _adjust.scale,
+    );
+  }
+
+  /// Remembers the current alignment so the next change can be undone.
+  void _remember() {
+    _history.add(_AlignSnapshot(
+      manualPoints: [..._manualPoints],
+      rejected: [..._rejectedGeocoded],
+      adjust: _adjust,
+      standPositions: {for (final s in _draft!.stands) s.id: s.position},
+    ));
+    if (_history.length > 50) _history.removeAt(0);
+  }
+
+  void _undo() {
+    if (_history.isEmpty) return;
+    final last = _history.removeLast();
+    setState(() {
+      _manualPoints
+        ..clear()
+        ..addAll(last.manualPoints);
+      _rejectedGeocoded
+        ..clear()
+        ..addAll(last.rejected);
+      _adjust = last.adjust;
+      for (final s in _draft!.stands) {
+        s.position = last.standPositions[s.id] ?? s.position;
+      }
+    });
+  }
+
+  /// Back to the automatic alignment: own points, rejections and fine tuning go.
+  void _resetAlignment() {
+    _remember();
+    setState(() {
+      _manualPoints.clear();
+      _rejectedGeocoded.clear();
+      _adjust = const _Adjustment();
+      _pendingPlanPoint = null;
+    });
+  }
+
+  void _nudge({double east = 0, double north = 0, double rotation = 0, double scale = 1}) {
+    _remember();
+    setState(() => _adjust = _adjust.plus(east: east, north: north, rotation: rotation, scale: scale));
+  }
+
+  /// A stand dragged on the map keeps its place when the plan is realigned:
+  /// its plan position is moved, not just the marker.
+  void _onStandDragged(DraftStand stand, LatLng position, Georeference georeference) {
+    final plan = georeference.toPlan(GeoPoint(position.latitude, position.longitude));
+    if (plan == null) return;
+    _remember();
+    setState(() {
+      stand
+        ..position = plan
+        ..confidence = 'high';
+    });
   }
 
   Future<void> _startAlignmentPoint() async {
@@ -435,7 +528,10 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   void _onMapTap(LatLng position) {
     final planPoint = _pendingPlanPoint;
     if (planPoint == null) return;
+    _remember();
     setState(() {
+      // A new point replaces the fine tuning: the fit starts from the points again.
+      _adjust = const _Adjustment();
       _manualPoints.add(ControlPoint(
         label: 'Punkt ${_manualPoints.length + 1}',
         plan: planPoint,
@@ -847,7 +943,10 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
             position: _latLng(georeference.toGeo(stand.position)),
             icon: _markerIcons[stand.category] ?? BitmapDescriptor.defaultMarker,
             anchor: const Offset(0.5, 0.5),
-            infoWindow: InfoWindow(title: stand.label),
+            draggable: true,
+            consumeTapEvents: true,
+            onTap: () => _editStand(stand),
+            onDragEnd: (p) => _onStandDragged(stand, p, georeference),
           ),
       for (final cp in georeference?.usedPoints ?? const <ControlPoint>[])
         Marker(
@@ -957,10 +1056,38 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
               ],
             ),
           ),
+        if (_showFineTuning && georeference != null) _fineTuningPanel(),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
+          child: Row(
+            children: [
+              IconButton(
+                tooltip: 'Rückgängig',
+                icon: const Icon(Icons.undo),
+                onPressed: _history.isEmpty ? null : _undo,
+              ),
+              TextButton.icon(
+                icon: const Icon(Icons.restart_alt, size: 20),
+                label: const Text('Zurücksetzen'),
+                onPressed: _manualPoints.isEmpty && _rejectedGeocoded.isEmpty && _adjust.isIdentity
+                    ? null
+                    : _resetAlignment,
+              ),
+              const Spacer(),
+              TextButton.icon(
+                icon: Icon(_showFineTuning ? Icons.expand_more : Icons.tune, size: 20),
+                label: const Text('Feinjustieren'),
+                onPressed: georeference == null
+                    ? null
+                    : () => setState(() => _showFineTuning = !_showFineTuning),
+              ),
+            ],
+          ),
+        ),
         SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
             child: Row(
               children: [
                 Expanded(
@@ -986,6 +1113,38 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     );
   }
 
+  /// Moves, turns and scales the whole plan in small steps – never distorts it.
+  Widget _fineTuningPanel() {
+    Widget step(IconData icon, String tip, VoidCallback onTap) => IconButton.filledTonal(
+          tooltip: tip,
+          icon: Icon(icon),
+          onPressed: onTap,
+        );
+    return Material(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 4,
+          runSpacing: 4,
+          children: [
+            step(Icons.arrow_upward, 'Nach Norden (1 m)', () => _nudge(north: 1)),
+            step(Icons.arrow_downward, 'Nach Süden (1 m)', () => _nudge(north: -1)),
+            step(Icons.arrow_back, 'Nach Westen (1 m)', () => _nudge(east: -1)),
+            step(Icons.arrow_forward, 'Nach Osten (1 m)', () => _nudge(east: 1)),
+            const SizedBox(width: 8),
+            step(Icons.rotate_left, 'Gegen den Uhrzeigersinn (1°)', () => _nudge(rotation: -1)),
+            step(Icons.rotate_right, 'Im Uhrzeigersinn (1°)', () => _nudge(rotation: 1)),
+            const SizedBox(width: 8),
+            step(Icons.zoom_in_map, 'Kleiner (2 %)', () => _nudge(scale: 1 / 1.02)),
+            step(Icons.zoom_out_map, 'Größer (2 %)', () => _nudge(scale: 1.02)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _controlPointChip(ControlPoint cp, Georeference? georeference) {
     final isManual = cp.source == 'manual';
     final rejected = _rejectedGeocoded.contains(cp);
@@ -997,6 +1156,7 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
       showCheckmark: false,
       onPressed: () => _map?.animateCamera(CameraUpdate.newLatLng(_latLng(cp.geo))),
       onDeleted: () => setState(() {
+        _remember();
         if (isManual) {
           _manualPoints.remove(cp);
         } else if (rejected) {
@@ -1021,9 +1181,11 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     }
     final manual = g.usedPoints.where((p) => p.source == 'manual').length;
     final auto = g.usedPoints.length - manual;
-    final source = manual == 0
-        ? 'Automatisch platziert anhand von $auto Orientierungspunkten'
-        : 'Platziert anhand von ${g.usedPoints.length} Punkten';
+    final source = (manual == 0
+            ? 'Automatisch platziert anhand von $auto Orientierungspunkten'
+            : 'Platziert anhand von ${g.usedPoints.length} Punkten') +
+        (g.isAffine ? ', Plan leicht entzerrt' : '') +
+        (_adjust.isIdentity ? '' : ', von Hand justiert');
     final rms = g.rmsErrorMeters;
     if (rms == null) {
       return (
@@ -1102,4 +1264,37 @@ class _PickPlanPointPage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Fine tuning of the plan's position by hand.
+class _Adjustment {
+  final double east, north, rotation, scale;
+
+  const _Adjustment({this.east = 0, this.north = 0, this.rotation = 0, this.scale = 1});
+
+  bool get isIdentity => east == 0 && north == 0 && rotation == 0 && scale == 1;
+
+  // Shifts are applied after rotation/scale, so they add up as given.
+  _Adjustment plus({double east = 0, double north = 0, double rotation = 0, double scale = 1}) =>
+      _Adjustment(
+        east: this.east + east,
+        north: this.north + north,
+        rotation: this.rotation + rotation,
+        scale: this.scale * scale,
+      );
+}
+
+/// Everything "Rückgängig" restores in the alignment step.
+class _AlignSnapshot {
+  final List<ControlPoint> manualPoints;
+  final List<ControlPoint> rejected;
+  final _Adjustment adjust;
+  final Map<String, PlanPoint> standPositions;
+
+  const _AlignSnapshot({
+    required this.manualPoints,
+    required this.rejected,
+    required this.adjust,
+    required this.standPositions,
+  });
 }

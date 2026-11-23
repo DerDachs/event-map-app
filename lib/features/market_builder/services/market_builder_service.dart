@@ -133,11 +133,15 @@ class MarketBuilderService {
       usedCategories.add(category.key);
       batch.set(standRef, {
         'name': stand.label,
-        'description': stand.number == null ? category.name : 'Stand ${stand.number} · ${category.name}',
+        'description': stand.description.isNotEmpty
+            ? stand.description
+            : stand.number == null
+                ? category.name
+                : 'Stand ${stand.number} · ${category.name}',
         'category': category.key,
         'images': <Map<String, dynamic>>[],
-        'menu': <String>[],
-        'promotions': null,
+        'menu': stand.offer,
+        'promotions': stand.promotion.isEmpty ? null : stand.promotion,
       });
       final geo = georeference.toGeo(stand.position);
       eventStands.add({
@@ -187,6 +191,8 @@ class MarketBuilderService {
         'imageUrl': draft.imageUrl,
         'aspectRatio': draft.aspectRatio,
         'controlPoints': georeference.usedPoints.map((p) => p.toMap()).toList(),
+        // Exact transform incl. fine tuning, so the editor reopens it as saved.
+        'transform': georeference.toTransformMap(),
         'overlay': {
           'latitude': overlay.center.latitude,
           'longitude': overlay.center.longitude,

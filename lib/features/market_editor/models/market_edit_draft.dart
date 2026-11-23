@@ -16,12 +16,18 @@ class EditableStand {
   String category;
   GeoPoint position;
 
+  /// What the stand sells and its current special (empty for none).
+  List<String> menu;
+  String promotion;
+
   /// Extra keys of the event's `stands` entry (e.g. `plan`), kept on save.
   final Map<String, dynamic> extra;
 
   final String _originalLabel;
   final String _originalDescription;
   final String _originalCategory;
+  final String _originalMenu;
+  final String _originalPromotion;
 
   EditableStand({
     required this.id,
@@ -31,9 +37,14 @@ class EditableStand {
     required this.category,
     required this.position,
     this.extra = const {},
-  })  : _originalLabel = label,
+    List<String>? menu,
+    this.promotion = '',
+  })  : menu = menu ?? [],
+        _originalLabel = label,
         _originalDescription = description,
-        _originalCategory = category;
+        _originalCategory = category,
+        _originalMenu = (menu ?? const []).join('\n'),
+        _originalPromotion = promotion;
 
   bool get isNew => id == null;
 
@@ -42,7 +53,9 @@ class EditableStand {
       isNew ||
       label != _originalLabel ||
       description != _originalDescription ||
-      category != _originalCategory;
+      category != _originalCategory ||
+      menu.join('\n') != _originalMenu ||
+      promotion != _originalPromotion;
 
   StandCategory get standCategory => standCategoryFor(category);
 }

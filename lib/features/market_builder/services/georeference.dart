@@ -76,9 +76,11 @@ double _rad(double deg) => deg * math.pi / 180;
 ///
 /// Plan coordinates are first scaled so x and y share one unit (the plan
 /// image's height), then mapped onto a local east/north metre grid around
-/// [origin]. With two control points this is a similarity transform (shift,
-/// rotation, uniform scale); with three or more it is an affine transform, which
-/// also absorbs plans that are stretched or not drawn to scale.
+/// [origin]. By default this is a similarity transform (shift, rotation,
+/// uniform scale), which can never squash or shear the plan. Only with four or
+/// more well spread points, and only if the result stays plausible (see
+/// [maxStretch], [maxShearDeg]), an affine transform absorbs plans that are
+/// not drawn to scale.
 class Georeference {
   final GeoPoint origin;
   final double aspectRatio;
@@ -94,6 +96,16 @@ class Georeference {
 
   final List<ControlPoint> usedPoints;
 
+  /// True when the plan is stretched (affine fit), false for a pure
+  /// shift/rotation/uniform scale.
+  final bool isAffine;
+
+  /// Largest ratio between the plan's two axis scales an affine fit may have.
+  static const maxStretch = 1.6;
+
+  /// Largest deviation from a right angle between the plan's axes (degrees).
+  static const maxShearDeg = 15.0;
+
   const Georeference._({
     required this.origin,
     required this.aspectRatio,
@@ -105,6 +117,7 @@ class Georeference {
     required this.f,
     required this.rmsErrorMeters,
     required this.usedPoints,
+    this.isAffine = false,
   });
 
   /// Fits a transform through [points]. Returns null with fewer than two
@@ -127,11 +140,22 @@ class Georeference {
       ns.add(m.$2);
     }
 
-    final List<double>? params =
-        points.length >= 3 ? _fitAffine(us, vs, es, ns) : _fitSimilarity(us, vs, es, ns);
-    if (params == null) return null;
+    final similarity = _fitSimilarity(us, vs, es, ns);
+    if (similarity == null) return null;
+    var params = similarity;
+    var affine = false;
+    // A stretched plan needs enough, well spread points; three points always
+    // fit an affine transform exactly, including one misplaced point, which
+    // is what squashed whole plans before.
+    if (points.length >= 4 && _wellSpread(us, vs)) {
+      final candidate = _fitAffine(us, vs, es, ns);
+      if (candidate != null && _plausible(candidate)) {
+        params = candidate;
+        affine = true;
+      }
+    }
 
-    final dof = points.length - (points.length >= 3 ? 3 : 2);
+    final dof = points.length - (affine ? 3 : 2);
     double? rms;
     if (dof > 0) {
       var sum = 0.0;
@@ -154,7 +178,102 @@ class Georeference {
       f: params[5],
       rmsErrorMeters: rms,
       usedPoints: List.unmodifiable(points),
+      isAffine: affine,
     );
+  }
+
+  /// This transform moved by [eastMeters]/[northMeters], turned clockwise by
+  /// [rotationDeg] and scaled by [scale] around the plan's centre – for fine
+  /// tuning by hand. Never adds distortion.
+  Georeference adjusted({
+    double eastMeters = 0,
+    double northMeters = 0,
+    double rotationDeg = 0,
+    double scale = 1,
+  }) {
+    final cu = 0.5 * aspectRatio, cv = -0.5;
+    final ce = a * cu + b * cv + c, cn = d * cu + e * cv + f;
+    final r = _rad(rotationDeg);
+    final cs = math.cos(r) * scale, sn = math.sin(r) * scale;
+    // Clockwise rotation: e' = e cos + n sin, n' = -e sin + n cos (around the centre).
+    return Georeference._(
+      origin: origin,
+      aspectRatio: aspectRatio,
+      a: cs * a + sn * d,
+      b: cs * b + sn * e,
+      c: cs * (c - ce) + sn * (f - cn) + ce + eastMeters,
+      d: -sn * a + cs * d,
+      e: -sn * b + cs * e,
+      f: -sn * (c - ce) + cs * (f - cn) + cn + northMeters,
+      rmsErrorMeters: null,
+      usedPoints: usedPoints,
+      isAffine: isAffine,
+    );
+  }
+
+  /// The exact transform, so a market can be reopened exactly as saved.
+  Map<String, dynamic> toTransformMap() => {
+        'originLatitude': origin.latitude,
+        'originLongitude': origin.longitude,
+        'aspectRatio': aspectRatio,
+        'a': a,
+        'b': b,
+        'c': c,
+        'd': d,
+        'e': e,
+        'f': f,
+        'affine': isAffine,
+      };
+
+  /// Restores a transform stored with [toTransformMap]; null if incomplete.
+  static Georeference? fromTransformMap(Map<String, dynamic> m, {List<ControlPoint> usedPoints = const []}) {
+    double? n(String k) => (m[k] as num?)?.toDouble();
+    final values = [for (final k in const ['originLatitude', 'originLongitude', 'aspectRatio', 'a', 'b', 'c', 'd', 'e', 'f']) n(k)];
+    if (values.any((v) => v == null)) return null;
+    return Georeference._(
+      origin: GeoPoint(values[0]!, values[1]!),
+      aspectRatio: values[2]!,
+      a: values[3]!,
+      b: values[4]!,
+      c: values[5]!,
+      d: values[6]!,
+      e: values[7]!,
+      f: values[8]!,
+      rmsErrorMeters: null,
+      usedPoints: List.unmodifiable(usedPoints),
+      isAffine: m['affine'] == true,
+    );
+  }
+
+  /// Plan points spread in two directions, not along one line: the narrow
+  /// side of their spread is at least a fifth of the long side.
+  static bool _wellSpread(List<double> us, List<double> vs) {
+    final n = us.length;
+    final mu = us.reduce((s, v) => s + v) / n, mv = vs.reduce((s, v) => s + v) / n;
+    var suu = 0.0, svv = 0.0, suv = 0.0;
+    for (var i = 0; i < n; i++) {
+      final du = us[i] - mu, dv = vs[i] - mv;
+      suu += du * du;
+      svv += dv * dv;
+      suv += du * dv;
+    }
+    final tr = suu + svv, det = suu * svv - suv * suv;
+    final disc = math.sqrt(math.max(0, tr * tr / 4 - det));
+    final big = tr / 2 + disc, small = tr / 2 - disc;
+    return big > 0 && small / big >= 0.04;
+  }
+
+  /// An affine fit that keeps the plan recognisable: same orientation,
+  /// axes stretched by at most [maxStretch], nearly at right angles.
+  static bool _plausible(List<double> p) {
+    final ux = p[0], uy = p[3], vx = p[1], vy = p[4];
+    final lu = math.sqrt(ux * ux + uy * uy), lv = math.sqrt(vx * vx + vy * vy);
+    if (lu < 1e-9 || lv < 1e-9) return false;
+    if (ux * vy - uy * vx <= 0) return false; // mirrored
+    final ratio = math.max(lu, lv) / math.min(lu, lv);
+    final cosAngle = ((ux * vx + uy * vy) / (lu * lv)).clamp(-1.0, 1.0);
+    final shear = (math.acos(cosAngle) * 180 / math.pi - 90).abs();
+    return ratio <= maxStretch && shear <= maxShearDeg;
   }
 
   /// Like [fit], but ignores control points that disagree with the rest, so a
