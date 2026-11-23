@@ -1,10 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 import 'data/models/event.dart';
+import 'firebase_options.dart';
 import 'features/admin/screens/admin_panel_screen.dart';
 import 'l10n/l10n.dart';
 import 'l10n/locale_provider.dart';
@@ -24,7 +26,8 @@ import 'utils/authentication_gate.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // iOS/Android read their native config files; the browser needs the options.
+  await Firebase.initializeApp(options: kIsWeb ? DefaultFirebaseOptions.currentPlatform : null);
   await initializeDateFormatting();
   runApp(const ProviderScope(child: MyApp()));
 }

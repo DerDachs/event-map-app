@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/authentication_provider.dart';
@@ -135,11 +136,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     SizedBox(height: 20),
 
-                    // Apple Sign-In Button
-                    AppleSignInButton(
-                      onPressed: () => authRepository.handleAppleSignIn(context, ref),
-                    ),
-                    SizedBox(height: 20),
+                    // Apple sign-in needs a Services ID for the browser; the
+                    // web app starts with e-mail only.
+                    if (!kIsWeb) ...[
+                      AppleSignInButton(
+                        onPressed: () => authRepository.handleAppleSignIn(context, ref),
+                      ),
+                      SizedBox(height: 20),
+                    ],
 
                     // Register and Forgot Password Links
                     CustomTextButton(
