@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/user_provider.dart';
@@ -15,36 +16,39 @@ class AuthenticationGate extends ConsumerStatefulWidget {
 
 class _AuthenticationGateState extends ConsumerState<AuthenticationGate> {
   bool hasLoadedProfile = false; // Tracks if profile loading is complete
+  String? _loadingFor; // uid whose profile is loaded or loading
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadUserProfile());
+    // Auth may still be resolving here (e.g. while the intro cards show), so
+    // the listener in build() takes over once a user arrives.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadFor(ref.read(authStateProvider)));
   }
 
-  Future<void> _loadUserProfile() async {
-    final authState = ref.read(authStateProvider);
-    authState.whenData((user) {
-      if (user != null) {
-        ref.read(userProfileProvider.notifier).loadUserProfile(user.uid).then((_) {
-          setState(() {
-            hasLoadedProfile = true;
-          });
-        }).catchError((e) {
-          setState(() {
-            hasLoadedProfile = false; // Avoid infinite loading in case of errors
-          });
-        });
-      } else {
-        setState(() {
-          hasLoadedProfile = true; // No user logged in
-        });
-      }
+  /// Loads the profile once per signed-in user, whenever the auth state settles.
+  void _loadFor(AsyncValue<User?> authState) {
+    if (!mounted || !authState.hasValue) return;
+    final user = authState.value;
+    if (user == null) {
+      _loadingFor = null;
+      setState(() => hasLoadedProfile = true); // No user logged in
+      return;
+    }
+    if (_loadingFor == user.uid) return;
+    _loadingFor = user.uid;
+    ref.read(userProfileProvider.notifier).loadUserProfile(user.uid).then((_) {
+      if (mounted) setState(() => hasLoadedProfile = true);
+    }).catchError((e) {
+      _loadingFor = null;
+      if (mounted) setState(() => hasLoadedProfile = false); // Avoid infinite loading in case of errors
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<User?>>(authStateProvider, (_, next) => _loadFor(next));
+
     // First start (and first start after the 1.1 update): three intro cards.
     final seen = ref.watch(onboardingSeenProvider);
     if (seen.isLoading) return const Scaffold(body: SizedBox());

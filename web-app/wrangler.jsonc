@@ -1,0 +1,15 @@
+// Cloudflare Worker for the Market Mate web app (Flutter web build).
+// Separate from the public website (`marketmate-website`, root wrangler.jsonc) –
+// this one only serves build/web and is deployed by .github/workflows/web-app.yml.
+{
+  "name": "marketmate-app",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "../build/web",
+    // Unknown paths load the app, which handles its own routes.
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "app.marketmate.cellarworks.dev", "custom_domain": true }
+  ]
+}

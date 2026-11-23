@@ -1,38 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
+  <!-- Replaced by `flutter build web --base-href`. -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Community Event app">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Market Mate – alle Stände eines Marktes auf einer Karte. Weniger suchen, mehr genießen.">
+  <meta name="theme-color" content="#C62828">
 
-  <!-- iOS meta tags & icons -->
+  <!-- Installable on the home screen (Android and iPhone) -->
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="event_map_app">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Market Mate">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>event_map_app</title>
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.json">
+
+  <title>Market Mate</title>
+
+  <!-- Google Maps JavaScript API; the key is inserted by CI (secret GOOGLE_MAPS_WEB_KEY),
+       restricted to the app's domain. -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=__MAPS_WEB_KEY__"></script>
+
+  <style>
+    /* Shown until Flutter has drawn its first frame. */
+    html, body { margin: 0; height: 100%; background: #FBFAF8; }
+    #splash { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+    #splash img { width: 96px; height: 96px; border-radius: 22px; }
+  </style>
 </head>
 <body>
+  <div id="splash"><img src="icons/Icon-192.png" alt="Market Mate"></div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var s = document.getElementById('splash');
+      if (s) s.remove();
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
