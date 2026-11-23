@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../../data/models/event.dart';
+import '../logic/stand_list.dart';
 import '../models/plan_draft.dart';
 import '../models/event_import.dart';
 import '../models/plan_consent.dart';
@@ -88,6 +89,32 @@ class MarketBuilderService {
     );
   }
 
+  /// Reads a stand list from pasted [text], a web page [url] or an uploaded
+  /// photo/PDF ([storagePath]). Returns the entries and the AI's hints.
+  Future<(List<StandListEntry>, List<String>)> parseStandList({
+    String? text,
+    String? url,
+    String? storagePath,
+  }) async {
+    final callable = _functions.httpsCallable(
+      'parseStandList',
+      options: HttpsCallableOptions(timeout: const Duration(minutes: 5)),
+    );
+    final result = await callable.call<Map<String, dynamic>>({
+      if (text != null) 'text': text,
+      if (url != null) 'url': url,
+      if (storagePath != null) 'storagePath': storagePath,
+    });
+    final data = Map<String, dynamic>.from(result.data);
+    return (
+      [
+        for (final e in (data['entries'] as List? ?? const []))
+          StandListEntry.fromMap(Map<String, dynamic>.from(e as Map)),
+      ],
+      List<String>.from(data['warnings'] as List? ?? const []),
+    );
+  }
+
   /// Reads listing details and images from the event's web page.
   Future<EventImport> importFromUrl(String url) async {
     final callable = _functions.httpsCallable(
@@ -149,6 +176,7 @@ class MarketBuilderService {
         'category': category.key,
         'location': {'latitude': geo.latitude, 'longitude': geo.longitude},
         'plan': {'x': stand.position.x, 'y': stand.position.y},
+        if (stand.number != null) 'number': stand.number,
       });
     }
 

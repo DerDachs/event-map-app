@@ -122,3 +122,4 @@ export const analyzeMarketPlan = onCall(
 );
 
 export { importEventFromUrl } from "./importEventFunction.js";
+export { parseStandList } from "./standListFunction.js";

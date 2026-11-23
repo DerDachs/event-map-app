@@ -5,23 +5,24 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../events/services/event_service.dart';
 import '../../seasons/models/market_types.dart';
 import '../../../utils/formatters.dart';
+import '../logic/stand_list.dart';
 import '../models/event_import.dart';
 import '../models/plan_consent.dart';
 import '../models/plan_draft.dart';
 import '../models/stand_categories.dart';
 import '../services/georeference.dart';
+import '../services/image_input.dart';
 import '../services/market_builder_service.dart';
 import '../services/pdf_plan.dart';
 import '../widgets/category_marker.dart';
 import '../widgets/plan_canvas.dart';
 import '../widgets/stand_editor.dart';
+import '../widgets/stand_list_import.dart';
 
 final marketBuilderServiceProvider = Provider((ref) => MarketBuilderService());
 
@@ -87,61 +88,17 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
   // ---------------------------------------------------------------- Upload
 
   Future<void> _pickImage() async {
-    FocusManager.instance.primaryFocus?.unfocus();
-    final source = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Bild aus Fotos'),
-              subtitle: const Text('Foto oder Screenshot des Plans'),
-              onTap: () => Navigator.pop(context, 'photos'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.picture_as_pdf_outlined),
-              title: const Text('Datei: PDF oder Bild'),
-              subtitle: const Text('z. B. der Lageplan von der Webseite des Marktes'),
-              onTap: () => Navigator.pop(context, 'files'),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (source == null) return;
-
-    Uint8List? bytes;
-    if (source == 'photos') {
-      final file = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 3000,
-        maxHeight: 3000,
-        imageQuality: 90,
-      );
-      bytes = await file?.readAsBytes();
-    } else {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: const ['pdf', 'png', 'jpg', 'jpeg', 'webp'],
-        withData: true,
-      );
-      bytes = result?.files.single.bytes;
-    }
-    if (bytes == null) return;
-
-    if (isPdf(bytes)) {
-      await _usePdf(bytes);
+    final picked = await pickImageOrPdf(context, photosSubtitle: 'Foto oder Screenshot des Plans');
+    if (picked == null) return;
+    if (picked.isPdf) {
+      await _usePdf(picked.bytes);
       return;
     }
-    final contentType = _detectContentType(bytes);
-    if (contentType == null) {
-      _showError('Bitte ein PDF oder ein PNG-, JPG- oder WebP-Bild wählen.');
-      return;
+    try {
+      await _useImage(picked.bytes, picked.contentType, pdf: null);
+    } catch (e) {
+      _showError('Das Bild konnte nicht geöffnet werden: $e');
     }
-    await _useImage(bytes, contentType, pdf: null);
   }
 
   Future<void> _useImage(Uint8List bytes, String contentType, {required Uint8List? pdf, int page = 1}) async {
@@ -213,15 +170,6 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
     } finally {
       if (mounted) setState(() => _renderingPdf = false);
     }
-  }
-
-  static String? _detectContentType(Uint8List b) {
-    if (b.length > 4 && b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47) {
-      return 'image/png';
-    }
-    if (b.length > 3 && b[0] == 0xFF && b[1] == 0xD8) return 'image/jpeg';
-    if (b.length > 12 && String.fromCharCodes(b.sublist(8, 12)) == 'WEBP') return 'image/webp';
-    return null;
   }
 
   Future<void> _importFromUrl() async {
@@ -368,6 +316,25 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
       _draft!.stands.add(stand);
     });
   }
+
+  Future<void> _importStandList() => importStandList<DraftStand>(
+        context: context,
+        service: ref.read(marketBuilderServiceProvider),
+        stands: _draft!.stands,
+        target: (s) => MatchTarget(id: s.id, label: s.label, number: s.number),
+        apply: (stand, entry) {
+          stand
+            ..label = entry.name
+            ..number = stand.number ?? entry.number
+            ..description = entry.description ?? stand.description
+            ..offer = entry.offer.isNotEmpty ? entry.offer : stand.offer
+            ..promotion = entry.promotion ?? stand.promotion
+            ..confidence = 'high';
+          // The plan's category wins unless the plan only said "other".
+          if (stand.category == 'other' && entry.category != 'other') stand.category = entry.category;
+        },
+        onChanged: () => setState(() {}),
+      );
 
   void _showWarnings(List<String> warnings) {
     showModalBottomSheet<void>(
@@ -862,6 +829,17 @@ class _MarketBuilderScreenState extends ConsumerState<MarketBuilderScreen> {
 
     return Column(
       children: [
+        Material(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: ListTile(
+            dense: true,
+            leading: const Icon(Icons.playlist_add_check),
+            title: const Text('Standliste importieren'),
+            subtitle: const Text('Namen, Beschreibungen und Angebote aus Text, Foto/PDF oder Webseite'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _importStandList,
+          ),
+        ),
         if (draft.warnings.isNotEmpty || uncertain > 0)
           Material(
             color: Theme.of(context).colorScheme.secondaryContainer,
