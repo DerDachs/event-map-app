@@ -53,9 +53,9 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
             Expanded(
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
                 ),
                 itemCount: avatars.length,
                 itemBuilder: (context, index) {
@@ -66,17 +66,20 @@ class _ProfileInitializationScreenState extends ConsumerState<ProfileInitializat
                         selectedAvatar = avatar;
                       });
                     },
-                    child: Container(
+                    // Round like everywhere else; the chosen one gets a red ring.
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
+                        shape: BoxShape.circle,
                         border: Border.all(
                           color: selectedAvatar == avatar
-                              ? Theme.of(context).primaryColor
+                              ? Theme.of(context).colorScheme.primary
                               : Colors.transparent,
-                          width: 2,
+                          width: 3,
                         ),
-                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Image.asset(avatar),
+                      child: ClipOval(child: Image.asset(avatar, fit: BoxFit.cover)),
                     ),
                   );
                 },

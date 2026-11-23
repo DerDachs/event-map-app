@@ -13,20 +13,36 @@ Hotfix für die Store-Version: Branch von `release/1.0` abzweigen, Fix, PR auf `
 TestFlight-Workflow mit `ref=release/1.0` starten, danach den Fix nach `main` übernehmen.
 Neue Release-Branches entstehen, wenn eine Version zur Prüfung eingereicht wird (z. B. `release/1.1`).
 
-## Dev-Datenbank (Vorschlag)
+## Dev-Umgebung
 
-Heute arbeiten App, TestFlight-Builds und Admin-Tests gegen dieselbe Firebase-Instanz
-(`event-map-app-aab7b`). Eine zweite Instanz lohnt sich, sobald echte Nutzer da sind –
-also jetzt:
+| | Produktion | Dev |
+|---|---|---|
+| Firebase-Projekt | `event-map-app-aab7b` | Repo-Variable `FIREBASE_DEV_PROJECT_ID` |
+| iOS-Flavor / Schema | `Production` | `Staging` |
+| Bundle-ID | `com.tdwdevelopments.event-map` | `com.tdwdevelopments.event-map.dev` |
+| Name auf dem iPhone | Market Mate | Market Mate Dev (mit „DEV“-Band oben rechts) |
+| Firebase-Konfiguration | `ios/Runner/GoogleService-Info.plist` | `ios/config/staging/GoogleService-Info.plist` |
+| TestFlight | Workflow „iOS → TestFlight“, Flavor `Production` | derselbe Workflow, Flavor `Staging` |
+| Regeln & Functions | „Firebase deploy“, environment `prod` | „Firebase deploy“, environment `dev` |
 
-- **Firebase-Projekt `market-mate-dev`** mit Firestore, Auth, Storage, Functions; Regeln und
-  Functions werden in beide Projekte deployt (`.firebaserc` mit Aliasen `prod` / `dev`).
-- **Flavors nutzen, die es schon gibt:** `Staging` (Schema existiert) → Dev-Projekt,
-  `Production` → Prod. Je Flavor eine eigene `GoogleService-Info.plist` und eigene Bundle-ID
-  (z. B. `….dev`), damit beide Apps nebeneinander auf dem iPhone liegen.
-- **Web-App-Vorschau** für PRs gegen Dev, `main` gegen Prod.
-- **Testdaten:** Beispielmarkt „Lichterdorf Musterstadt“ und Testkonten nur in Dev; ein kleines
-  Seed-Skript legt sie neu an.
-- Was bewusst geteilt bleibt: nichts – getrennte Nutzerkonten, getrennte Claude-Aufrufe.
+Die Build-Phase „Select Firebase config“ im Xcode-Projekt tauscht bei Staging-Builds die
+Firebase-Datei aus. Beide Apps können nebeneinander auf dem iPhone liegen.
 
-Aufwand: ca. ½–1 Tag, sobald das Firebase-Projekt angelegt ist (das muss Timo in der Firebase-Konsole tun).
+### Einmalige Einrichtung
+
+1. **Firebase (Dev-Projekt):** Authentication (E-Mail, Apple), Firestore (Region wie Prod),
+   Storage aktivieren. Für Cloud Functions braucht es den Blaze-Tarif.
+2. **iOS-App im Dev-Projekt registrieren** mit Bundle-ID `com.tdwdevelopments.event-map.dev`,
+   `GoogleService-Info.plist` herunterladen und nach `ios/config/staging/` legen (oder Claude geben).
+3. **Apple Developer:** App-ID `com.tdwdevelopments.event-map.dev` mit „Sign in with Apple“ und
+   Push; ein App-Store-Provisioning-Profil dafür. In **App Store Connect** eine App
+   „Market Mate Dev“ mit dieser Bundle-ID anlegen – nur für TestFlight, wird nie eingereicht.
+4. **GitHub:** Variable `FIREBASE_DEV_PROJECT_ID`, Secret `FIREBASE_SERVICE_ACCOUNT_DEV`
+   (Dienstkonto-JSON des Dev-Projekts, Rolle „Firebase Admin“).
+5. **„Firebase deploy“** mit environment `dev` starten (beim ersten Mal „update_api_keys“ anhaken,
+   damit die Lageplan-Analyse ihre Schlüssel auch im Dev-Projekt hat).
+6. **„iOS → TestFlight“** mit Flavor `Staging` starten.
+7. In der Dev-App registrieren, in der Firestore-Konsole des Dev-Projekts beim eigenen Profil
+   `role` auf `admin` setzen, dann im Admin-Bereich den Beispielmarkt „Lichterdorf Musterstadt“ anlegen.
+
+Offen: Web-App-Vorschauen gegen Dev (braucht die Web-Konfiguration des Dev-Projekts).

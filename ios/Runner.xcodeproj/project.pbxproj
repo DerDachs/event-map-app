@@ -237,6 +237,7 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
+				D3F1A0012F00000000DEV001 /* Select Firebase config */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				C6882E9EC813625DF35AC92D /* [CP] Embed Pods Frameworks */,
@@ -315,6 +316,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		D3F1A0012F00000000DEV001 /* Select Firebase config */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Select Firebase config";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "# Staging builds talk to the dev Firebase project.\nif [[ \"$CONFIGURATION\" == *staging* ]]; then\n  SRC=\"${PROJECT_DIR}/config/staging/GoogleService-Info.plist\"\n  if [ ! -f \"$SRC\" ]; then echo \"error: $SRC fehlt – GoogleService-Info.plist der Dev-App aus Firebase hier ablegen\"; exit 1; fi\n  cp \"$SRC\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\n  echo \"Using dev Firebase config\"\nfi\n";
+		};
 		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -661,13 +677,13 @@
 				DEVELOPMENT_TEAM = 8598V53L45;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Market Mate";
+				INFOPLIST_KEY_CFBundleDisplayName = "Market Mate Dev";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tdwdevelopments.event-map";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tdwdevelopments.event-map.dev";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -746,13 +762,13 @@
 				DEVELOPMENT_TEAM = 8598V53L45;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Market Mate";
+				INFOPLIST_KEY_CFBundleDisplayName = "Market Mate Dev";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tdwdevelopments.event-map";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tdwdevelopments.event-map.dev";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
