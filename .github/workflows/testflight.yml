@@ -4,6 +4,14 @@ name: iOS → TestFlight
 # or push a tag like testflight-2026-10-11.
 on:
   workflow_dispatch:
+    inputs:
+      flavor:
+        description: Production = Store-App (Prod-Datenbank), Staging = „Market Mate Dev“ (Dev-Datenbank)
+        type: choice
+        default: Production
+        options:
+          - Production
+          - Staging
   push:
     tags:
       - 'testflight-*'
@@ -13,9 +21,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  BUNDLE_ID: com.tdwdevelopments.event-map
   TEAM_ID: 8598V53L45
-  FLAVOR: Production
+  # Tag pushes build Production.
+  FLAVOR: ${{ inputs.flavor || 'Production' }}
+  BUNDLE_ID: ${{ inputs.flavor == 'Staging' && 'com.tdwdevelopments.event-map.dev' || 'com.tdwdevelopments.event-map' }}
 
 jobs:
   testflight:
@@ -56,14 +65,14 @@ jobs:
         run: |
           PROFILE_NAME=$(echo "$PROFILES" | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['name'])")
           echo "Using provisioning profile: $PROFILE_NAME"
-          python3 - "$PROFILE_NAME" <<'PY'
+          python3 - "$PROFILE_NAME" "$BUNDLE_ID" <<'PY'
           import re, sys
-          profile = sys.argv[1]
+          profile, bundle = sys.argv[1], sys.argv[2]
           path = 'ios/Runner.xcodeproj/project.pbxproj'
           s = open(path).read()
           def patch(block):
               body = block.group(0)
-              if 'PRODUCT_BUNDLE_IDENTIFIER = "com.tdwdevelopments.event-map";' not in body:
+              if f'PRODUCT_BUNDLE_IDENTIFIER = "{bundle}";' not in body:
                   return body
               body = re.sub(r'\s*(CODE_SIGN_STYLE|CODE_SIGN_IDENTITY|"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]"|PROVISIONING_PROFILE_SPECIFIER|DEVELOPMENT_TEAM) = [^;]*;', '', body)
               return body.replace('buildSettings = {', 'buildSettings = {\n'

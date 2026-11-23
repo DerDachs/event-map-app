@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show appFlavor;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +24,10 @@ import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/authentication_gate.dart';
+
+/// Built with `--flavor Staging` (dev Firebase project) or `--dart-define=ENV=dev`.
+final bool isDevBuild =
+    appFlavor?.toLowerCase() == 'staging' || const String.fromEnvironment('ENV') == 'dev';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +54,10 @@ class MyApp extends ConsumerWidget {
       builder: (context, child) {
         // Date formatting outside of widgets follows the app language too.
         Intl.defaultLocale = Localizations.localeOf(context).languageCode;
+        // Staging builds use the dev database – make that impossible to miss.
+        if (isDevBuild) {
+          return Banner(message: 'DEV', location: BannerLocation.topEnd, child: child!);
+        }
         return child!;
       },
       initialRoute: '/',
