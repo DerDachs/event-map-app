@@ -36,6 +36,14 @@ jobs:
       - name: Test
         run: flutter test test
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cloud Functions build and test
+        working-directory: functions
+        run: npm ci && npm test
+
       - name: Commit regenerated localizations
         if: github.event_name == 'pull_request'
         run: |

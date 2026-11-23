@@ -7,7 +7,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../market_builder/models/stand_categories.dart';
 import '../../market_builder/services/georeference.dart';
 import '../../market_builder/widgets/category_marker.dart';
+import '../../market_builder/logic/stand_list.dart';
+import '../../market_builder/services/market_builder_service.dart';
 import '../../market_builder/widgets/stand_editor.dart';
+import '../../market_builder/widgets/stand_list_import.dart';
 import '../models/market_edit_draft.dart';
 
 /// Satellite map with every stand as a marker. Tap a marker to edit it, hold
@@ -154,6 +157,23 @@ class _StandMapEditorState extends State<StandMapEditor> {
     _changed();
   }
 
+  /// Names, descriptions, offers and specials for many stands at once.
+  Future<void> _importList() => importStandList<EditableStand>(
+        context: context,
+        service: MarketBuilderService(),
+        stands: _draft.stands,
+        target: (s) => MatchTarget(id: s.key, label: s.label, number: s.extra['number'] as String?),
+        apply: (stand, entry) {
+          stand
+            ..label = entry.name
+            ..description = entry.description ?? stand.description
+            ..menu = entry.offer.isNotEmpty ? entry.offer : stand.menu
+            ..promotion = entry.promotion ?? stand.promotion;
+          if (stand.category == 'other' && entry.category != 'other') stand.category = entry.category;
+        },
+        onChanged: _changed,
+      );
+
   Future<void> _showList() async {
     final stand = await showModalBottomSheet<EditableStand>(
       context: context,
@@ -265,6 +285,14 @@ class _StandMapEditorState extends State<StandMapEditor> {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ActionChip(
+                  avatar: const Icon(Icons.playlist_add_check, size: 18),
+                  label: const Text('Standliste importieren'),
+                  onPressed: _draft.stands.isEmpty ? null : _importList,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: ActionChip(
