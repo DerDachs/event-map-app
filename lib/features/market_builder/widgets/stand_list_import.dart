@@ -97,7 +97,13 @@ Future<void> importStandList<T>({
     (entries, warnings) = await service.parseStandList(text: text, url: url, storagePath: storagePath);
   } on FirebaseFunctionsException catch (e) {
     navigator.pop();
-    if (context.mounted) _snack(context, e.message ?? 'Die Standliste konnte nicht gelesen werden.');
+    final message = switch (e.code) {
+      'not-found' || 'unimplemented' => 'Der Import ist auf dem Server noch nicht eingerichtet. Bitte später erneut versuchen.',
+      'deadline-exceeded' => 'Das Auslesen hat zu lange gedauert. Bitte die Liste in kleineren Teilen einfügen.',
+      'unavailable' => e.message ?? 'Keine Verbindung zum Server. Bitte gleich nochmal versuchen.',
+      _ => e.message ?? 'Die Standliste konnte nicht gelesen werden.',
+    };
+    if (context.mounted) _snack(context, message);
     return;
   } catch (e) {
     navigator.pop();
