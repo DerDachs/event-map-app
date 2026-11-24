@@ -51,6 +51,9 @@ class _MapStandsTabState extends ConsumerState<MapStandsTab> {
   GroundOverlay? _planOverlay;
   bool _planLoading = false;
 
+  /// Last camera position, so the map can be rebuilt without jumping.
+  CameraPosition? _camera;
+
   /// Collapsed height of the bottom sheet, as a share of the screen.
   double _minSheet = 0.22;
 
@@ -204,13 +207,20 @@ class _MapStandsTabState extends ConsumerState<MapStandsTab> {
     return Stack(
       children: [
         GoogleMap(
-          initialCameraPosition: CameraPosition(
-            target: LatLng(widget.event.latitude, widget.event.longitude),
-            zoom: 17,
-          ),
+          // On iOS a ground overlay added to a running map doesn't show up, so
+          // the map is rebuilt (same camera) when the plan is switched on or off.
+          key: ValueKey('market-map-${_showPlan && _planOverlay != null}'),
+          initialCameraPosition: _camera ??
+              CameraPosition(
+                target: LatLng(widget.event.latitude, widget.event.longitude),
+                zoom: 17,
+              ),
+          onCameraMove: (position) => _camera = position,
           onMapCreated: (c) {
             _map = c;
-            Future.delayed(const Duration(milliseconds: 300), () => _fitToStands(stands));
+            if (_camera == null) {
+              Future.delayed(const Duration(milliseconds: 300), () => _fitToStands(stands));
+            }
           },
           onTap: (_) => setState(() => _selectedStandId = null),
           markers: _markers,

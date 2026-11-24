@@ -33,6 +33,9 @@ class _StandMapEditorState extends State<StandMapEditor> {
   double _planOpacity = 0.5;
   double? _planWidthPx;
 
+  /// Last camera position, so the map can be rebuilt without jumping.
+  CameraPosition? _camera;
+
   MarketEditDraft get _draft => widget.draft;
 
   @override
@@ -213,15 +216,20 @@ class _StandMapEditorState extends State<StandMapEditor> {
       children: [
         Expanded(
           child: GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _latLng(center),
-              zoom: _draft.stands.isEmpty && overlay == null ? 5 : 18,
-            ),
+            // iOS ignores a ground overlay added to a running map: rebuild the
+            // map (same camera) once the plan image is loaded.
+            key: ValueKey('editor-map-${_planWidthPx != null}'),
+            initialCameraPosition: _camera ??
+                CameraPosition(
+                  target: _latLng(center),
+                  zoom: _draft.stands.isEmpty && overlay == null ? 5 : 18,
+                ),
+            onCameraMove: (position) => _camera = position,
             mapType: MapType.hybrid,
             onMapCreated: (c) {
               _map = c;
               final bounds = _bounds();
-              if (bounds != null && _draft.stands.length > 1) {
+              if (_camera == null && bounds != null && _draft.stands.length > 1) {
                 Future.delayed(const Duration(milliseconds: 300),
                     () => c.animateCamera(CameraUpdate.newLatLngBounds(bounds, 48)));
               }
