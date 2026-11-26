@@ -6,7 +6,7 @@
 //
 //   flutter test tool/store_screenshots --update-goldens
 //
-// Output: docs/app-store/screenshots/<de|en>/NN_<name>.png, plus the bare
+// Output: docs/app-store/screenshots/<de|en>/NN_<name>.png (06_stand: stand details), plus the bare
 // start page for the website (docs/app-store/website-home.png; convert to
 // website/assets/app-home.webp, see docs/app-store/README.md).
 //
@@ -31,6 +31,7 @@ import 'package:intl/intl.dart';
 import 'package:market_mates/data/models/event.dart';
 import 'package:market_mates/data/models/eventImage.dart';
 import 'package:market_mates/data/models/profile.dart';
+import 'package:market_mates/data/models/stand.dart';
 import 'package:market_mates/data/models/team.dart';
 import 'package:market_mates/features/events/providers/event_provider.dart';
 import 'package:market_mates/features/events/screens/market_section_screens.dart';
@@ -40,8 +41,11 @@ import 'package:market_mates/features/feed/models/feed_post.dart';
 import 'package:market_mates/features/feed/providers/feed_provider.dart';
 import 'package:market_mates/features/feed/screens/home_feed_screen.dart';
 import 'package:market_mates/features/market_builder/demo/demo_market.dart';
+import 'package:market_mates/features/market_builder/models/stand_categories.dart';
 import 'package:market_mates/features/seasons/models/season.dart';
 import 'package:market_mates/features/seasons/providers/season_provider.dart';
+import 'package:market_mates/features/stands/models/stand_style.dart';
+import 'package:market_mates/features/stands/widgets/stand_details_sheet.dart';
 import 'package:market_mates/features/teams/providers/team_provider.dart';
 import 'package:market_mates/l10n/l10n.dart';
 import 'package:market_mates/providers/state_provider.dart';
@@ -187,7 +191,7 @@ class _Profile extends UserProfileNotifier {
 
 class _Favs extends FavoritesNotifier {
   _Favs(List<String> ids) : super.empty() {
-    state = {'events': ids, 'stands': []};
+    state = {'events': ids, 'stands': ['zuckerhaeuschen']};
   }
 }
 
@@ -420,6 +424,104 @@ Widget _phone(Widget app) => MediaQuery(
 /// A device screenshot already contains the iOS chrome.
 Widget _device(File file) => SizedBox.fromSize(size: _screenSize, child: Image.file(file, fit: BoxFit.cover));
 
+// ---------------------------------------------------------------- Stand details
+
+/// The market map as a flat brand illustration (paper ground, white streets,
+/// stand dots with white ring) – the real map can't be rendered in tests.
+class _MarketIllustration extends StatelessWidget {
+  const _MarketIllustration();
+
+  static const _dots = <(double, double, String)>[
+    (0.18, 0.30, 'gluehwein'), (0.30, 0.30, 'food_savory'), (0.42, 0.30, 'crafts'), (0.62, 0.30, 'food_sweet'),
+    (0.74, 0.30, 'decoration'), (0.86, 0.30, 'gluehwein'), (0.50, 0.12, 'stage'), (0.50, 0.22, 'kids'),
+    (0.38, 0.40, 'food_sweet'), (0.62, 0.40, 'food_savory'), (0.50, 0.50, 'service'), (0.24, 0.40, 'crafts'),
+  ];
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) {
+        final w = c.maxWidth, h = c.maxHeight;
+        Widget street(double l, double t, double sw, double sh) => Positioned(
+              left: l * w,
+              top: t * h,
+              width: sw * w,
+              height: sh * h,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: BrandColors.white, borderRadius: BorderRadius.circular(12)),
+              ),
+            );
+        return ColoredBox(
+          color: BrandColors.sand,
+          child: Stack(children: [
+            street(0.0, 0.27, 1.0, 0.065),
+            street(0.44, 0.0, 0.12, 0.62),
+            street(0.10, 0.37, 0.80, 0.06),
+            for (final (x, y, key) in _dots)
+              Positioned(
+                left: x * w - 18,
+                top: y * h - 18,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: standCategoryFor(key).color,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: BrandColors.white, width: 3),
+                  ),
+                  child: Icon(standCategoryFor(key).icon, size: 18, color: BrandColors.white),
+                ),
+              ),
+          ]),
+        );
+      });
+}
+
+/// A stand opened from the map: details sheet over the market.
+Widget _standScene(String lang) => Builder(builder: (context) {
+      final de = lang == 'de';
+      final stand = Stand(
+        id: 'zuckerhaeuschen',
+        name: 'Zuckerhäuschen',
+        description: de
+            ? 'Frisch gebackene Crêpes und Waffeln, süß oder mit Apfelmus – direkt neben der Bühne.'
+            : 'Freshly made crêpes and waffles, sweet or with apple sauce – right next to the stage.',
+        menu: de
+            ? ['Crêpes Nutella', 'Crêpes Zimt & Zucker', 'Waffeln', 'Heiße Schokolade', 'Kinderpunsch']
+            : ['Nutella crêpes', 'Cinnamon sugar crêpes', 'Waffles', 'Hot chocolate', 'Kids’ punch'],
+        promotions: de ? 'Bis 17 Uhr: zweite Waffel halber Preis' : 'Until 5 pm: second waffle half price',
+        standCategoryId: 'food_sweet',
+      );
+      return Stack(children: [
+        const Positioned.fill(child: _MarketIllustration()),
+        Positioned.fill(child: ColoredBox(color: BrandColors.ink.withValues(alpha: 0.28))),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: _screenSize.height * 0.64,
+          child: Material(
+            color: BrandColors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            clipBehavior: Clip.antiAlias,
+            child: Column(children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 16),
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(color: BrandColors.line, borderRadius: BorderRadius.circular(2)),
+              ),
+              Expanded(
+                child: StandDetailsContent(
+                  stand: stand,
+                  style: standStyleFor(context, 'food_sweet', const {}),
+                  marketName: _altstadt.name,
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ]);
+    });
+
 // ---------------------------------------------------------------- Rendering
 
 Future<void> _shoot(
@@ -523,6 +625,11 @@ void main() {
           tab: 2,
           screen: _nativeOr(
               lang, '04_team', () => MarketTeamScreen(event: _altstadt)));
+
+      await _shoot(tester,
+          lang: lang,
+          file: '06_stand',
+          screen: _nativeOr(lang, '06_stand', () => _standScene(lang)));
 
       await _shoot(tester,
           lang: lang,

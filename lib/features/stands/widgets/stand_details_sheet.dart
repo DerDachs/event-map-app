@@ -28,12 +28,44 @@ Future<void> showStandDetails(
 
 /// Name, category, offer and special of a stand, with favourite and a
 /// meeting point to send to friends.
-class StandDetailsSheet extends ConsumerWidget {
+class StandDetailsSheet extends StatelessWidget {
   final Stand stand;
   final StandStyle style;
   final String marketName;
 
   const StandDetailsSheet({super.key, required this.stand, required this.style, required this.marketName});
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.55,
+      minChildSize: 0.3,
+      maxChildSize: 0.92,
+      builder: (context, controller) => StandDetailsContent(
+        stand: stand,
+        style: style,
+        marketName: marketName,
+        controller: controller,
+      ),
+    );
+  }
+}
+
+/// The scrollable content of [StandDetailsSheet]; also used for store screenshots.
+class StandDetailsContent extends ConsumerWidget {
+  final Stand stand;
+  final StandStyle style;
+  final String marketName;
+  final ScrollController? controller;
+
+  const StandDetailsContent({
+    super.key,
+    required this.stand,
+    required this.style,
+    required this.marketName,
+    this.controller,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,12 +76,7 @@ class StandDetailsSheet extends ConsumerWidget {
     final image = stand.images?.firstOrNull?.url;
     final hasDetails = stand.description.isNotEmpty || menu.isNotEmpty || promotion.isNotEmpty;
 
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.55,
-      minChildSize: 0.3,
-      maxChildSize: 0.92,
-      builder: (context, controller) => ListView(
+    return ListView(
         controller: controller,
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
         children: [
@@ -165,7 +192,6 @@ class StandDetailsSheet extends ConsumerWidget {
             },
           ),
         ],
-      ),
     );
   }
 }
