@@ -432,9 +432,11 @@ class _MarketIllustration extends StatelessWidget {
   const _MarketIllustration();
 
   static const _dots = <(double, double, String)>[
-    (0.18, 0.30, 'gluehwein'), (0.30, 0.30, 'food_savory'), (0.42, 0.30, 'crafts'), (0.62, 0.30, 'food_sweet'),
-    (0.74, 0.30, 'decoration'), (0.86, 0.30, 'gluehwein'), (0.50, 0.12, 'stage'), (0.50, 0.22, 'kids'),
-    (0.38, 0.40, 'food_sweet'), (0.62, 0.40, 'food_savory'), (0.50, 0.50, 'service'), (0.24, 0.40, 'crafts'),
+    (0.10, 0.30, 'gluehwein'), (0.21, 0.30, 'food_savory'), (0.32, 0.30, 'crafts'), (0.68, 0.30, 'food_sweet'),
+    (0.79, 0.30, 'decoration'), (0.90, 0.30, 'gluehwein'), (0.50, 0.10, 'stage'), (0.50, 0.19, 'kids'),
+    (0.16, 0.40, 'food_sweet'), (0.27, 0.40, 'crafts'), (0.38, 0.40, 'food_savory'), (0.62, 0.40, 'gluehwein'),
+    (0.73, 0.40, 'decoration'), (0.84, 0.40, 'food_sweet'), (0.50, 0.40, 'service'), (0.39, 0.15, 'food_savory'),
+    (0.61, 0.15, 'gluehwein'), (0.39, 0.22, 'decoration'), (0.61, 0.22, 'crafts'),
   ];
 
   @override
@@ -454,7 +456,7 @@ class _MarketIllustration extends StatelessWidget {
           child: Stack(children: [
             street(0.0, 0.27, 1.0, 0.065),
             street(0.44, 0.0, 0.12, 0.62),
-            street(0.10, 0.37, 0.80, 0.06),
+            street(0.06, 0.37, 0.88, 0.065),
             for (final (x, y, key) in _dots)
               Positioned(
                 left: x * w - 18,
@@ -497,7 +499,7 @@ Widget _standScene(String lang) => Builder(builder: (context) {
           left: 0,
           right: 0,
           bottom: 0,
-          height: _screenSize.height * 0.64,
+          height: _screenSize.height * 0.555,
           child: Material(
             color: BrandColors.white,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
