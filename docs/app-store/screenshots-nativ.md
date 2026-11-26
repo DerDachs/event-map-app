@@ -27,9 +27,10 @@ Am iPhone: Seitentaste und Lauter gleichzeitig drücken, Bilder per AirDrop an d
 | Datei | Was auf dem Bild sein soll |
 |---|---|
 | `01_home.png` | Startseite, Beispielmarkt „Lichterdorf Musterstadt“ als Hervorhebung, Saison-Banner mit Countdown |
-| `02_map.png` | Marktkarte des Beispielmarkts, Suche „Crêpes“, Stand „Zuckerhäuschen“ markiert |
-| `03_info.png` | Tab „Info“ des Beispielmarkts (Öffnungszeiten, Eintritt, Veranstalter, Tipp) |
-| `04_team.png` | Tab „Team“ mit einem Team und zwei, drei Mitgliedern |
+| `02_map.png` | Marktkarte des Beispielmarkts (ab 1.1: Vollbild-Karte), Suche „Crêpes“, Sheet unten eingeklappt mit Marktname und Status |
+| `03_info.png` | „Infos“ des Beispielmarkts (Öffnungszeiten, Eintritt, Veranstalter, Tipp) |
+| `04_team.png` | „Team“ mit einem Team und zwei, drei Mitgliedern |
+| `06_stand.png` | optional: Stand antippen, Detail-Sheet offen (sonst gerendert) |
 | `05_seasons.png` | Startseite zu einer anderen Saison (Gerätedatum oder Beispielsaison), zeigt den Wechsel der Themen |
 
 Je einmal auf Deutsch und einmal auf Englisch. Die Sprache stellst du in der App unter **Einstellungen** um.

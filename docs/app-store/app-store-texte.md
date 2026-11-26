@@ -56,12 +56,18 @@ weihnachtsmarkt,christkindlmarkt,lageplan,stände,glühwein,pfingstmarkt,weinfes
 Market Mate zeigt dir alle Stände eines Marktes auf einer Karte – vom Weihnachtsmarkt bis zum Weinfest. Wo gibt’s hier Crêpes? Welche Hütte hat den Kinderpunsch? Ein Blick genügt.
 
 ALLE STÄNDE AUF EINER KARTE
-• Jede Hütte mit eigenem Symbol: Glühwein, Herzhaftes, Süßes, Kunsthandwerk, Bühne und Service
+• Die Karte ist der Markt: jede Hütte mit eigenem Symbol – Glühwein, Herzhaftes, Süßes, Kunsthandwerk, Bühne und Service
 • Suche nach Ständen und Angeboten, zum Beispiel „Crêpes“ oder „Kinderpunsch“
 • Filter nach Kategorien – und auf Wunsch der Lageplan des Veranstalters direkt über der Karte
+• Sofort sehen, ob der Markt gerade geöffnet hat
+
+JEDER STAND AUF EINEN TIPP
+• Angebot, Aktionen und Beschreibung des Stands
+• Lieblingsstände merken
+• Stand als Treffpunkt kopieren und an Freunde schicken
 
 MIT FREUNDEN UNTERWEGS
-• Team gründen, Code teilen – schon seid ihr für den Abend verbunden
+• Team gründen, Einladung kopieren – schon seid ihr für den Abend verbunden
 • Sieh auf einen Blick, wer im Team dabei ist
 
 ALLES WICHTIGE ZUM MARKT
@@ -69,21 +75,19 @@ ALLES WICHTIGE ZUM MARKT
 • Merke dir deine Lieblingsmärkte und -stände
 
 DEINE STARTSEITE ZUR SAISON
+• Markt suchen und direkt öffnen
 • Countdown bis Heiligabend, Pfingsten & Co.
 • Neuigkeiten, Eröffnungen und Tipps rund um die Märkte
 • Immer im Blick: welcher Markt bald öffnet und welcher nur noch wenige Tage läuft
 
 Auf Deutsch und Englisch. Kostenlos, ohne Werbung und ohne Tracking.
 
-Sie veranstalten einen Markt? Auf marketmate.cellarworks.dev erfahren Sie, wie Sie ihn in wenigen Minuten aus Ihrem bestehenden Lageplan in die App bringen.
+Sie veranstalten einen Markt? Auf marketmate.cellarworks.dev erfahren Sie, wie Sie ihn in wenigen Minuten aus Ihrem bestehenden Lageplan und Ihrer Ausstellerliste in die App bringen.
 ```
 
-**Neuerungen in dieser Version** (1.0)
-```
-Die erste Version von Market Mate: alle Stände auf der Karte, Teams mit Freunden und Neuigkeiten zur Saison – auf Deutsch und Englisch.
-```
+**Neuerungen in dieser Version** (1.1.0) – Text in `docs/app-store/release-1.1.0.md`
 
-**Screenshot-Reihenfolge**: 01 Startseite · 02 Karte · 03 Marktinfos · 04 Team · 05 Saisons
+**Screenshot-Reihenfolge**: 01 Startseite · 02 Karte · 06 Stand-Details · 03 Marktinfos · 04 Team · 05 Saisons
 
 ---
 
@@ -114,12 +118,18 @@ christmas market,germany,advent,fair,stalls,mulled wine,glühwein,festival,map,f
 Market Mate shows you every stall of a market on one map – from Christmas markets to wine festivals. Where can I get crêpes? Which stall has hot chocolate? One look is enough.
 
 EVERY STALL ON ONE MAP
-• Each stall with its own icon: mulled wine, savoury food, sweets, crafts, stage and services
+• The map is the market: each stall with its own icon – mulled wine, savoury food, sweets, crafts, stage and services
 • Search stalls and what they sell, e.g. “crêpes” or “punch”
 • Filter by category – and show the organiser’s site plan right on the map
+• See at once whether the market is open right now
+
+EVERY STALL IN ONE TAP
+• What the stall offers, its specials and description
+• Save your favourite stalls
+• Copy a stall as a meeting point and send it to friends
 
 OUT WITH FRIENDS
-• Start a team, share the code – and you’re connected for the evening
+• Start a team, copy the invitation – and you’re connected for the evening
 • See at a glance who’s in your team
 
 EVERYTHING ABOUT THE MARKET
@@ -127,19 +137,17 @@ EVERYTHING ABOUT THE MARKET
 • Save your favourite markets and stalls
 
 YOUR START PAGE FOR THE SEASON
+• Search for a market and open it straight away
 • Countdown to Christmas Eve, Whitsun and more
 • News, openings and tips about the markets
 • Always know which market opens soon and which closes in a few days
 
 In English and German. Free, no ads and no tracking.
 
-Organising a market? Visit marketmate.cellarworks.dev to see how to bring it into the app from your existing site plan in minutes.
+Organising a market? Visit marketmate.cellarworks.dev to see how to bring it into the app from your existing site plan and exhibitor list in minutes.
 ```
 
-**What’s new** (1.0)
-```
-The first version of Market Mate: every stall on a map, teams with friends and seasonal news – in English and German.
-```
+**What’s new** (1.1.0) – text in `docs/app-store/release-1.1.0.md`
 
 Hinweis: Markt-Inhalte (Beschreibungen, Stände) kommen von den Veranstaltern und sind meist auf
 Deutsch. Englische Nutzer sehen die Oberfläche auf Englisch, die Marktbeschreibung aber im Original.
@@ -161,8 +169,9 @@ Market Mate shows the stalls of local markets (e.g. Christmas markets) on a map.
 How to review:
 1. Sign in with the demo account above.
 2. The start page shows the current season, a highlighted market and news. "Lichterdorf Musterstadt" is an example market with invented stalls and texts. It contains no third-party data.
-3. Open a market and tap "Open market map" to see all stalls on the map, search for a stall (e.g. "Crêpes") and filter by category.
-4. The "Team" tab lets visitors create a team and share a code with friends.
+3. Open the market and tap "To the market map". The map fills the screen: search for a stall (e.g. "Crêpes"), filter by category, tap a stall to see its offer and specials. The sheet at the bottom shows today's opening status and leads to "Info" and "Team".
+4. Under "Team", visitors create a team and copy an invitation with a code for their friends.
+5. On first start the app shows three short intro cards (can be skipped).
 
 Location is only used while the app is open, to show the user on the market map. It is not stored or shared.
 Features for adding and editing markets are only available to our team (admin role) and are not visible to regular users. Before a site plan can be uploaded, the uploader has to confirm that they may use it.
